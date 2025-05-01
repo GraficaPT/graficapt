@@ -1,0 +1,128 @@
+@font-face {
+    font-family: 'OpenSauce';
+    src: url('../fonts/opensauce_r_n.woff') format('woff');
+}
+
+a {
+    color: #191919;
+}
+
+.topbar {
+    height: 20%;
+    margin: 3% 16% 5% 16%;
+}
+
+.topbar .bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.topbar .bar img {
+    height: 6.4vh;
+}
+
+.topbar .bar a {
+    text-decoration: none;
+    margin-left: 1.3vh;
+    font-size: 2.4vh;
+    font-family: "OpenSauce", sans-serif;
+    transition: font-size 0.2s ease-in-out;
+}
+
+.topbar .bar a:hover {
+    font-size: 2.5vh;
+    cursor: pointer;
+}
+
+.banner {
+    width: 70%;
+    margin-bottom: 8vh;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 19%);
+    gap: 3%;
+    justify-content: center;
+    margin-bottom: 15vh;
+}
+
+.cell {
+    aspect-ratio: 1 / 1;
+    border: 1px;
+    border-color: #3198a7;
+    border-style: solid;
+    border-radius: 3%;
+}
+
+.cell img {
+    height: 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: height 0.2s ease-in-out;
+}
+
+.cell img:hover {
+    height: 95%;
+    cursor: pointer;
+}
+
+.subtitle {
+    font-family: 'League Spartan', sans-serif;
+    font-size: 8.5vh;
+    font-weight:bold;
+    text-align: center;
+    margin-bottom: 3vh;
+}
+.overtitle {
+    font-family: "OpenSauce", sans-serif;
+    font-size: 3.5vh;
+    text-align: center;
+    margin-bottom: 1vh;
+    color:#3198a7;
+}
+
+.hcenter {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.invoce {
+    width: 60%;
+}
+
+.invoce input, .invoce textarea {
+    font-family: "OpenSauce", sans-serif;
+    font-size: 2.2vh;
+    margin: 0.5%;
+    border-style: solid;
+    border-width: 0.1vh;
+    padding: 0.5%;
+    resize:none
+}
+
+.invoce button {
+    font-size: 3vh;
+    background-color: #3198a7;
+    color: white;
+    cursor: pointer;
+    border: none;
+    border-radius: 3%;
+    padding: 2vh;
+    font-family: 'League Spartan', sans-serif;
+}
+
+.invoce button:hover {
+    background-color: #3197a7d7;
+}
+
+.invoce .name { width: 30%; }
+.invoce .email { width: 60%; }
+.invoce .phone { width: 40%; }
+.invoce .company { width: 50%; }
+.invoce .description { width: 90%;}
