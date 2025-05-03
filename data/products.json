@@ -1,0 +1,21 @@
+{
+    "camisa-azul": {
+      "nome": "Camisa Azul",
+      "imagem": "../imagens/exemplo_produto.jpg",
+      "opcoes": {
+        "Tamanho": ["P", "M", "G", "GG"],
+        "Cor": ["Branco", "Preto", "Azul"],
+        "Quantidade": { "tipo": "number", "min": 10 }
+      }
+    },
+    "banner-outdoor": {
+      "nome": "Banner Outdoor",
+      "imagem": "../imagens/banner.jpg",
+      "opcoes": {
+        "Largura": ["1m", "2m", "3m"],
+        "Acabamento": ["Ilhós", "Bainha"],
+        "Quantidade": { "tipo": "number", "min": 1 }
+      }
+    }
+  }
+  
