@@ -14,14 +14,28 @@
         <div class="topbar">
             <div class="bar">
                 <img src="imagens/logo_minimal.svg" onclick="location.href = ''">
-                <div class="tabs">
+                <div class="tabs desktop-only">
                     <a>Suportes Rigídos</a>
                     <a>Bandeiras Publicitárias</a>
                     <a>Sacos</a>
                     <a>Vestuário</a>
                     <a>Ver Tudo</a>
-                </div>   
+                </div>
+                <div class="hamburger mobile-only" onclick="toggleSidebar()">
+                    ☰
+                </div>
             </div>
+            
+            <!-- Sidebar móvel -->
+            <div class="sidebar" id="sidebar">
+                <a onclick="toggleSidebar()">✕</a>
+                <a>Suportes Rigídos</a>
+                <a>Bandeiras Publicitárias</a>
+                <a>Sacos</a>
+                <a>Vestuário</a>
+                <a>Ver Tudo</a>
+            </div>
+            <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>            
         </div>
         <img class="banner hcenter" src="imagens/banner.png">
     
@@ -66,6 +80,15 @@
             <textarea required rows="5" placeholder="Descrição" type="text" class="description"></textarea><br>
             <button>ENVIAR</button>
         </form>
-
+        <script>
+            function toggleSidebar() {
+                const sidebar = document.getElementById("sidebar");
+                const overlay = document.getElementById("overlay");
+                const isOpen = sidebar.style.left === "0%";
+                sidebar.style.left = isOpen ? "-100%" : "0%";
+                overlay.style.display = isOpen ? "none" : "block";
+            }
+        </script>
+        
     </body>
 </html>
