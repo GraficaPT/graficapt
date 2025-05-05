@@ -7,17 +7,52 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const colorMap = {
     "Branco": "#ffffff",
-    "Preto": "#000000",
-    "Azul": "#007BFF",
-    "Amarelo": "#FFFF00",
-    "Magenta": "#FF00FF",
-    "Azul Cian": "#00FFFF",
-    "Azul Reflex": "#002366",
-    "Vermelho": "#FF0000",
-    "Verde Pistacho": "#A8C66C",
-    "Laranja": "#FFA500",
+    "Branco absoluto": "#fefefe",
+    "Branco suave": "#f4f4f4",
+    "Bege claro": "#fdf7e4",
+    "Areia": "#e9d8a6",
+    "Amarelo claro": "#fff7b2",
+    "Amarelo limão": "#f4f91e",
+    "Amarelo": "#ffff00",
+    "Pêssego": "#ffcba4",
+    "Laranja": "#ffa500",
+    "Vermelho": "#ff0000",
+    "Vermelho vivo": "#e94b3c",
+    "Bordeaux": "#800000",
+    "Rosa claro": "#ffdbe5",
+    "Rosa médio": "#f28db3",
+    "Orquídea": "#da70d6",
+    "Fúcsia": "#ff00ff",
+    "Violeta claro": "#c8a2c8",
+    "Roxo escuro": "#4b0082",
+    "Azul céu": "#87ceeb",
+    "Azul claro": "#00bcd4",
+    "Ciano": "#00ffff",
+    "Azul real": "#4169e1",
+    "Azul petróleo": "#008b8b",
+    "Azul jeans": "#1560bd",
+    "Azul marinho": "#000080",
+    "Azul escuro": "#002366",
+    "Preto": "#0b0b0b",
+    "Cinza médio": "#a9a9a9",
+    "Cinza claro": "#d3d3d3",
+    "Cinza suave": "#bfbfbf",
+    "Cinza escuro": "#999999",
+    "Cinza profundo": "#4f4f4f",
+    "Verde suave": "#c7dd64",
+    "Verde maçã": "#8db600",
+    "Verde lima": "#caff70",
+    "Esmeralda": "#50c878",
+    "Verde prado": "#66bb66",
+    "Verde escuro": "#006400",
+    "Khaki": "#c3b091",
+    "Cinza zinco": "#7f7f7f",
+    "Verde tropa": "#556b2f",
+    "Chocolate": "#7b3f00",
+    "Terra": "#a0522d",  
+    "Multiplas Cores": "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)",
   
-    // Novas cores Pantone aproximadas
+    // Cores Pantone específicas
     "Preto - Pantone Process Black U": "#2D2926",
     "Azul Claro – Pantone Process Blue": "#0085CA",
     "Azul Médio – Pantone 300 U": "#0077C8",
@@ -29,10 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "Verde Escuro – Pantone 357 U": "#215732",
     "Vermelho – Pantone Warm Red U": "#F9423A",
     "Rosa – Pantone Rhodamine Red U": "#E10098",
-    "Bordeaux – Pantone 188 U": "#7C2529",
-    "Multiplas Cores": "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)"
+    "Bordeaux – Pantone 188 U": "#7C2529"
   };
-  
   
     const produtos = {
       "ardosia": {
@@ -87,18 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
         imagem: "imagens/produtos/tshirt/mockup.png",
         descricao: "T-Shirts personalizadas com DTF de alta qualidade para dar um toque extra profissional à sua empresa!<br><br>155-160gms",
         opcoes: {
-          "Tamanho": {
-            tipo: "select",
-            valores: ["S até 2XL", "3XL até 5XL", "Outros Tamanhos"]
-          },
-          "Cor": {
-            tipo: "cores",
-            valores: ["Branco", "Preto", "Azul"]
-          },
-          "Quantidade": {
-            tipo: "number",
-            min: 10
-          },
           "Posicionamento": {
             tipo: "imagem-radio",
             valores: [
@@ -115,6 +136,63 @@ document.addEventListener("DOMContentLoaded", () => {
                 imagem: "imagens/produtos/tshirt/v.png"
               }
             ]
+          },
+          "Cor": {
+            tipo: "cores",
+            valores: [
+              "Branco",
+              "Branco absoluto",
+              "Branco suave",
+              "Bege claro",
+              "Areia",
+              "Amarelo claro",
+              "Amarelo limão",
+              "Amarelo",
+              "Pêssego",
+              "Laranja",
+              "Vermelho",
+              "Vermelho vivo",
+              "Bordeaux",
+              "Rosa claro",
+              "Rosa médio",
+              "Orquídea",
+              "Fúcsia",
+              "Violeta claro",
+              "Roxo escuro",
+              "Azul céu",
+              "Azul claro",
+              "Ciano",
+              "Azul real",
+              "Azul petróleo",
+              "Azul jeans",
+              "Azul marinho",
+              "Azul escuro",
+              "Preto",
+              "Cinza médio",
+              "Cinza claro",
+              "Cinza suave",
+              "Cinza escuro",
+              "Cinza profundo",
+              "Verde suave",
+              "Verde maçã",
+              "Verde lima",
+              "Esmeralda",
+              "Verde prado",
+              "Verde escuro",
+              "Khaki",
+              "Cinza zinco",
+              "Verde tropa",
+              "Chocolate",
+              "Terra"
+            ] 
+          },
+          "Tamanho": {
+            tipo: "select",
+            valores: ["S até 2XL", "3XL até 5XL", "Outros Tamanhos"]
+          },
+          "Quantidade": {
+            tipo: "number",
+            min: 10
           }
         }
       },

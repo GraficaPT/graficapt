@@ -1,5 +1,11 @@
 * {
   transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+  font-family: 'League Spartan', sans-serif;
 }
 
 .product {
@@ -10,7 +16,6 @@
   background-color: white;
   border-radius: 12px;
   overflow: hidden;
-  font-family: 'League Spartan', sans-serif;
 }
 
 .product-image {
@@ -32,29 +37,27 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  text-align: center;
 }
 
 .product-details h1 {
   font-size: 4vh;
   margin-bottom: 1.5vh;
-  text-align: center;
 }
 
 .product-details p.descricao {
   font-size: 2.2vh;
   color: #555;
-  text-align: center;
 }
 
-/* Ajustes gerais para todas as labels */
+/* Labels e campos de formulário */
 label {
-  margin-top: 0.5vh;
+  margin: 0.5vh 0 0.2vh 0;
   font-weight: bold;
   font-size: 2.2vh;
   display: block;
 }
 
-/* Ajuste para inputs, selects, buttons e textareas */
 select,
 button,
 textarea,
@@ -69,14 +72,13 @@ input[type="number"] {
   border: 0.1vh solid #ccc;
   font-size: 2vh;
   margin: 1vh 0;
-  box-sizing: border-box;
 }
 
 textarea {
-  margin: 1vh 0 2vh 0;
+  margin-bottom: 2vh;
 }
 
-/* Estilo do botão */
+/* Botão */
 button {
   background-color: #3198a7;
   color: white;
@@ -88,12 +90,12 @@ button:hover {
   background-color: #3197a7d7;
 }
 
-/* Estilo das opções de cor */
+/* Opções de cor */
 .color-options {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5vh;
-  margin: 1vh;
+  margin: 1vh 0;
 }
 
 .color-options input[type="radio"] {
@@ -107,7 +109,6 @@ button:hover {
   display: inline-block;
   cursor: pointer;
   border: 0.2vh solid #999;
-  box-sizing: border-box;
 }
 
 .color-options input[type="radio"]:checked + .color-circle {
@@ -117,12 +118,13 @@ button:hover {
   position: relative;
 }
 
+/* Opções de posicionamento */
 .posicionamento-options {
   display: flex;
-  gap: 7.5vh;
   flex-wrap: wrap;
-  margin: 1vh;
-  row-gap: 1vh;
+  gap: 1.5vh;
+
+  margin: 1vh 0;
 }
 
 .posicionamento-options input[type="radio"] {
@@ -131,24 +133,20 @@ button:hover {
 
 .posicionamento-label {
   cursor: pointer;
-  display: inline-block;
-  width: 7vh;
-  text-align: center;
-  box-sizing: border-box;
-  margin-top: 0;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  text-align: left;
+  width: 100%;
+  max-width: 14vh;
 }
 
-svg {
-  color:#3198a7;
-}
 .posicionamento-img {
-  width: 14vh;
+  width: 100%;
   height: auto;
   border: 0.2vh solid transparent;
-  box-sizing: border-box;
-  transition: transform 0.2s ease, outline 0.2s ease;
   padding: 0.5vh;
+  transition: transform 0.2s ease, border 0.2s ease;
 }
 
 .posicionamento-options input[type="radio"]:checked + .posicionamento-label .posicionamento-img {
@@ -158,19 +156,19 @@ svg {
   position: relative;
 }
 
-/* Contêiner para Tamanho, Cor e Posicionamento lado a lado */
+/* Containers de opções */
 .options-container {
   display: flex;
   gap: 2vh;
   justify-content: space-between;
   margin-bottom: 2vh;
+  flex-wrap: wrap;
 }
 
 .options-container > div {
   flex: 1 1 30%;
 }
 
-/* Layout responsivo para opções lado a lado */
 .options-row {
   display: flex;
   gap: 2vh;
@@ -182,19 +180,16 @@ svg {
   flex: 1 1 45%;
 }
 
-/* Layout responsivo para telas menores */
+/* Responsividade */
 @media (max-width: 768px) {
   .product {
     flex-direction: column;
-    margin: auto;
     max-width: 85vw;
   }
 
   .product-image,
   .product-details {
-    flex: none;
-    margin: auto;
-    width: 90%;
+ 
     padding: 2vh;
   }
 
@@ -205,42 +200,14 @@ svg {
 
   .product-details h1 {
     font-size: 3vh;
-    text-align: center;
-  }
-
-  .product-details p.descricao {
-    text-align: center;
-  }
-
-  .color-options,
-  .posicionamento-options {
-    justify-content: left;
-  }
-
-  .posicionamento-options {
-    display: flex;
-    gap: 13vh;
-    flex-wrap: wrap;
-    margin: 1vh;
-    row-gap: 1vh;
   }
 
   .posicionamento-label {
-    width: 3vh;
-  }
-
-  .posicionamento-img {
-    width: 14vh;
+    width: 47%;
   }
 
   label {
-    margin: 0.2vh 0;
-    font-weight: bold;
     font-size: 2.2vh;
-  }
-
-  .color-circle {
-    margin: 0;
   }
 
   select,
@@ -252,7 +219,16 @@ svg {
 
   textarea {
     margin: 1vh 0 2vh 0;
-    resize: none;
+  }
+
+  .color-options,
+  .posicionamento-options {
+    justify-content: center;
+  }
+
+  .color-circle {
+    width: 3.5vh;
+    height: 3.5vh;
   }
 
   .options-row {
@@ -260,10 +236,20 @@ svg {
   }
 
   .options-container {
-    flex-direction: row;
+    flex-direction: column;
   }
 
   .options-container > div {
     flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .posicionamento-label {
+    max-width: 40vw;
+  }
+
+  .posicionamento-img {
+    width: 100%;
   }
 }
