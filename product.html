@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>GraficaPT</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="css/product.css">
+        <link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="topbar">
+            <div class="bar">
+                <img src="imagens/logo_minimal.svg" onclick="location.href = 'index.html'">
+                <div class="tabs desktop-only">
+                    <a>Suportes Rigídos</a>
+                    <a>Bandeiras Publicitárias</a>
+                    <a>Sacos</a>
+                    <a>Vestuário</a>
+                    <a>Ver Tudo</a>
+                </div>
+                <div class="hamburger mobile-only" onclick="toggleSidebar()">
+                    ☰
+                </div>
+            </div>
+            
+            <!-- Sidebar móvel -->
+            <div class="sidebar" id="sidebar">
+                <a onclick="toggleSidebar()">✕</a>
+                <a>Suportes Rigídos</a>
+                <a>Bandeiras Publicitárias</a>
+                <a>Sacos</a>
+                <a>Vestuário</a>
+                <a>Ver Tudo</a>
+            </div>
+            <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>            
+        </div>
+        <div class="productcontainer">
+            <div id="produto-dinamico"></div>
+        </div>
+        <script src="js/products.js"></script>
+        <script>
+            function toggleSidebar() {
+                const sidebar = document.getElementById("sidebar");
+                const overlay = document.getElementById("overlay");
+                const isOpen = sidebar.style.left === "0%";
+                sidebar.style.left = isOpen ? "-100%" : "0%";
+                overlay.style.display = isOpen ? "none" : "block";
+            }
+        </script>
+    </body>
+</html>

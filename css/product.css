@@ -1,0 +1,269 @@
+* {
+  transition: all 0.2s ease;
+}
+
+.product {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 65vw;
+  margin: auto;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'League Spartan', sans-serif;
+}
+
+.product-image {
+  flex: 1 1 100%;
+  padding: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image img {
+  max-height: 30vh;
+  width: auto;
+}
+
+.product-details {
+  flex: 1 1 100%;
+  padding: 2.5vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.product-details h1 {
+  font-size: 4vh;
+  margin-bottom: 1.5vh;
+  text-align: center;
+}
+
+.product-details p.descricao {
+  font-size: 2.2vh;
+  color: #555;
+  text-align: center;
+}
+
+/* Ajustes gerais para todas as labels */
+label {
+  margin-top: 0.5vh;
+  font-weight: bold;
+  font-size: 2.2vh;
+  display: block;
+}
+
+/* Ajuste para inputs, selects, buttons e textareas */
+select,
+button,
+textarea,
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"] {
+  resize: none;
+  padding: 1.5vh;
+  width: 100%;
+  border-radius: 0.4vh;
+  border: 0.1vh solid #ccc;
+  font-size: 2vh;
+  margin: 1vh 0;
+  box-sizing: border-box;
+}
+
+textarea {
+  margin: 1vh 0 2vh 0;
+}
+
+/* Estilo do botão */
+button {
+  background-color: #3198a7;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3197a7d7;
+}
+
+/* Estilo das opções de cor */
+.color-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5vh;
+  margin: 1vh;
+}
+
+.color-options input[type="radio"] {
+  display: none;
+}
+
+.color-circle {
+  width: 4vh;
+  height: 4vh;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+  border: 0.2vh solid #999;
+  box-sizing: border-box;
+}
+
+.color-options input[type="radio"]:checked + .color-circle {
+  transform: scale(1.1);
+  border-color: #3198a7;
+  z-index: 1;
+  position: relative;
+}
+
+.posicionamento-options {
+  display: flex;
+  gap: 7.5vh;
+  flex-wrap: wrap;
+  margin: 1vh;
+  row-gap: 1vh;
+}
+
+.posicionamento-options input[type="radio"] {
+  display: none;
+}
+
+.posicionamento-label {
+  cursor: pointer;
+  display: inline-block;
+  width: 7vh;
+  text-align: center;
+  box-sizing: border-box;
+  margin-top: 0;
+  position: relative;
+}
+
+svg {
+  color:#3198a7;
+}
+.posicionamento-img {
+  width: 14vh;
+  height: auto;
+  border: 0.2vh solid transparent;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, outline 0.2s ease;
+  padding: 0.5vh;
+}
+
+.posicionamento-options input[type="radio"]:checked + .posicionamento-label .posicionamento-img {
+  transform: scale(1.05);
+  border: 0.1vh solid #3198a7;
+  z-index: 1;
+  position: relative;
+}
+
+/* Contêiner para Tamanho, Cor e Posicionamento lado a lado */
+.options-container {
+  display: flex;
+  gap: 2vh;
+  justify-content: space-between;
+  margin-bottom: 2vh;
+}
+
+.options-container > div {
+  flex: 1 1 30%;
+}
+
+/* Layout responsivo para opções lado a lado */
+.options-row {
+  display: flex;
+  gap: 2vh;
+  flex-wrap: wrap;
+  margin-bottom: 2vh;
+}
+
+.options-row > div {
+  flex: 1 1 45%;
+}
+
+/* Layout responsivo para telas menores */
+@media (max-width: 768px) {
+  .product {
+    flex-direction: column;
+    margin: auto;
+    max-width: 85vw;
+  }
+
+  .product-image,
+  .product-details {
+    flex: none;
+    margin: auto;
+    width: 90%;
+    padding: 2vh;
+  }
+
+  .product-image img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .product-details h1 {
+    font-size: 3vh;
+    text-align: center;
+  }
+
+  .product-details p.descricao {
+    text-align: center;
+  }
+
+  .color-options,
+  .posicionamento-options {
+    justify-content: left;
+  }
+
+  .posicionamento-options {
+    display: flex;
+    gap: 13vh;
+    flex-wrap: wrap;
+    margin: 1vh;
+    row-gap: 1vh;
+  }
+
+  .posicionamento-label {
+    width: 3vh;
+  }
+
+  .posicionamento-img {
+    width: 14vh;
+  }
+
+  label {
+    margin: 0.2vh 0;
+    font-weight: bold;
+    font-size: 2.2vh;
+  }
+
+  .color-circle {
+    margin: 0;
+  }
+
+  select,
+  button,
+  textarea {
+    font-size: 1.8vh;
+    margin: 0;
+  }
+
+  textarea {
+    margin: 1vh 0 2vh 0;
+    resize: none;
+  }
+
+  .options-row {
+    flex-direction: column;
+  }
+
+  .options-container {
+    flex-direction: row;
+  }
+
+  .options-container > div {
+    flex: 1 1 100%;
+  }
+}

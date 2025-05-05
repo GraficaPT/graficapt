@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>GraficaPT</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/index.css">
+        <link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="topbar">
+            <div class="bar">
+                <img src="imagens/logo_minimal.svg" onclick="location.href = ''">
+                <div class="tabs desktop-only">
+                    <a>Suportes Rigídos</a>
+                    <a>Bandeiras Publicitárias</a>
+                    <a>Sacos</a>
+                    <a>Vestuário</a>
+                    <a>Ver Tudo</a>
+                </div>
+                <div class="hamburger mobile-only" onclick="toggleSidebar()">
+                    ☰
+                </div>
+            </div>
+            
+            <!-- Sidebar móvel -->
+            <div class="sidebar" id="sidebar">
+                <a onclick="toggleSidebar()">✕</a>
+                <a>Suportes Rigídos</a>
+                <a>Bandeiras Publicitárias</a>
+                <a>Sacos</a>
+                <a>Vestuário</a>
+                <a>Ver Tudo</a>
+            </div>
+            <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>            
+        </div>
+        <img class="banner hcenter" src="imagens/banner.png">
+    
+        <a class="subtitle hcenter">Produtos Personalizaveis</a>
+
+        <div class="products-grid">
+            <div class="cell" onclick="location.href = 'product.html?produto=ardosia'">
+                <img src="imagens/produtos/ardosia/banner.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=portachaves'">
+                <img src="imagens/produtos/portachaves/banner.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=tshirt'">
+                <img src="imagens/produtos/tshirt/banner.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=sacoskraft'">
+                <img src="imagens/produtos/sacoskraft/banner.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=rollup'">
+                <img src="imagens/produtos/5.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=bandeiravela'">
+                <img src="imagens/produtos/bandeiravela/banner.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=bandeiragota'">
+                <img src="imagens/produtos/bandeiragota/banner.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=tshirt'">
+                <img src="imagens/produtos/7.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=sacostecido'">
+                <img src="imagens/produtos/8.png">
+            </div>
+            <div class="cell" onclick="location.href = 'product.html?produto=polo'">
+                <img src="imagens/produtos/polo/banner.png">
+            </div>
+        </div>
+        <a class="overtitle hcenter">Não encontras o que precisas?</a>
+        <a class="subtitle hcenter">Orçamento Personalizado</a>
+        <form class="invoce hcenter">
+            <input required placeholder="Nome" type="text" class="name">
+            <input required placeholder="Email" type="text" class="email">
+            <input required placeholder="Telefone" type="text" class="phone">
+            <input placeholder="Empresa" type="text" class="company">
+            <textarea required rows="5" placeholder="Descrição" type="text" class="description"></textarea><br>
+            <button>ENVIAR</button>
+        </form>
+        <script>
+            function toggleSidebar() {
+                const sidebar = document.getElementById("sidebar");
+                const overlay = document.getElementById("overlay");
+                const isOpen = sidebar.style.left === "0%";
+                sidebar.style.left = isOpen ? "-100%" : "0%";
+                overlay.style.display = isOpen ? "none" : "block";
+            }
+        </script>
+    </body>
+</html>
