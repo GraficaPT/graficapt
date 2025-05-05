@@ -3,6 +3,10 @@
     src: url('../fonts/opensauce_r_n.woff') format('woff');
 }
 
+body {
+    background-color: white;
+}
+
 body, a, input, textarea, button {
     font-family: "OpenSauce", sans-serif;
 }
@@ -53,8 +57,7 @@ a {
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(3, 19%);
-    gap: 3%;
+    grid-template-columns: repeat(3, 22%);
     justify-content: center;
     margin-bottom: 15vh;
 }
@@ -68,6 +71,7 @@ a {
     align-items: center;
     overflow: hidden;
     position: relative;
+    margin:3%;
 }
 
 .cell img {
@@ -182,7 +186,11 @@ a {
 /* Responsivo para telemóvel */
 @media screen and (max-width: 768px) {
     .subtitle {
-        font-size:6vh;
+        font-size:4vh;
+    }
+
+    .overtitle {
+        font-size:2.5vh;
     }
     
     .topbar {
@@ -207,8 +215,12 @@ a {
     }
 
     .products-grid {
-        grid-template-columns: repeat(2, 45%);
-        gap: 5%;
+        grid-template-columns: repeat(2, 50%);
+        margin-bottom: 3vh;
+    }
+
+    .cell {
+        margin: 1vh;
     }
 
     .banner {

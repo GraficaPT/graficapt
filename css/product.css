@@ -37,17 +37,19 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  text-align: center;
+  text-align: left;
 }
 
 .product-details h1 {
   font-size: 4vh;
   margin-bottom: 1.5vh;
+  text-align: center;
 }
 
 .product-details p.descricao {
   font-size: 2.2vh;
   color: #555;
+  text-align: center;
 }
 
 /* Labels e campos de formulário */
@@ -71,11 +73,7 @@ input[type="number"] {
   border-radius: 0.4vh;
   border: 0.1vh solid #ccc;
   font-size: 2vh;
-  margin: 1vh 0;
-}
-
-textarea {
-  margin-bottom: 2vh;
+  margin-top: 1vh;
 }
 
 /* Botão */
@@ -90,12 +88,12 @@ button:hover {
   background-color: #3197a7d7;
 }
 
-/* Opções de cor */
 .color-options {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5vh;
-  margin: 1vh 0;
+  margin: 0 15% 0 15%;
+  justify-content: center;
 }
 
 .color-options input[type="radio"] {
@@ -112,7 +110,7 @@ button:hover {
 }
 
 .color-options input[type="radio"]:checked + .color-circle {
-  transform: scale(1.1);
+  transform: scale(1.2);
   border-color: #3198a7;
   z-index: 1;
   position: relative;
@@ -123,7 +121,7 @@ button:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5vh;
-
+  justify-content: center;
   margin: 1vh 0;
 }
 
@@ -138,7 +136,7 @@ button:hover {
   align-items: left;
   text-align: left;
   width: 100%;
-  max-width: 14vh;
+  max-width: 20vh;
 }
 
 .posicionamento-img {
@@ -150,7 +148,7 @@ button:hover {
 }
 
 .posicionamento-options input[type="radio"]:checked + .posicionamento-label .posicionamento-img {
-  transform: scale(1.05);
+  transform: scale(1.1);
   border: 0.1vh solid #3198a7;
   z-index: 1;
   position: relative;
@@ -171,25 +169,29 @@ button:hover {
 
 .options-row {
   display: flex;
-  gap: 2vh;
   flex-wrap: wrap;
-  margin-bottom: 2vh;
 }
 
 .options-row > div {
   flex: 1 1 45%;
 }
 
+.option-group, .form-group{
+  margin-bottom: 1vh;
+}
+
+.option-group div {
+  text-align: center;
+}
 /* Responsividade */
 @media (max-width: 768px) {
   .product {
     flex-direction: column;
-    max-width: 85vw;
+    max-width: 90vw;
   }
 
   .product-image,
   .product-details {
- 
     padding: 2vh;
   }
 
@@ -203,7 +205,25 @@ button:hover {
   }
 
   .posicionamento-label {
-    width: 47%;
+    flex: 1 1 20%;
+    max-width: 38vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }  
+
+  .posicionamento-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5vh;
+    justify-content: center;
+    margin: 1vh 0;
+  }
+  
+
+  .posicionamento-img {
+    width: 100%;
   }
 
   label {
@@ -218,12 +238,15 @@ button:hover {
   }
 
   textarea {
-    margin: 1vh 0 2vh 0;
+    margin-top: 1vh;
   }
 
   .color-options,
   .posicionamento-options {
-    justify-content: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
   }
 
   .color-circle {
@@ -240,16 +263,6 @@ button:hover {
   }
 
   .options-container > div {
-    flex: 1 1 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .posicionamento-label {
-    max-width: 40vw;
-  }
-
-  .posicionamento-img {
-    width: 100%;
+    flex: 1 1 30%;
   }
 }
