@@ -432,7 +432,7 @@
           }
         },
         "sacostecido": {
-          nome: "Sacos de Tecido Coloridos",
+          nome: "Sacos de Tecido Estampados",
           imagem: "imagens/produtos/sacostecido/mockup.png",
           descricao: "Sacos ecológicos em tecido com diversas cores e opções de posicionamento do design. Perfeitos para brindes e uso diário.",
           opcoes: {
