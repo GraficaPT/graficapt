@@ -24,9 +24,28 @@
         "Castanho – Pantone 4635 U": "#996046", "Laranja – Pantone Orange 021 U": "#FE5000", 
         "Verde Claro – Pantone 375 U": "#84BD00", "Verde Médio – Pantone 354 U": "#00B140", 
         "Verde Escuro – Pantone 357 U": "#215732", "Vermelho – Pantone Warm Red U": "#F9423A", 
-        "Rosa – Pantone Rhodamine Red U": "#E10098", "Bordeaux – Pantone 188 U": "#7C2529"
+        "Rosa – Pantone Rhodamine Red U": "#E10098", "Bordeaux – Pantone 188 U": "#7C2529",
+        "Cinza Puro": "#c0c0c0",               // tom neutro e puro
+        "Preto": "#242021",
+        "Cinza Puro": "#969791",
+        "Cinzento matizado": "#96a7af",
+        "Cinzento ratinho": "#41454e",
+        "Off-white": "#f2efe6",
+        "Linen": "#fff4d6",
+        "Corda": "#cfbfb2",
+        "Vermelho": "#f60001",
+        "Bordeaux": "#902c44",
+        "Cor-de-Rosa Doce": "#ffd6e2",
+        "Azul céu": "#009ad0",
+        "Verde garrafa": "#565040",
+        "Rosa médio": "#cf6977",
+        "Lilás": "#662c55",
+        "Aqua": "#529eab",
+        "Real": "#0057a4",
+        "Denim": "#113c5e",
+        "Azul profundo": "#002b46",
+        "Verde dos prados": "#009c53"
       };
-      
     
       const produtos = {
         "ardosia": {
@@ -34,14 +53,6 @@
           imagem: "imagens/produtos/ardosia/mockup.png",
           descricao: "Placa de ardósia personalizada com gravação a laser. Ideal para restauração e decoração!<br>Dê ao seu espaço um toque especial.",
           opcoes: {
-            "Tamanho": {
-              tipo: "select",
-              valores: ["25x30cm", "20x25cm"]
-            },
-            "Quantidade": {
-              tipo: "number",
-              min: 5
-            },
             "Posicionamento": {
               tipo: "imagem-radio",
               valores: [
@@ -54,6 +65,14 @@
                   imagem: "imagens/produtos/ardosia/midmockup.png"
                 }
               ]
+            },
+            "Tamanho": {
+              tipo: "select",
+              valores: ["25x30cm", "20x25cm"]
+            },
+            "Quantidade": {
+              tipo: "number",
+              min: 5
             }
           }
         },
@@ -62,17 +81,17 @@
           imagem: "imagens/produtos/portachaves/mockup.png",
           descricao: "Porta chaves de acrilico com dupla camada resistente, dê vida ao seu logotipo com um brinde extra!<br>Tamanho maximo 5x5cm",
           opcoes: {
-            "Cor Primária": {
+            "Cor Fundo": {
               tipo: "cores",
-              valores: ["Branco", "Preto", "Azul"]
+              valores: ["Branco", "Preto", "Azul jeans", "Verde Escuro – Pantone 357 U", "Rosa – Pantone Rhodamine Red U", "Vermelho", "Laranja – Pantone Orange 021 U", "Amarelo limão"]
             },
-            "Cor Secundária": {
+            "Cor Principal": {
               tipo: "cores",
-              valores: ["Branco", "Preto", "Azul"]
+              valores: ["Branco", "Preto", "Azul jeans", "Verde Escuro – Pantone 357 U", "Rosa – Pantone Rhodamine Red U", "Vermelho", "Laranja – Pantone Orange 021 U", "Amarelo limão"]
             },
             "Quantidade": {
-              tipo: "number",
-              min: 10
+              tipo: "select",
+              valores: ["20 Unidades", "40 Unidades", "80 Unidades", "120 Unidades", "200 Unidades", "Outras Quantidades"]
             }
           }
         },
@@ -153,43 +172,60 @@
             },
             "Quantidade": {
               tipo: "number",
-              min: 10
             }
           }
         },
         "polo": {
           nome: "T-Shirt Polo Personalizado",
           imagem: "imagens/produtos/polo/mockup.png",
-          descricao: "T-Shirt polos personalizados com DTF de alta qualidade para dar um toque extra profissional à sua empresa!<br><br>155-160gms",
+          descricao: "T-Shirt polos personalizados com DTF de alta qualidade para dar um toque extra profissional à sua empresa!",
           opcoes: {
-            "Tamanho": {
-              tipo: "select",
-              valores: ["S até 2XL", "3XL até 5XL", "Outros Tamanhos"]
-            },
             "Cor": {
               tipo: "cores",
-              valores: ["Branco", "Preto", "Azul"]
-            },
-            "Quantidade": {
-              tipo: "number",
-              min: 10
-            },
+              valores: [
+                "Branco", "Preto", "Azul",
+                "Cinza Puro", "Cinzento matizado", "Cinzento ratinho",
+                "Off-white", "Linen", "Corda", "Amarelo", "Laranja", "Vermelho",
+                "Cor-de-Rosa Doce", "Lilás", "Azul céu", "Aqua", "Real", "Denim",
+                "Azul profundo", "Verde dos prados", "Verde garrafa"
+              ]
+            }, 
             "Posicionamento": {
               tipo: "imagem-radio",
               valores: [
                 {
                   nome: "Frente e Verso",
-                  imagem: "imagens/produtos/tshirt/fv.png"
+                  imagem: "imagens/produtos/polo/fv.png"
                 },
                 {
                   nome: "Frente",
-                  imagem: "imagens/produtos/tshirt/f.png"
+                  imagem: "imagens/produtos/polo/f.png"
                 },
                 {
                   nome: "Verso",
-                  imagem: "imagens/produtos/tshirt/v.png"
+                  imagem: "imagens/produtos/polo/v.png"
                 }
               ]
+            },
+           "Gramagem": {
+              tipo: "imagem-radio",
+              valores: [
+                {
+                  nome: "170 g/m²",
+                  imagem: "imagens/produtos/polo/170.png"
+                },
+                {
+                  nome: "210 g/m²",
+                  imagem: "imagens/produtos/polo/210.png"
+                }
+              ]
+            },
+            "Tamanho": {
+              tipo: "select",
+              valores: ["S até 2XL", "3XL até 5XL", "Outros Tamanhos"]
+            },
+            "Quantidade": {
+              tipo: "number",
             }
           }
         },
@@ -339,12 +375,33 @@
           imagem: "imagens/produtos/bandeiravela/mockup.png",
           descricao: "Bandeiras promocionais em diversos tamanhos, ideais para destacar a sua marca em eventos e pontos de venda.<br>Este kit contem 1 base de fixacao, 1 mastro completo e 1 bandeira com o design que escolher.",
           opcoes: {
+    
             "Tamanho": {
               tipo: "imagem-radio",
               valores: [
                 {
+                  nome: "S Frente e Verso",
+                  imagem: "imagens/produtos/bandeiravela/sfv.png"
+                },
+                {
                   nome: "S",
-                  imagem: "imagens/produtos/bandeiravela/frente.svg"
+                  imagem: "imagens/produtos/bandeiravela/s.png"
+                },
+                {
+                  nome: "M",
+                  imagem: "imagens/produtos/bandeiravela/m.png"
+                },
+                {
+                  nome: "L",
+                  imagem: "imagens/produtos/bandeiravela/l.png"
+                },
+                {
+                  nome: "XL",
+                  imagem: "imagens/produtos/bandeiravela/xl.png"
+                },
+                {
+                  nome: "XXL",
+                  imagem: "imagens/produtos/bandeiravela/xxl.png"
                 },
               ]
             },
@@ -359,6 +416,15 @@
           imagem: "imagens/produtos/rollup/mockup.png",
           descricao: "Roll-up comercial portátil e prático para uso em eventos, feiras e promoções. Estrutura incluída.",
           opcoes: {
+            "Tamanho": {
+              tipo: "imagem-radio",
+              valores: [
+                {
+                  nome: "S Frente e Verso",
+                  imagem: "imagens/produtos/rollup/s.png"
+                }
+              ]
+            },
             "Quantidade": {
               tipo: "number",
               min: 1
@@ -372,22 +438,98 @@
           opcoes: {
             "Cor": {
               tipo: "cores",
-              valores: ["Branco", "Preto", "Azul", "Verde", "Vermelho"]
+              valores: [
+                "Branco",                
+                "Preto",                  
+                "Cinza profundo",         
+                "Areia",                 
+                "Amarelo limão",          
+                "Laranja",                 
+                "Vermelho",               
+                "Roxo escuro",             
+                "Azul céu",              
+                "Azul real",               
+                "Azul escuro",       
+                "Verde lima"  
+              ]       
+              
             },
             "Quantidade": {
-              tipo: "number",
-              min: 20
+              tipo: "select",
+              valores: ["5 Unidades", "10 Unidades", "20 Unidades", "40 Unidades", "80 Unidades", "120 Unidades", "200 Unidades", "Outras Quantidades"]
             },
             "Posicionamento": {
               tipo: "imagem-radio",
               valores: [
                 {
-                  nome: "Centro Pequeno",
-                  imagem: "imagens/produtos/sacostecido/pequeno.png"
+                  nome: "1 Face Pequeno",
+                  imagem: "imagens/produtos/sacostecido/frentepequeno.png"
                 },
                 {
-                  nome: "Centro Grande",
-                  imagem: "imagens/produtos/sacostecido/grande.png"
+                  nome: "1 Face Grande",
+                  imagem: "imagens/produtos/sacostecido/frente.png"
+                },
+                {
+                  nome: "2 Faces",
+                  imagem: "imagens/produtos/sacostecido/frenteverso.png"
+                }
+              ]
+            },
+            "Gramagem": {
+              tipo: "imagem-radio",
+              valores: [
+                {
+                  nome: "140 g/m²",
+                  imagem: "imagens/produtos/sacostecido/140.png"
+                },
+                {
+                  nome: "180 g/m²",
+                  imagem: "imagens/produtos/sacostecido/180.png"
+                },
+                {
+                  nome: "270 g/m²",
+                  imagem: "imagens/produtos/sacostecido/270.png"
+                }
+              ]
+            }
+          }
+        },
+        "sacospano": {
+          nome: "Sacos de Pano Estampados",
+          imagem: "imagens/produtos/sacospano/mockup.png",
+          descricao: "Sacos ecológicos em pano, várias opções de posicionamento do design. Perfeitos para brindes e uso diário.",
+          opcoes: {
+            "Quantidade": {
+              tipo: "select",
+              valores: ["5 Unidades", "10 Unidades", "20 Unidades", "40 Unidades", "80 Unidades", "120 Unidades", "200 Unidades", "Outras Quantidades"]
+            },
+            "Posicionamento": {
+              tipo: "imagem-radio",
+              valores: [
+                {
+                  nome: "1 Face Pequeno",
+                  imagem: "imagens/produtos/sacostecido/frentepequeno.png"
+                },
+                {
+                  nome: "1 Face Grande",
+                  imagem: "imagens/produtos/sacostecido/frente.png"
+                }
+              ]
+            },
+            "Gramagem": {
+              tipo: "imagem-radio",
+              valores: [
+                {
+                  nome: "140 g/m²",
+                  imagem: "imagens/produtos/sacostecido/140.png"
+                },
+                {
+                  nome: "180 g/m²",
+                  imagem: "imagens/produtos/sacostecido/180.png"
+                },
+                {
+                  nome: "270 g/m²",
+                  imagem: "imagens/produtos/sacostecido/270.png"
                 }
               ]
             }
@@ -421,19 +563,23 @@
                 }).join('')}
               </div>
             `;
-          case "imagem-radio":
-            return `
-              <div class="posicionamento-options">
-                ${op.valores.map((item, index) => `
-                  <div class="overcell">
-                    <input type="radio" name="${label}" value="${item.nome}" id="pos-${index}" ${index === 0 ? "checked" : ""} required>
-                    <label class="posicionamento-label" for="pos-${index}">
-                      <img src="${item.imagem}" alt="${item.nome}" title="${item.nome}" class="posicionamento-img">
-                    </label>
-                  </div>
-                `).join('')}
-              </div>
-            `;
+            case "imagem-radio":
+              return `
+                <div class="posicionamento-options">
+                  ${op.valores.map((item, index) => {
+                    const posID = `${label.replace(/\s+/g, '-').toLowerCase()}-pos-${index}`;
+                    return `
+                      <div class="overcell">
+                        <input type="radio" name="${label}" value="${item.nome}" id="${posID}" ${index === 0 ? "checked" : ""} required>
+                        <label class="posicionamento-label" for="${posID}">
+                          <img src="${item.imagem}" alt="${item.nome}" title="${item.nome}" class="posicionamento-img">
+                        </label>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `;
+            
           case "select":
             return `
               <div class="overcell">
