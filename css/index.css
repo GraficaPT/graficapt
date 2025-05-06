@@ -182,9 +182,92 @@ a {
     display: none;
     z-index: 999;
 }
+.footer {
+    background-color: #f4f4f4;
+    padding: 1vh 10%;
+    font-size: 2vh;
+    color: #191919;
+    margin-top: 3vh;
+}
+
+.footer-columns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.footer-column {
+    flex: 1 1 20%;
+    min-width: 200px;
+}
+
+.footer-column h4 {
+    font-size: 2.2vh;
+    margin-bottom: 2vh;
+    font-family: 'League Spartan', sans-serif;
+}
+
+.footer-column a {
+    display: block;
+    margin-bottom: 1.2vh;
+    color: #191919;
+    text-decoration: none;
+    font-size: 2vh;
+}
+
+.footer-column a:hover {
+    text-decoration: underline;
+}
+
+.newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+}
+
+.newsletter-form input {
+    padding: 1vh;
+    border: 1px solid #ccc;
+    font-size: 2vh;
+    border-radius: 5px;
+}
+
+.newsletter-form button {
+    background-color: #3198a7;
+    color: white;
+    padding: 1.5vh;
+    border: none;
+    font-family: 'League Spartan', sans-serif;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 2vh;
+}
+
+.newsletter-form button:hover {
+    background-color: #267a89;
+}
+
+.social-icons img {
+    width: 5vh;
+    margin: 0 5%;
+    margin-top: 2vh;
+    cursor: pointer;
+}
+
+.footer-bottom {
+    text-align: center;
+    border-top: 1px solid #ddd;
+    padding-top: 2vh;
+    font-size: 1.8vh;
+}
 
 /* Responsivo para telemóvel */
 @media screen and (max-width: 768px) {
+    .footer-columns {
+        flex-direction: column;
+        gap: 1vh;
+    }
+
     .subtitle {
         font-size:4vh;
     }
