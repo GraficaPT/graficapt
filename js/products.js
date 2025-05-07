@@ -50,7 +50,7 @@
       const produtos = {
         "ardosia": {
           nome: "Ardosia Gravada Laser",
-          imagem: "imagens/produtos/ardosia/mockup.png",
+          imagem: "imagens/produtos/ardosia/mockup.webp",
           descricao: "Placa de ardósia personalizada com gravação a laser. Ideal para restauração e decoração!<br>Dê ao seu espaço um toque especial.",
           opcoes: {
             "Posicionamento": {
@@ -58,11 +58,11 @@
               valores: [
                 {
                   nome: "Pequeno no Canto",
-                  imagem: "imagens/produtos/ardosia/minimockup.png"
+                  imagem: "imagens/produtos/ardosia/minimockup.webp"
                 },
                 {
                   nome: "Grande no Centro",
-                  imagem: "imagens/produtos/ardosia/midmockup.png"
+                  imagem: "imagens/produtos/ardosia/midmockup.webp"
                 }
               ]
             },
@@ -78,7 +78,7 @@
         },
         "portachaves": {
           nome: "Porta Chaves Acrílico",
-          imagem: "imagens/produtos/portachaves/mockup.png",
+          imagem: "imagens/produtos/portachaves/mockup.webp",
           descricao: "Porta chaves de acrilico com dupla camada resistente, dê vida ao seu logotipo com um brinde extra!<br>Tamanho maximo 5x5cm",
           opcoes: {
             "Cor Fundo": {
@@ -97,7 +97,7 @@
         },
         "tshirt": {
           nome: "T-Shirt Personalizada",
-          imagem: "imagens/produtos/tshirt/mockup.png",
+          imagem: "imagens/produtos/tshirt/mockup.webp",
           descricao: "T-Shirts personalizadas com DTF de alta qualidade para dar um toque extra profissional à sua empresa!<br><br>155-160gms",
           opcoes: {
             "Posicionamento": {
@@ -105,15 +105,15 @@
               valores: [
                 {
                   nome: "Frente e Verso",
-                  imagem: "imagens/produtos/tshirt/fv.png"
+                  imagem: "imagens/produtos/tshirt/fv.webp"
                 },
                 {
                   nome: "Frente",
-                  imagem: "imagens/produtos/tshirt/f.png"
+                  imagem: "imagens/produtos/tshirt/f.webp"
                 },
                 {
                   nome: "Verso",
-                  imagem: "imagens/produtos/tshirt/v.png"
+                  imagem: "imagens/produtos/tshirt/v.webp"
                 }
               ]
             },
@@ -177,7 +177,7 @@
         },
         "polo": {
           nome: "T-Shirt Polo Personalizado",
-          imagem: "imagens/produtos/polo/mockup.png",
+          imagem: "imagens/produtos/polo/mockup.webp",
           descricao: "T-Shirt polos personalizados com DTF de alta qualidade para dar um toque extra profissional à sua empresa!",
           opcoes: {
             "Cor": {
@@ -195,15 +195,15 @@
               valores: [
                 {
                   nome: "Frente e Verso",
-                  imagem: "imagens/produtos/polo/fv.png"
+                  imagem: "imagens/produtos/polo/fv.webp"
                 },
                 {
                   nome: "Frente",
-                  imagem: "imagens/produtos/polo/f.png"
+                  imagem: "imagens/produtos/polo/f.webp"
                 },
                 {
                   nome: "Verso",
-                  imagem: "imagens/produtos/polo/v.png"
+                  imagem: "imagens/produtos/polo/v.webp"
                 }
               ]
             },
@@ -212,11 +212,11 @@
               valores: [
                 {
                   nome: "170 g/m²",
-                  imagem: "imagens/produtos/polo/170.png"
+                  imagem: "imagens/produtos/polo/170.webp"
                 },
                 {
                   nome: "210 g/m²",
-                  imagem: "imagens/produtos/polo/210.png"
+                  imagem: "imagens/produtos/polo/210.webp"
                 }
               ]
             },
@@ -231,7 +231,7 @@
         },
         "sacoskraft": {
           nome: "Sacos Kraft Personalizados",
-          imagem: "imagens/produtos/sacoskraft/mockup.png",
+          imagem: "imagens/produtos/sacoskraft/mockup.webp",
           descricao: "Sacos kraft resistentes disponíveis em várias cores e tamanhos.<br>Ideal para branding e embalagens ecológicas.",
           opcoes: {
             "Cor do Saco": {
@@ -273,15 +273,15 @@
               valores: [
                 {
                   nome: "1 Face Grande",
-                  imagem: "imagens/produtos/sacoskraft/frente.png"
+                  imagem: "imagens/produtos/sacoskraft/frente.webp"
                 },
                 {
                   nome: "1 Face Pequeno",
-                  imagem: "imagens/produtos/sacoskraft/frentepequeno.png"
+                  imagem: "imagens/produtos/sacoskraft/frentepequeno.webp"
                 },
                 {
                   nome: "2 Faces",
-                  imagem: "imagens/produtos/sacoskraft/frenteverso.png"
+                  imagem: "imagens/produtos/sacoskraft/frenteverso.webp"
                 }
               ]
             },
@@ -331,7 +331,7 @@
         },
         "bandeiragota": {
           nome: "Kit Bandeira Comercial Gota",
-          imagem: "imagens/produtos/bandeiragota/mockup.png",
+          imagem: "imagens/produtos/bandeiragota/mockup.webp",
           descricao: "Bandeiras promocionais em diversos tamanhos, ideais para destacar a sua marca em eventos e pontos de venda.<br>Este kit contem 1 base de fixacao, 1 mastro completo e 1 bandeira com o design que escolher.",
           opcoes: {
     
@@ -340,27 +340,27 @@
               valores: [
                 {
                   nome: "S Frente e Verso",
-                  imagem: "imagens/produtos/bandeiragota/sfv.png"
+                  imagem: "imagens/produtos/bandeiragota/sfv.webp"
                 },
                 {
                   nome: "S",
-                  imagem: "imagens/produtos/bandeiragota/s.png"
+                  imagem: "imagens/produtos/bandeiragota/s.webp"
                 },
                 {
                   nome: "M",
-                  imagem: "imagens/produtos/bandeiragota/m.png"
+                  imagem: "imagens/produtos/bandeiragota/m.webp"
                 },
                 {
                   nome: "L",
-                  imagem: "imagens/produtos/bandeiragota/l.png"
+                  imagem: "imagens/produtos/bandeiragota/l.webp"
                 },
                 {
                   nome: "XL",
-                  imagem: "imagens/produtos/bandeiragota/xl.png"
+                  imagem: "imagens/produtos/bandeiragota/xl.webp"
                 },
                 {
                   nome: "XXL",
-                  imagem: "imagens/produtos/bandeiragota/xxl.png"
+                  imagem: "imagens/produtos/bandeiragota/xxl.webp"
                 },
               ]
             },
@@ -372,7 +372,7 @@
         },
         "bandeiravela": {
           nome: "Kit Bandeira Comercial Vela",
-          imagem: "imagens/produtos/bandeiravela/mockup.png",
+          imagem: "imagens/produtos/bandeiravela/mockup.webp",
           descricao: "Bandeiras promocionais em diversos tamanhos, ideais para destacar a sua marca em eventos e pontos de venda.<br>Este kit contem 1 base de fixacao, 1 mastro completo e 1 bandeira com o design que escolher.",
           opcoes: {
     
@@ -381,27 +381,27 @@
               valores: [
                 {
                   nome: "S Frente e Verso",
-                  imagem: "imagens/produtos/bandeiravela/sfv.png"
+                  imagem: "imagens/produtos/bandeiravela/sfv.webp"
                 },
                 {
                   nome: "S",
-                  imagem: "imagens/produtos/bandeiravela/s.png"
+                  imagem: "imagens/produtos/bandeiravela/s.webp"
                 },
                 {
                   nome: "M",
-                  imagem: "imagens/produtos/bandeiravela/m.png"
+                  imagem: "imagens/produtos/bandeiravela/m.webp"
                 },
                 {
                   nome: "L",
-                  imagem: "imagens/produtos/bandeiravela/l.png"
+                  imagem: "imagens/produtos/bandeiravela/l.webp"
                 },
                 {
                   nome: "XL",
-                  imagem: "imagens/produtos/bandeiravela/xl.png"
+                  imagem: "imagens/produtos/bandeiravela/xl.webp"
                 },
                 {
                   nome: "XXL",
-                  imagem: "imagens/produtos/bandeiravela/xxl.png"
+                  imagem: "imagens/produtos/bandeiravela/xxl.webp"
                 },
               ]
             },
@@ -413,7 +413,7 @@
         },
         "rollup": {
           nome: "Roll-Up Comercial",
-          imagem: "imagens/produtos/rollup/mockup.png",
+          imagem: "imagens/produtos/rollup/mockup.webp",
           descricao: "Roll-up comercial portátil e prático para uso em eventos, feiras e promoções. Estrutura incluída.",
           opcoes: {
             "Tamanho": {
@@ -421,7 +421,7 @@
               valores: [
                 {
                   nome: "S Frente e Verso",
-                  imagem: "imagens/produtos/rollup/s.png"
+                  imagem: "imagens/produtos/rollup/s.webp"
                 }
               ]
             },
@@ -433,7 +433,7 @@
         },
         "sacostecido": {
           nome: "Sacos de Tecido Coloridos",
-          imagem: "imagens/produtos/sacostecido/mockup.png",
+          imagem: "imagens/produtos/sacostecido/mockup.webp",
           descricao: "Sacos ecológicos em tecido com diversas cores e opções de posicionamento do design. Perfeitos para brindes e uso diário.",
           opcoes: {
             "Cor": {
@@ -463,15 +463,15 @@
               valores: [
                 {
                   nome: "1 Face Pequeno",
-                  imagem: "imagens/produtos/sacostecido/frentepequeno.png"
+                  imagem: "imagens/produtos/sacostecido/frentepequeno.webp"
                 },
                 {
                   nome: "1 Face Grande",
-                  imagem: "imagens/produtos/sacostecido/frente.png"
+                  imagem: "imagens/produtos/sacostecido/frente.webp"
                 },
                 {
                   nome: "2 Faces",
-                  imagem: "imagens/produtos/sacostecido/frenteverso.png"
+                  imagem: "imagens/produtos/sacostecido/frenteverso.webp"
                 }
               ]
             },
@@ -480,15 +480,15 @@
               valores: [
                 {
                   nome: "140 g/m²",
-                  imagem: "imagens/produtos/sacostecido/140.png"
+                  imagem: "imagens/produtos/sacostecido/140.webp"
                 },
                 {
                   nome: "180 g/m²",
-                  imagem: "imagens/produtos/sacostecido/180.png"
+                  imagem: "imagens/produtos/sacostecido/180.webp"
                 },
                 {
                   nome: "270 g/m²",
-                  imagem: "imagens/produtos/sacostecido/270.png"
+                  imagem: "imagens/produtos/sacostecido/270.webp"
                 }
               ]
             }
@@ -496,7 +496,7 @@
         },
         "sacospano": {
           nome: "Sacos de Pano Estampados",
-          imagem: "imagens/produtos/sacospano/mockup.png",
+          imagem: "imagens/produtos/sacospano/mockup.webp",
           descricao: "Sacos ecológicos em pano, várias opções de posicionamento do design. Perfeitos para brindes e uso diário.",
           opcoes: {
             "Quantidade": {
@@ -508,11 +508,11 @@
               valores: [
                 {
                   nome: "1 Face Pequeno",
-                  imagem: "imagens/produtos/sacostecido/frentepequeno.png"
+                  imagem: "imagens/produtos/sacostecido/frentepequeno.webp"
                 },
                 {
                   nome: "1 Face Grande",
-                  imagem: "imagens/produtos/sacostecido/frente.png"
+                  imagem: "imagens/produtos/sacostecido/frente.webp"
                 }
               ]
             },
@@ -521,15 +521,15 @@
               valores: [
                 {
                   nome: "140 g/m²",
-                  imagem: "imagens/produtos/sacostecido/140.png"
+                  imagem: "imagens/produtos/sacostecido/140.webp"
                 },
                 {
                   nome: "180 g/m²",
-                  imagem: "imagens/produtos/sacostecido/180.png"
+                  imagem: "imagens/produtos/sacostecido/180.webp"
                 },
                 {
                   nome: "270 g/m²",
-                  imagem: "imagens/produtos/sacostecido/270.png"
+                  imagem: "imagens/produtos/sacostecido/270.webp"
                 }
               ]
             }
