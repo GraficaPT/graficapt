@@ -59,7 +59,16 @@ a {
     display: grid;
     grid-template-columns: repeat(3, 22%);
     justify-content: center;
-    margin-bottom: 15vh;
+    margin-bottom: 4vh;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .cell {
@@ -72,6 +81,8 @@ a {
     overflow: hidden;
     position: relative;
     margin:3%;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
 }
 
 .cell img {
@@ -103,20 +114,22 @@ a {
 }
 
 .invoce {
-    width: 60%;
+    width: 60vw;
 }
 
 .invoce input, 
 .invoce textarea {
     font-size: 2.2vh;
-    margin: 0.5%;
+    margin: 0.5vh 0;
     border: 0.1vh solid;
     padding: 0.5%;
     resize: none;
+    width: 30vw;
 }
 
 .invoce button {
     font-size: 3vh;
+    width:20vw;
     background-color: #3198a7;
     color: white;
     cursor: pointer;
@@ -261,8 +274,31 @@ a {
     font-size: 1.8vh;
 }
 
-/* Responsivo para telemóvel */
+.supdescription {
+    margin:0 25vw;
+    text-align: justify;
+    font-size: 2.5vh;
+}
+
+.filter-sort {
+    display: flex;
+    margin-right: 18vw;
+    justify-content: right;
+}
+
+.filter-sort select {
+    font-size: 1.5vh;
+    padding: 1vh;
+    border: none;
+}
+
 @media screen and (max-width: 768px) {
+    .filter-sort {
+        display: flex;
+        margin-right: 2vw;
+        justify-content: right;
+    }
+
     .footer-columns {
         flex-direction: column;
         gap: 1vh;
