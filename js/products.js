@@ -537,7 +537,6 @@
         }
       };
   
-    
       const produtoID = new URLSearchParams(window.location.search).get("produto");
       const produto = produtos[produtoID];
     
