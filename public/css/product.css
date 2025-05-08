@@ -18,17 +18,11 @@ body {
   overflow: hidden;
 }
 
-.product-image {
+.product-carousel {
   flex: 1 1 100%;
   padding: 2vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-}
-
-.product-image img {
-  max-height: 30vh;
-  width: auto;
 }
 
 .product-details {
@@ -186,6 +180,53 @@ button:hover {
   text-align: center;
 }
 
+/* Estilos do carrossel de imagens */
+.carrossel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  max-height: 40vh; /* Ajuste conforme necessário */
+}
+
+.carrossel-imagens {
+  display: flex;
+  transition: transform 0.3s ease-in-out;
+}
+
+.carrossel-item {
+  min-width: 100%;
+  height: auto;
+}
+
+.carrossel-item img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Botões de navegação do carrossel */
+.carrossel-btn-prev,
+.carrossel-btn-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 3vh;
+  border: none;
+  padding: 1vh;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.carrossel-btn-prev {
+  left: 10px;
+}
+
+.carrossel-btn-next {
+  right: 10px;
+}
+
 /* Swiper container */
 .swiper {
   width: 100%;
@@ -238,7 +279,7 @@ button:hover {
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-  }  
+  }
 
   .posicionamento-options {
     display: flex;
@@ -247,7 +288,6 @@ button:hover {
     justify-content: center;
     margin: 1vh 0;
   }
-  
 
   .posicionamento-img {
     width: 100%;
@@ -273,7 +313,6 @@ button:hover {
     width: 100%;
     margin: 0;
     padding: 0;
-
   }
 
   .color-circle {
