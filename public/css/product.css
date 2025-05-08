@@ -186,48 +186,28 @@ button:hover {
   text-align: center;
 }
 
-/* === Swiper Carrossel de Imagens === */
-.product-image-slider {
+/* Swiper container */
+.swiper {
   width: 100%;
-  max-width: 500px;
-  height: auto;
-  margin: auto;
-  position: relative;
+  height: 400px; /* Ajuste a altura conforme necessário */
 }
 
-.swiper-wrapper {
-  display: flex;
-}
-
-.swiper-slide {
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
+/* Cada slide dentro do swiper */
 .swiper-slide img {
   width: 100%;
   height: auto;
-  max-height: 30vh;
-  object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 0 1vh rgba(0, 0, 0, 0.1);
+  object-fit: cover; /* Ajuste de imagem para cobrir a área do slide */
 }
 
+/* Botões de navegação */
 .swiper-button-next,
 .swiper-button-prev {
-  color: #3198a7;
+  color: #fff;
 }
 
+/* Paginacao */
 .swiper-pagination-bullet {
-  background-color: #3198a7;
-  opacity: 0.6;
-}
-
-.swiper-pagination-bullet-active {
-  background-color: #3198a7;
-  opacity: 1;
+  background-color: #fff;
 }
 
 /* Responsividade */
