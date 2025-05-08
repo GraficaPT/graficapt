@@ -1,0 +1,270 @@
+* {
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+  font-family: 'League Spartan', sans-serif;
+}
+
+.product {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 65vw;
+  margin: auto;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.product-image {
+  flex: 1 1 100%;
+  padding: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image img {
+  max-height: 30vh;
+  width: auto;
+}
+
+.product-details {
+  flex: 1 1 100%;
+  padding: 2.5vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.product-details h1 {
+  font-size: 4vh;
+  margin-bottom: 1.5vh;
+  text-align: center;
+}
+
+.product-details p.descricao {
+  font-size: 2.2vh;
+  color: #555;
+  text-align: center;
+}
+
+/* Labels e campos de formulário */
+label {
+  margin: 0.5vh 0 0.2vh 0;
+  font-weight: bold;
+  font-size: 2.2vh;
+  display: block;
+}
+
+select,
+button,
+textarea,
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"] {
+  resize: none;
+  padding: 1.5vh;
+  width: 100%;
+  border-radius: 0.4vh;
+  border: 0.1vh solid #ccc;
+  font-size: 2vh;
+  margin-top: 1vh;
+}
+
+/* Botão */
+button {
+  background-color: #3198a7;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3197a7d7;
+}
+
+.color-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5vh;
+  margin: 0 15% 0 15%;
+  justify-content: center;
+}
+
+.color-options input[type="radio"] {
+  display: none;
+}
+
+.color-circle {
+  width: 4vh;
+  height: 4vh;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+  border: 0.2vh solid #999;
+}
+
+.color-options input[type="radio"]:checked + .color-circle {
+  transform: scale(1.2);
+  border-color: #3198a7;
+  z-index: 1;
+  position: relative;
+}
+
+/* Opções de posicionamento */
+.posicionamento-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5vh;
+  justify-content: center;
+  margin: 1vh 0;
+}
+
+.posicionamento-options input[type="radio"] {
+  display: none;
+}
+
+.posicionamento-label {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  text-align: left;
+  width: 100%;
+  max-width: 20vh;
+}
+
+.posicionamento-img {
+  width: 100%;
+  height: auto;
+  border: 0.2vh solid transparent;
+  padding: 0.5vh;
+  transition: transform 0.2s ease, border 0.2s ease;
+}
+
+.posicionamento-options input[type="radio"]:checked + .posicionamento-label .posicionamento-img {
+  transform: scale(1.1);
+  border: 0.1vh solid #3198a7;
+  z-index: 1;
+  position: relative;
+}
+
+/* Containers de opções */
+.options-container {
+  display: flex;
+  gap: 2vh;
+  justify-content: space-between;
+  margin-bottom: 2vh;
+  flex-wrap: wrap;
+}
+
+.options-container > div {
+  flex: 1 1 30%;
+}
+
+.options-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.options-row > div {
+  flex: 1 1 45%;
+}
+
+.option-group, .form-group{
+  margin-bottom: 2vh;
+  box-shadow: 0 0 0.5vh rgba(0, 0, 0, 0.2);
+  padding: 1vh;
+}
+
+.option-group div {
+  text-align: center;
+}
+/* Responsividade */
+@media (max-width: 768px) {
+  .product {
+    flex-direction: column;
+    max-width: 90vw;
+  }
+
+  .product-image,
+  .product-details {
+    padding: 2vh;
+  }
+
+  .product-image img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .product-details h1 {
+    font-size: 3vh;
+  }
+
+  .posicionamento-label {
+    flex: 1 1 20%;
+    max-width: 35vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }  
+
+  .posicionamento-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5vh;
+    justify-content: center;
+    margin: 1vh 0;
+  }
+  
+
+  .posicionamento-img {
+    width: 100%;
+  }
+
+  label {
+    font-size: 2.2vh;
+  }
+
+  select,
+  button,
+  textarea {
+    font-size: 1.8vh;
+    margin: 0;
+  }
+
+  textarea {
+    margin-top: 1vh;
+  }
+
+  .color-options,
+  .posicionamento-options {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+  }
+
+  .color-circle {
+    width: 3.5vh;
+    height: 3.5vh;
+  }
+
+  .options-row {
+    flex-direction: column;
+  }
+
+  .options-container {
+    flex-direction: column;
+  }
+
+  .options-container > div {
+    flex: 1 1 30%;
+  }
+}
