@@ -496,12 +496,7 @@
         },
         "sacospano": {
           nome: "Sacos de Pano Estampados",
-          imagens: [
-            "imagens/produtos/sacospano/mockup1.webp",
-            "imagens/produtos/sacospano/mockup2.webp",
-            "imagens/produtos/sacospano/mockup3.webp",
-            "imagens/produtos/sacospano/mockup4.webp"
-          ],
+          imagem: ["imagens/produtos/sacospano/mockup1.webp", "imagens/produtos/sacospano/mockup2.webp"],
           descricao: "Sacos ecológicos em pano, várias opções de posicionamento do design. Perfeitos para brindes e uso diário.",
           opcoes: {
             "Quantidade": {
@@ -542,147 +537,150 @@
         }
       };
   
+      const gerarCarrosselImagens = (imagens) => {
+        return `
+          <div class="carrossel">
+            <div class="carrossel-imagens">
+              ${imagens.map((imagem, index) => {
+                return `
+                  <div class="carrossel-item" style="display: ${index === 0 ? 'block' : 'none'};">
+                    <img src="${imagem}" alt="Imagem do Produto ${index + 1}" class="carrossel-imagem">
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <button class="carrossel-btn-prev" onclick="navegarCarrossel(-1)">&#10094;</button>
+            <button class="carrossel-btn-next" onclick="navegarCarrossel(1)">&#10095;</button>
+          </div>
+        `;
+      };
+      
+      const navegarCarrossel = (direcao) => {
+        const items = document.querySelectorAll('.carrossel-item');
+        let indexAtual = Array.from(items).findIndex(item => item.style.display === 'block');
+        const totalImagens = items.length;
+      
+        // Calculando o índice da próxima imagem com base na direção (1 para próxima, -1 para anterior)
+        let novoIndex = indexAtual + direcao;
+        if (novoIndex < 0) novoIndex = totalImagens - 1; // Vai para a última imagem se estiver na primeira
+        if (novoIndex >= totalImagens) novoIndex = 0; // Vai para a primeira imagem se estiver na última
+      
+        // Ocultando a imagem atual e mostrando a próxima
+        items[indexAtual].style.display = 'none';
+        items[novoIndex].style.display = 'block';
+      };
+      
       const produtoID = new URLSearchParams(window.location.search).get("produto");
-const produto = produtos[produtoID];
-
-if (!produto) {
-    container.innerHTML = "<p>Produto não encontrado.</p>";
-    return;
-}
-
-const gerarOpcoes = (label, op) => {
-    switch (op.tipo) {
-        case "cores":
+      const produto = produtos[produtoID];
+      
+      if (!produto) {
+        container.innerHTML = "<p>Produto não encontrado.</p>";
+        return;
+      }
+      
+      const gerarOpcoes = (label, op) => {
+        switch (op.tipo) {
+          case "cores":
             return `
-                <div class="color-options">
-                    ${op.valores.map((cor, index) => {
-                        const colorID = `${label.replace(/\s+/g, '-').toLowerCase()}-color-${index}`;
-                        const colorHex = colorMap[cor] || "#ccc";
-                        return `
-                            <div class="overcell">
-                                <input type="radio" name="${label}" value="${cor}" id="${colorID}" ${index === 0 ? "checked" : ""} required>
-                                <label class="color-circle" for="${colorID}" style="background: ${colorHex};" title="${cor}"></label>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
+              <div class="color-options">
+                ${op.valores.map((cor, index) => {
+                  const colorID = `${label.replace(/\s+/g, '-').toLowerCase()}-color-${index}`;
+                  const colorHex = colorMap[cor] || "#ccc";
+                  return `
+                    <div class="overcell">
+                      <input type="radio" name="${label}" value="${cor}" id="${colorID}" ${index === 0 ? "checked" : ""} required>
+                      <label class="color-circle" for="${colorID}" style="background: ${colorHex};" title="${cor}"></label>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
             `;
-        case "imagem-radio":
+          case "imagem-radio":
             return `
-                <div class="posicionamento-options">
-                    ${op.valores.map((item, index) => {
-                        const posID = `${label.replace(/\s+/g, '-').toLowerCase()}-pos-${index}`;
-                        return `
-                            <div class="overcell">
-                                <input type="radio" name="${label}" value="${item.nome}" id="${posID}" ${index === 0 ? "checked" : ""} required>
-                                <label class="posicionamento-label" for="${posID}">
-                                    <img src="${item.imagem}" alt="${item.nome}" title="${item.nome}" class="posicionamento-img">
-                                </label>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
+              <div class="posicionamento-options">
+                ${op.valores.map((item, index) => {
+                  const posID = `${label.replace(/\s+/g, '-').toLowerCase()}-pos-${index}`;
+                  return `
+                    <div class="overcell">
+                      <input type="radio" name="${label}" value="${item.nome}" id="${posID}" ${index === 0 ? "checked" : ""} required>
+                      <label class="posicionamento-label" for="${posID}">
+                        <img src="${item.imagem}" alt="${item.nome}" title="${item.nome}" class="posicionamento-img">
+                      </label>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
             `;
-        case "select":
+          case "select":
             return `
-                <div class="overcell">
-                    <select name="${label}" required>
-                        ${op.valores.map((opt, index) => `
-                            <option value="${opt}" ${index === 0 ? "selected" : ""}>${opt}</option>
-                        `).join('')}
-                    </select>
-                </div>
+              <div class="overcell">
+                <select name="${label}" required>
+                  ${op.valores.map((opt, index) => `
+                    <option value="${opt}" ${index === 0 ? "selected" : ""}>${opt}</option>
+                  `).join('')}
+                </select>
+              </div>
             `;
-        case "number":
+          case "number":
             return `
-                <div class="overcell">
-                    <input type="number" name="${label}" min="${op.min}" value="${op.min}" required>
-                </div>
+              <div class="overcell">
+                <input type="number" name="${label}" min="${op.min}" value="${op.min}" required>
+              </div>
             `;
-        default:
+          default:
             return '';
-    }
-};
-
-// Gerar HTML para o carrossel de imagens
-let galeriaHTML = `
-    <div class="product-image-slider swiper">
-        <div class="swiper-wrapper">
-            ${produto.imagens.map((imagem, index) => `
-                <div class="swiper-slide">
-                    <img src="${imagem}" alt="${produto.nome}" onerror="this.style.display='none'">
-                </div>
-            `).join('')}
-        </div>
-        <div class="swiper-pagination"></div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
-    </div>
-`;
-
-// Gerar HTML do formulário e produto
-let html = `
-    <form class="product" method="POST" action="https://script.google.com/macros/s/AKfycbyxjTNPl660oUcdbr4QKInd-Y1j4e9hpuWyCcjdmqumJ8fHYqLIqhdwhQGyIirXZsqC/exec">
-        <div class="product-details">
+        }
+      };
+      
+      let html = `
+        <form class="product" method="POST" action="https://script.google.com/macros/s/AKfycbyxjTNPl660oUcdbr4QKInd-Y1j4e9hpuWyCcjdmqumJ8fHYqLIqhdwhQGyIirXZsqC/exec">
+          <div class="product-carousel">
+            ${gerarCarrosselImagens(produto.imagem)}
+          </div>
+          <div class="product-details">
             <h1>${produto.nome}</h1>
             <p class="descricao">${produto.descricao}</p>
-            ${galeriaHTML}
             ${Object.entries(produto.opcoes).map(([label, op]) => `
-                <div class="option-group">
-                    <div class="overcell">
-                        <label for="${label}">${label}:</label>
-                    </div>
-                    ${gerarOpcoes(label, op)}
+              <div class="option-group">
+                <div class="overcell">
+                  <label for="${label}">${label}:</label>
                 </div>
+                ${gerarOpcoes(label, op)}
+              </div>
             `).join('')}
             <div class="form-group">
-                <div class="overcell">
-                    <label for="detalhes">Detalhes:</label>
-                    <textarea name="detalhes" placeholder="Descreve todas as informações sobre a tua encomenda!" required></textarea>
-                </div>
+              <div class="overcell">
+                <label for="detalhes">Detalhes:</label>
+                <textarea name="detalhes" placeholder="Descreve todas as informações sobre a tua encomenda!" required></textarea>
+              </div>
             </div>
-    
             <div class="options-row">
-                <div class="form-group">
-                    <div class="overcell">
-                        <label for="empresa">Empresa / Nome:</label>
-                        <input type="text" name="empresa" placeholder="Empresa ou nome pessoal" required>
-                    </div>
+              <div class="form-group">
+                <div class="overcell">
+                  <label for="empresa">Empresa / Nome:</label>
+                  <input type="text" name="empresa" placeholder="Empresa ou nome pessoal" required>
                 </div>
-                <div class="form-group">
-                    <div class="overcell">
-                        <label for="telemovel">Telemóvel:</label>
-                        <input type="tel" name="telemovel" placeholder="Ex: 912 345 678" required>
-                    </div>
+              </div>
+              <div class="form-group">
+                <div class="overcell">
+                  <label for="telemovel">Telemóvel:</label>
+                  <input type="tel" name="telemovel" placeholder="Ex: 912 345 678" required>
                 </div>
+              </div>
             </div>
-    
             <div class="form-row">
-                <div class="form-group">
-                    <div class="overcell">
-                        <label for="email">Email:</label>
-                        <input type="email" name="email" placeholder="seu@email.com" required>
-                    </div>
+              <div class="form-group">
+                <div class="overcell">
+                  <label for="email">Email:</label>
+                  <input type="email" name="email" placeholder="seu@email.com" required>
                 </div>
+              </div>
             </div>
-    
             <button type="submit">Pedir Orçamento</button>
-        </div>
-    </form>
-`;
-
-// Inserir o HTML gerado no container
-container.innerHTML = html;
-
-// Inicializar o Swiper após a inserção do HTML
-const swiper = new Swiper('.swiper', {
-    loop: true,
-    navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
-    },
-    pagination: {
-        el: '.swiper-pagination',
-        clickable: true,
-    },
-});
+          </div>
+        </form>
+      `;
+      
+      container.innerHTML = html;      
+    });
+    
