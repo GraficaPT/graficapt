@@ -594,7 +594,7 @@
       <div class="swiper-wrapper">
         ${[1, 2, 3, 4, 5].map(i => `
           <div class="swiper-slide">
-            <img src="imagens/produtos/${produtoID}/mockup/mockup1.webp" alt="${produto.nome}" onerror="this.style.display='none'">
+            <img src="imagens/produtos/${produtoID}/mockup1.webp" alt="${produto.nome}" onerror="this.style.display='none'">
           </div>
         `).join('')}
       </div>
