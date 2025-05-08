@@ -185,6 +185,51 @@ button:hover {
 .option-group div {
   text-align: center;
 }
+
+/* === Swiper Carrossel de Imagens === */
+.product-image-slider {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  margin: auto;
+  position: relative;
+}
+
+.swiper-wrapper {
+  display: flex;
+}
+
+.swiper-slide {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide img {
+  width: 100%;
+  height: auto;
+  max-height: 30vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 1vh rgba(0, 0, 0, 0.1);
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #3198a7;
+}
+
+.swiper-pagination-bullet {
+  background-color: #3198a7;
+  opacity: 0.6;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #3198a7;
+  opacity: 1;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .product {

@@ -538,121 +538,133 @@
       };
   
       const produtoID = new URLSearchParams(window.location.search).get("produto");
-      const produto = produtos[produtoID];
-    
-      if (!produto) {
-        container.innerHTML = "<p>Produto não encontrado.</p>";
-        return;
-      }
-    
-      const gerarOpcoes = (label, op) => {
-        switch (op.tipo) {
-          case "cores":
-            return `
-              <div class="color-options">
-                ${op.valores.map((cor, index) => {
-                  const colorID = `${label.replace(/\s+/g, '-').toLowerCase()}-color-${index}`;
-                  const colorHex = colorMap[cor] || "#ccc";
-                  return `
-                    <div class="overcell">
-                      <input type="radio" name="${label}" value="${cor}" id="${colorID}" ${index === 0 ? "checked" : ""} required>
-                      <label class="color-circle" for="${colorID}" style="background: ${colorHex};" title="${cor}"></label>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            `;
-            case "imagem-radio":
-              return `
-                <div class="posicionamento-options">
-                  ${op.valores.map((item, index) => {
-                    const posID = `${label.replace(/\s+/g, '-').toLowerCase()}-pos-${index}`;
-                    return `
-                      <div class="overcell">
-                        <input type="radio" name="${label}" value="${item.nome}" id="${posID}" ${index === 0 ? "checked" : ""} required>
-                        <label class="posicionamento-label" for="${posID}">
-                          <img src="${item.imagem}" alt="${item.nome}" title="${item.nome}" class="posicionamento-img">
-                        </label>
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-              `;
-            
-          case "select":
-            return `
-              <div class="overcell">
-                <select name="${label}" required>
-                  ${op.valores.map((opt, index) => `
-                    <option value="${opt}" ${index === 0 ? "selected" : ""}>${opt}</option>
-                  `).join('')}
-                </select>
-              </div>
-            `;
-          case "number":
-            return `
-              <div class="overcell">
-                <input type="number" name="${label}" min="${op.min}" value="${op.min}" required>
-              </div>
-            `;
-          default:
-            return '';
-        }
-      };
-      
-      let html = `
-        <form class="product" method="POST" action="https://script.google.com/macros/s/AKfycbyxjTNPl660oUcdbr4QKInd-Y1j4e9hpuWyCcjdmqumJ8fHYqLIqhdwhQGyIirXZsqC/exec">
-          <div class="product-image">
-            <img src="${produto.imagem}" alt="${produto.nome}">
+  const produto = produtos[produtoID];
+
+  if (!produto) {
+    container.innerHTML = "<p>Produto não encontrado.</p>";
+    return;
+  }
+
+  const gerarOpcoes = (label, op) => {
+    switch (op.tipo) {
+      case "cores":
+        return `<div class="color-options">
+          ${op.valores.map((cor, index) => {
+            const colorID = `${label.replace(/\s+/g, '-').toLowerCase()}-color-${index}`;
+            const colorHex = colorMap[cor] || "#ccc";
+            return `<div class="overcell">
+              <input type="radio" name="${label}" value="${cor}" id="${colorID}" ${index === 0 ? "checked" : ""} required>
+              <label class="color-circle" for="${colorID}" style="background: ${colorHex};" title="${cor}"></label>
+            </div>`;
+          }).join('')}
+        </div>`;
+
+      case "imagem-radio":
+        return `<div class="posicionamento-options">
+          ${op.valores.map((item, index) => {
+            const posID = `${label.replace(/\s+/g, '-').toLowerCase()}-pos-${index}`;
+            return `<div class="overcell">
+              <input type="radio" name="${label}" value="${item.nome}" id="${posID}" ${index === 0 ? "checked" : ""} required>
+              <label class="posicionamento-label" for="${posID}">
+                <img src="${item.imagem}" alt="${item.nome}" title="${item.nome}" class="posicionamento-img">
+              </label>
+            </div>`;
+          }).join('')}
+        </div>`;
+
+      case "select":
+        return `<div class="overcell">
+          <select name="${label}" required>
+            ${op.valores.map((opt, index) => `<option value="${opt}" ${index === 0 ? "selected" : ""}>${opt}</option>`).join('')}
+          </select>
+        </div>`;
+
+      case "number":
+        return `<div class="overcell">
+          <input type="number" name="${label}" min="${op.min}" value="${op.min}" required>
+        </div>`;
+
+      default:
+        return '';
+    }
+  };
+
+  const galeriaHTML = `
+    <div class="product-image-slider swiper">
+      <div class="swiper-wrapper">
+        ${[1, 2, 3, 4, 5].map(i => `
+          <div class="swiper-slide">
+            <img src="imagens/produtos/${produtoID}/mockup${i}.png" alt="${produto.nome}" onerror="this.style.display='none'">
           </div>
-          <div class="product-details">
-            <h1>${produto.nome}</h1>
-            <p class="descricao">${produto.descricao}</p>
-            ${Object.entries(produto.opcoes).map(([label, op]) => `
-              <div class="option-group">
-                <div class="overcell">
-                  <label for="${label}">${label}:</label>
-                </div>
-                ${gerarOpcoes(label, op)}
-              </div>
-            `).join('')}
-            <div class="form-group">
-              <div class="overcell">
-                <label for="detalhes">Detalhes:</label>
-                <textarea name="detalhes" placeholder="Descreve todas as informações sobre a tua encomenda!" required></textarea>
-              </div>
+        `).join('')}
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>`;
+
+  let html = `
+    <form class="product" method="POST" action="https://script.google.com/macros/s/AKfycbyxjTNPl660oUcdbr4QKInd-Y1j4e9hpuWyCcjdmqumJ8fHYqLIqhdwhQGyIirXZsqC/exec">
+      <div class="product-image">
+        ${galeriaHTML}
+      </div>
+      <div class="product-details">
+        <h1>${produto.nome}</h1>
+        <p class="descricao">${produto.descricao}</p>
+        ${Object.entries(produto.opcoes).map(([label, op]) => `
+          <div class="option-group">
+            <div class="overcell">
+              <label for="${label}">${label}:</label>
             </div>
-      
-            <div class="options-row">
-              <div class="form-group">
-                <div class="overcell">
-                  <label for="empresa">Empresa / Nome:</label>
-                  <input type="text" name="empresa" placeholder="Empresa ou nome pessoal" required>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="overcell">
-                  <label for="telemovel">Telemóvel:</label>
-                  <input type="tel" name="telemovel" placeholder="Ex: 912 345 678" required>
-                </div>
-              </div>
-            </div>
-      
-            <div class="form-row">
-              <div class="form-group">
-                <div class="overcell">
-                  <label for="email">Email:</label>
-                  <input type="email" name="email" placeholder="seu@email.com" required>
-                </div>
-              </div>
-            </div>
-      
-            <button type="submit">Pedir Orçamento</button>
+            ${gerarOpcoes(label, op)}
+          </div>`).join('')}
+
+        <div class="form-group">
+          <div class="overcell">
+            <label for="detalhes">Detalhes:</label>
+            <textarea name="detalhes" placeholder="Descreve todas as informações sobre a tua encomenda!" required></textarea>
           </div>
-        </form>
-      `;
-      
-      container.innerHTML = html;
-      
-    });
-    
+        </div>
+
+        <div class="options-row">
+          <div class="form-group">
+            <div class="overcell">
+              <label for="empresa">Empresa / Nome:</label>
+              <input type="text" name="empresa" placeholder="Empresa ou nome pessoal" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="overcell">
+              <label for="telemovel">Telemóvel:</label>
+              <input type="tel" name="telemovel" placeholder="Ex: 912 345 678" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <div class="overcell">
+              <label for="email">Email:</label>
+              <input type="email" name="email" placeholder="seu@email.com" required>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit">Pedir Orçamento</button>
+      </div>
+    </form>`;
+
+  container.innerHTML = html;
+
+  new Swiper('.swiper', {
+    loop: true,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev'
+    }
+  });
+});
