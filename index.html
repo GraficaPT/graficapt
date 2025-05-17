@@ -73,13 +73,18 @@
     </div>
         <a class="overtitle hcenter">Não encontras o que precisas?</a>
         <a class="subtitle hcenter">Orçamento Personalizado</a>
-        <form class="invoce hcenter">
-            <input required placeholder="Nome" type="text" class="name">
-            <input required placeholder="Email" type="text" class="email">
-            <input required placeholder="Telefone" type="text" class="phone">
-            <input placeholder="Empresa" type="text" class="company">
-            <textarea required rows="5" placeholder="Descrição" type="text" class="description"></textarea><br>
-            <button>ENVIAR</button>
+        <form action="https://formsubmit.co/graficapt.comercial@gmail.com" method="POST" class="invoce hcenter">
+            <input required placeholder="Nome" type="text" name="name" class="name">
+            <input required placeholder="Email" type="email" name="email" class="email">
+            <input required placeholder="Telefone" type="text" name="phone" class="phone">
+            <input placeholder="Empresa" type="text" name="company" class="company">
+            <textarea required rows="5" placeholder="Descrição" name="description" class="description"></textarea><br>
+    
+            <input type="hidden" name="_subject" value="Novo formulário enviado pelo site!">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="https://seusite.com/obrigado.html">
+          
+            <button type="submit">ENVIAR</button>
         </form>
 
         <footer class="footer" id="footer">
