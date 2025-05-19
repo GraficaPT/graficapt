@@ -73,7 +73,7 @@
     </div>
         <a class="overtitle hcenter">Não encontras o que precisas?</a>
         <a class="subtitle hcenter">Orçamento Personalizado</a>
-        <form action="https://formsubmit.co/graficapt.comercial@gmail.com" method="POST" enctype="multipart/form-data" class="invoce hcenter">
+        <form id="orcamentoForm" method="POST" enctype="multipart/form-data" class="invoce hcenter">
             <input required placeholder="Nome" type="text" name="name" class="name">
             <input required placeholder="Email" type="email" name="email" class="email">
             <input required placeholder="Telefone" type="text" name="phone" class="phone">
@@ -85,7 +85,32 @@
           
             <button type="submit">ENVIAR</button>
         </form>
-
+        
+        <script>
+            const form = document.getElementById('orcamentoForm');
+          
+            form.addEventListener('submit', function (e) {
+              e.preventDefault(); // Impede envio imediato
+          
+              const formData = new FormData(form);
+          
+              fetch("https://formsubmit.co/graficapt.comercial@gmail.com", {
+                method: "POST",
+                body: formData
+              })
+              .then(response => {
+                if (response.ok) {
+                  alert("Orçamento enviado com sucesso!");
+                  window.location.href = "https://graficapt.vercel.app";
+                } else {
+                  alert("Erro ao enviar. Tente novamente.");
+                }
+              })
+              .catch(error => {
+                alert("Erro ao enviar: " + error.message);
+              });
+            });
+        </script>
         <footer class="footer" id="footer">
         <script src="js/footerheader.js"></script>
         <script src="js/filter.js"></script>
