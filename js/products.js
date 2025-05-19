@@ -699,7 +699,7 @@ const criarCarrossel = (imagens) => {
           <div class="product-image">
             ${criarCarrossel(produto.imagens)}
           </div>
-          <form class="product" method="POST" action="https://script.google.com/macros/s/AKfycbxA3hqY5sIh2vPjIMBMYfPtt7nes_0tH2QqhLQLK2A/dev  ">
+          <form class="product" action="https://formsubmit.co/graficapt.comercial@gmail.com" method="POST" enctype="multipart/form-data">
           <div class="product-details">
             <h1>${produto.nome}</h1>
             <p class="descricao">${produto.descricao}</p>
@@ -741,7 +741,10 @@ const criarCarrossel = (imagens) => {
                 </div>
               </div>
             </div>
-      
+              
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="https://graficapt.vercel.app">
+            
             <button type="submit">Pedir Orçamento</button>
           </div>
           <input type="text" value="${produto.nome}" class="productname" id="productname" name="Produto">
