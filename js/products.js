@@ -694,12 +694,36 @@ const criarCarrossel = (imagens) => {
   `;
 };
 
+const form = document.getElementById('orcamentoForm');
+          
+            form.addEventListener('submit', function (e) {
+              e.preventDefault(); // Impede envio imediato
+          
+              const formData = new FormData(form);
+          
+              fetch("https://formsubmit.co/graficapt.comercial@gmail.com", {
+                method: "POST",
+                body: formData
+              })
+              .then(response => {
+                if (response.ok) {
+                  alert("Orçamento enviado com sucesso!");
+                  window.location.href = "https://graficapt.vercel.app";
+                } else {
+                  alert("Erro ao enviar. Tente novamente.");
+                }
+              })
+              .catch(error => {
+                alert("Erro ao enviar: " + error.message);
+              });
+            });
+
       let html = `
         
           <div class="product-image">
             ${criarCarrossel(produto.imagens)}
           </div>
-          <form class="product" action="https://formsubmit.co/graficapt.comercial@gmail.com" method="POST" enctype="multipart/form-data">
+          <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
           <div class="product-details">
             <h1>${produto.nome}</h1>
             <p class="descricao">${produto.descricao}</p>
@@ -744,7 +768,7 @@ const criarCarrossel = (imagens) => {
               
             <input type="hidden" name="_captcha" value="false">
             <input type="hidden" name="_next" value="https://graficapt.vercel.app">
-            
+
             <button type="submit">Pedir Orçamento</button>
           </div>
           <input type="text" value="${produto.nome}" class="productname" id="productname" name="Produto">
