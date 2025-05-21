@@ -33,15 +33,15 @@ const footerHTML = `
                 <h4>Empresa</h4>
                 <a href="aboutus.html">Sobre nós</a>
                 <a href="#">Trabalha connosco</a>
-                <a href="#">Segue-nos</a>
+                <a href="https://www.instagram.com/graficapt/">Segue-nos</a>
             </div>
             <div class="footer-column">
                 <h4>Produtos</h4>
-                <a href="#">Todos os produtos</a>
-                <a href="#">Bandeiras</a>
-                <a href="#">Sacos</a>
+                <a href="https://graficapt.com/index.html">Todos os produtos</a>
+                <a href="https://graficapt.com/index.html#filter=bandeiras">Bandeiras</a>
+                <a href="https://graficapt.com/index.html#filter=sacos">Sacos</a>
             </div>
-            <div class="footer-column">
+            <div class="footer-column">3
                 <h4>Subscreve a nossa newsletter</h4>
                 <form class="newsletter-form">
                     <input type="email" placeholder="O teu email">
