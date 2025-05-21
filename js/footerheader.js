@@ -26,8 +26,8 @@ const footerHTML = `
         <div class="footer-columns">
             <div class="footer-column">
                 <h4>Ajuda</h4>
-                <a href="#">Contactos</a>
-                <a href="#">FAQs</a>
+                <a>graficapt.comercial@gmail.com</a>
+                <a href="https://www.instagram.com/graficapt/">@graficapt</a>
             </div>
             <div class="footer-column">
                 <h4>Empresa</h4>
