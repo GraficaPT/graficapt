@@ -315,6 +315,7 @@ a {
     font-size: 1.5vh;
     padding: 1vh;
     border: none;
+    background-color: transparent;
 }
 
 @media screen and (max-width: 768px) {
