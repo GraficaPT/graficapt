@@ -12,12 +12,11 @@ const topbarHTML = `
         </div>
 
         <div class="sidebar" id="sidebar">
-            <a onclick="toggleSidebar()">✕</a>
-            <a>Suportes Rigídos</a>
-            <a>Bandeiras Publicitárias</a>
-            <a>Sacos</a>
-            <a>Vestuário</a>
-            <a>Ver Tudo</a>
+            <a href="#filter=rigidos">Suportes Rigídos</a>
+            <a href="#filter=bandeiras">Bandeiras Publicitárias</a>
+            <a href="#filter=sacos">Sacos</a>
+            <a href="#filter=vestuario">Vestuário</a>
+            <a href="#filter=all">Ver Tudo</a>
         </div>
         <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>            
 `;
