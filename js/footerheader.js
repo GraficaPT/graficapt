@@ -41,7 +41,7 @@ const footerHTML = `
                 <a href="https://graficapt.com/index.html#filter=bandeiras">Bandeiras</a>
                 <a href="https://graficapt.com/index.html#filter=sacos">Sacos</a>
             </div>
-            <div class="footer-column">3
+            <div class="footer-column">
                 <h4>Subscreve a nossa newsletter</h4>
                 <form class="newsletter-form">
                     <input type="email" placeholder="O teu email">
