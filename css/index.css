@@ -321,7 +321,7 @@ a {
 
 @media screen and (max-width: 768px) {
     .banner {
-        width: 90vw;
+        width: 100vw;
         margin-bottom: 5vh;
         display: block;
     }
