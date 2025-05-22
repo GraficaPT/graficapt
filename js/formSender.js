@@ -13,7 +13,7 @@ form.addEventListener('submit', function (e) {
     .then(response => {
     if (response.ok) {
         alert("Pedido de orçamento enviado com sucesso!");
-        window.location.href = "https://graficapt.vercel.app";
+        window.location.href = "https://graficapt.com";
     } else {
         alert("Erro ao enviar. Tente novamente.");
     }
