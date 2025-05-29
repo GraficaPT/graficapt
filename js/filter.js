@@ -1,3 +1,5 @@
+let shouldScrollToProducts = false;
+
 function applyFilters(scroll = false) {
     const hash = window.location.hash;
     const filter = hash.startsWith("#filter=") ? hash.replace("#filter=", "") : "all";
@@ -27,7 +29,7 @@ function applyFilters(scroll = false) {
         visibleCells.forEach(cell => grid.appendChild(cell));
     }
 
-    // Scroll to products section if requested
+    // Scroll
     if (scroll) {
         const gridSection = document.getElementById("products");
         if (gridSection) {
@@ -36,43 +38,55 @@ function applyFilters(scroll = false) {
             }, 100);
         }
     }
+
+    // Reset scroll flag
+    shouldScrollToProducts = false;
 }
 
-window.addEventListener("hashchange", () => applyFilters());
+// Triggered when hash changes (even first time)
+window.addEventListener("hashchange", () => {
+    applyFilters(shouldScrollToProducts); // now uses correct flag
+});
 
 document.addEventListener("DOMContentLoaded", () => {
-    const initialScroll = window.location.hash.startsWith("#filter=");
-    applyFilters(initialScroll); // scroll only if hash present at load
+    // Detect if coming in with a filter in URL
+    if (window.location.hash.startsWith("#filter=")) {
+        shouldScrollToProducts = true;
+    }
 
-    // Dropdown filter
+    applyFilters(shouldScrollToProducts);
+
+    // Dropdown
     const filterDropdown = document.getElementById("filterCategory");
     if (filterDropdown) {
         filterDropdown.addEventListener("change", function () {
+            shouldScrollToProducts = true;
             const newHash = "#filter=" + this.value;
             if (window.location.hash !== newHash) {
                 location.hash = newHash;
             } else {
-                applyFilters(true); // force apply with scroll
+                applyFilters(true);
             }
         });
     }
 
+    // Topbar filter links
     document.querySelectorAll('a[href*="#filter="]').forEach(link => {
         link.addEventListener("click", (e) => {
             const href = link.getAttribute("href");
             const url = new URL(href, window.location.href);
             const hash = url.hash;
-    
-            // Se o hash for do tipo #filter=abc
+
             if (hash.startsWith("#filter=")) {
-                e.preventDefault(); // impede o redirecionamento padrão
+                e.preventDefault();
+                shouldScrollToProducts = true;
+
                 if (window.location.hash !== hash) {
-                    window.location.hash = hash; // vai disparar hashchange
+                    window.location.hash = hash;
                 } else {
-                    applyFilters(true); // força filtro + scroll mesmo se hash igual
+                    applyFilters(true);
                 }
             }
         });
     });
-    
 });
