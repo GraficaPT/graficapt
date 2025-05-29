@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("load", () => {
         // Verifica se veio com hash de filtro (ex: index.html#filter=something)
         if (window.location.hash.startsWith("#filter=")) {
             shouldScrollToProducts = true;
