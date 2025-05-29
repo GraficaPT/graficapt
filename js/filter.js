@@ -33,7 +33,9 @@ function applyFilters() {
     if (shouldScrollToProducts) {
         const gridSection = document.getElementById("products");
         if (gridSection) {
-            gridSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            setTimeout(() => {
+                gridSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100); // espera para garantir renderização completa
         }
     }
 
@@ -43,58 +45,42 @@ function applyFilters() {
 window.addEventListener("hashchange", applyFilters);
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Apply filters initially
-    applyFilters();
+    // Detecta se a URL já veio com um filtro (ex: index.html#filter=abc)
+    if (window.location.hash.startsWith("#filter=")) {
+        shouldScrollToProducts = true;
+    }
 
-    // Handle select dropdown
+    // Aguarda o carregamento completo antes de aplicar filtros e scroll
+    window.requestAnimationFrame(() => {
+        setTimeout(() => {
+            applyFilters();
+        }, 50); // aguarda um pouco para garantir que DOM está pronto
+    });
+
+    // Dropdown
     const filterDropdown = document.getElementById("filterCategory");
     if (filterDropdown) {
         filterDropdown.addEventListener("change", function () {
-            shouldScrollToProducts = false;
+            shouldScrollToProducts = true;
             const newHash = "#filter=" + this.value;
             if (window.location.hash !== newHash) {
                 location.hash = newHash;
             } else {
-                applyFilters(); // trigger manually
+                applyFilters();
             }
         });
     }
 
-    document.addEventListener("load", () => {
-        // Verifica se veio com hash de filtro (ex: index.html#filter=something)
-        if (window.location.hash.startsWith("#filter=")) {
+    // Topbar filter links
+    document.querySelectorAll('a[href^="#filter="]').forEach(link => {
+        link.addEventListener("click", (e) => {
             shouldScrollToProducts = true;
-        }
-    
-        // Aplica filtros (e faz scroll se necessário)
-        applyFilters();
-    
-        // Handle select dropdown
-        const filterDropdown = document.getElementById("filterCategory");
-        if (filterDropdown) {
-            filterDropdown.addEventListener("change", function () {
-                shouldScrollToProducts = true;
-                const newHash = "#filter=" + this.value;
-                if (window.location.hash !== newHash) {
-                    location.hash = newHash;
-                } else {
-                    applyFilters(); // trigger manually
-                }
-            });
-        }
-    
-        // Handle topbar links
-        document.querySelectorAll('a[href^="#filter="]').forEach(link => {
-            link.addEventListener("click", (e) => {
-                const href = link.getAttribute("href");
-                shouldScrollToProducts = true;
-                if (window.location.hash !== href) {
-                    window.location.hash = href;
-                } else {
-                    applyFilters(); // force reapply with scroll
-                }
-            });
+            const href = link.getAttribute("href");
+            if (window.location.hash !== href) {
+                window.location.hash = href;
+            } else {
+                applyFilters();
+            }
         });
     });
 });
- 
