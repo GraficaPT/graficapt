@@ -2,11 +2,11 @@ const topbarHTML = `
         <div class="bar">
             <img src="../imagens/logo_minimal.svg" onclick="location.href = 'index.html'">
             <div class="tabs desktop-only">
-                <a href="#filter=promo">Suportes Rigídos</a>
-                <a href="#filter=promo">Bandeiras Publicitárias</a>
-                <a href="#filter=promo">Sacos</a>
-                <a href="#filter=promo">Vestuário</a>
-                <a href="#filter=promo">Ver Tudo</a>
+                <a href="#filter=rigidos">Suportes Rigídos</a>
+                <a href="#filter=bandeiras">Bandeiras Publicitárias</a>
+                <a href="#filter=sacos">Sacos</a>
+                <a href="#filter=vestuario">Vestuário</a>
+                <a href="#filter=all">Ver Tudo</a>
             </div>
             <div class="hamburger mobile-only" onclick="toggleSidebar()">☰</div>
         </div>
