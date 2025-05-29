@@ -57,15 +57,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Topbar filter links
-    document.querySelectorAll('a[href^="#filter="]').forEach(link => {
+    document.querySelectorAll('a[href*="#filter="]').forEach(link => {
         link.addEventListener("click", (e) => {
             const href = link.getAttribute("href");
-            if (window.location.hash !== href) {
-                window.location.hash = href;
-            } else {
-                applyFilters(true); // force apply with scroll
+            const url = new URL(href, window.location.href);
+            const hash = url.hash;
+    
+            // Se o hash for do tipo #filter=abc
+            if (hash.startsWith("#filter=")) {
+                e.preventDefault(); // impede o redirecionamento padrão
+                if (window.location.hash !== hash) {
+                    window.location.hash = hash; // vai disparar hashchange
+                } else {
+                    applyFilters(true); // força filtro + scroll mesmo se hash igual
+                }
             }
         });
     });
+    
 });
