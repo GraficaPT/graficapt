@@ -1,6 +1,4 @@
-let shouldScrollToProducts = false;
-
-function applyFilters() {
+function applyFilters(scroll = false) {
     const hash = window.location.hash;
     const filter = hash.startsWith("#filter=") ? hash.replace("#filter=", "") : "all";
     const sort = document.getElementById("sortBy")?.value || "default";
@@ -29,44 +27,32 @@ function applyFilters() {
         visibleCells.forEach(cell => grid.appendChild(cell));
     }
 
-    // Scroll
-    if (shouldScrollToProducts) {
+    // Scroll to products section if requested
+    if (scroll) {
         const gridSection = document.getElementById("products");
         if (gridSection) {
             setTimeout(() => {
                 gridSection.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 100); // espera para garantir renderização completa
+            }, 100);
         }
     }
-
-    shouldScrollToProducts = false;
 }
 
-window.addEventListener("hashchange", applyFilters);
+window.addEventListener("hashchange", () => applyFilters());
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Detecta se a URL já veio com um filtro (ex: index.html#filter=abc)
-    if (window.location.hash.startsWith("#filter=")) {
-        shouldScrollToProducts = true;
-    }
+    const initialScroll = window.location.hash.startsWith("#filter=");
+    applyFilters(initialScroll); // scroll only if hash present at load
 
-    // Aguarda o carregamento completo antes de aplicar filtros e scroll
-    window.requestAnimationFrame(() => {
-        setTimeout(() => {
-            applyFilters();
-        }, 50); // aguarda um pouco para garantir que DOM está pronto
-    });
-
-    // Dropdown
+    // Dropdown filter
     const filterDropdown = document.getElementById("filterCategory");
     if (filterDropdown) {
         filterDropdown.addEventListener("change", function () {
-            shouldScrollToProducts = true;
             const newHash = "#filter=" + this.value;
             if (window.location.hash !== newHash) {
                 location.hash = newHash;
             } else {
-                applyFilters();
+                applyFilters(true); // force apply with scroll
             }
         });
     }
@@ -74,12 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Topbar filter links
     document.querySelectorAll('a[href^="#filter="]').forEach(link => {
         link.addEventListener("click", (e) => {
-            shouldScrollToProducts = true;
             const href = link.getAttribute("href");
             if (window.location.hash !== href) {
                 window.location.hash = href;
             } else {
-                applyFilters();
+                applyFilters(true); // force apply with scroll
             }
         });
     });
