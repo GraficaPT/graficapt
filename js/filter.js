@@ -60,16 +60,40 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Handle topbar links
-    document.querySelectorAll('a[href^="#filter="]').forEach(link => {
-        link.addEventListener("click", (e) => {
-            const href = link.getAttribute("href");
+    document.addEventListener("DOMContentLoaded", () => {
+        // Verifica se veio com hash de filtro (ex: index.html#filter=something)
+        if (window.location.hash.startsWith("#filter=")) {
             shouldScrollToProducts = true;
-            if (window.location.hash !== href) {
-                window.location.hash = href;
-            } else {
-                applyFilters(); // force reapply with scroll
-            }
+        }
+    
+        // Aplica filtros (e faz scroll se necessário)
+        applyFilters();
+    
+        // Handle select dropdown
+        const filterDropdown = document.getElementById("filterCategory");
+        if (filterDropdown) {
+            filterDropdown.addEventListener("change", function () {
+                shouldScrollToProducts = true;
+                const newHash = "#filter=" + this.value;
+                if (window.location.hash !== newHash) {
+                    location.hash = newHash;
+                } else {
+                    applyFilters(); // trigger manually
+                }
+            });
+        }
+    
+        // Handle topbar links
+        document.querySelectorAll('a[href^="#filter="]').forEach(link => {
+            link.addEventListener("click", (e) => {
+                const href = link.getAttribute("href");
+                shouldScrollToProducts = true;
+                if (window.location.hash !== href) {
+                    window.location.hash = href;
+                } else {
+                    applyFilters(); // force reapply with scroll
+                }
+            });
         });
     });
 });
