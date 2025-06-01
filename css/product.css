@@ -26,6 +26,7 @@ body {
 }
 
 .t-r{
+  display: flex;
   width: 100%;
 }
 
