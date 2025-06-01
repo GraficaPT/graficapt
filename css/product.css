@@ -20,17 +20,16 @@ body {
 
 .table{
   margin:auto;
-  display: flex;
   font-size: 2.3vh;
   width: 65vw;
 }
 
 .t-r{
-  width: 65vw;
+  width: 100%;
 }
 
 .t-c {
-  width: 49%;
+  width: 50%;
 }
 
 tbody{
