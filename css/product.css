@@ -21,7 +21,7 @@ body {
 .table{
   margin:auto;
   font-size: 2.3vh;
-  width: 65vw;
+  width: 70vw;
   display: block;
 }
 
@@ -33,7 +33,7 @@ body {
 .t-c {
   width: 50%;
   padding: 1vh;
-  border-style: solid;
+  border-style: dashed;
   border-width: 0.2vh;
   border-color: rgb(219, 219, 219);
 }
