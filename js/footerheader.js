@@ -20,11 +20,6 @@ const topbarHTML = `
         <a href="index.html#filter=sacos">Sacos</a>
         <a href="index.html#filter=vestuario">Vestuário</a>
         <a href="index.html#filter=all">Ver Tudo</a>
-        <div class="sidebar-social-icons">
-            <img src="../imagens/facebook.svg" alt="Facebook">
-            <img src="../imagens/instagram.svg" alt="Instagram">
-            <img src="../imagens/whatsapp.svg" alt="WhatsApp">
-        </div>
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 `;
