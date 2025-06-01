@@ -311,19 +311,14 @@ button:hover {
     margin:auto;
     width: 85vw;
   }
-  
-  .t-r{
-    display: block;
-  }
-
   .t-c {
     padding: 1vh;
     font-size: 1.7vh;
-    width: 30%;
+    width: 35%;
   }
   
   .t-c:nth-child(even){
-    width: 70%;
+    width: 65%;
   }
 
   .carrossel-container {
