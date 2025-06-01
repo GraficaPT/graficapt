@@ -310,7 +310,7 @@ button:hover {
   .table{
     margin:auto;
     width: 85vw;
-    display: flex;
+    display: block;
   }
   
   .carrossel-container {
