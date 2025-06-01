@@ -33,9 +33,13 @@ body {
 }
 
 .t-c {
-  width: 50%;
+  width: 20%;
   padding: 1vh;
   border-color: rgb(219, 219, 219);
+}
+
+.t-c:nth-child(odd){
+  width: 80%;
 }
 
 tbody{
