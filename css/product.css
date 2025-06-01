@@ -19,10 +19,13 @@ body {
 }
 
 .table{
-  width: 65vw;
   margin:auto;
   display: flex;
   font-size: 2.3vh;
+}
+
+.t-r{
+  width: 65vw;
 }
 
 .t-c {
