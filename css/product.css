@@ -312,6 +312,10 @@ button:hover {
     width: 85vw;
   }
   
+  .t-r{
+    display: block;
+  }
+
   .t-c {
     padding: 1vh;
     font-size: 1.7vh;
