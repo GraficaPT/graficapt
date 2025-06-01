@@ -23,6 +23,10 @@ tbody{
   font-size: 2.5vh;
 }
 
+td{
+  background-color: #999;
+}
+
 th{
   width: 50%;
 }
