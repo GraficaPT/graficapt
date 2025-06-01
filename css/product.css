@@ -35,9 +35,8 @@ body {
 .t-c {
   width: 20%;
   padding: 1vh;
-  border-color: rgb(219, 219, 219);
+  border-color: #3198a7;
   font-size: 1.9vh;
-  color:#3198a7;
 }
 
 .t-c:nth-child(even){
@@ -45,6 +44,7 @@ body {
 }
 
 .t-c a{
+  color:#3198a7;
   font-weight: bolder;
 }
 
