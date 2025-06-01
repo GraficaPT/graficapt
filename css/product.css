@@ -22,6 +22,7 @@ body {
   margin:auto;
   display: flex;
   font-size: 2.3vh;
+  width: 65vw;
 }
 
 .t-r{
@@ -29,7 +30,7 @@ body {
 }
 
 .t-c {
-  width: 50%;
+  width: 49%;
 }
 
 tbody{
