@@ -22,7 +22,7 @@ body {
   margin:auto;
   font-size: 2.3vh;
   font-weight:lighter;
-  width: 60vw;
+  width: 65vw;
   display: block;
 }
 
@@ -35,7 +35,7 @@ body {
   width: 50%;
   padding: 1vh;
   border-style: dashed;
-  border-width: 0.2vh;
+  border-width: 0.1vh;
   border-color: rgb(219, 219, 219);
 }
 
