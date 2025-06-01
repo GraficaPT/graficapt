@@ -12,11 +12,11 @@ const topbarHTML = `
         </div>
 
         <div class="sidebar" id="sidebar">
-            <a href="#filter=rigidos">Suportes Rigídos</a>
-            <a href="#filter=bandeiras">Bandeiras Publicitárias</a>
-            <a href="#filter=sacos">Sacos</a>
-            <a href="#filter=vestuario">Vestuário</a>
-            <a href="#filter=all">Ver Tudo</a>
+            <a href="index.html#filter=rigidos">Suportes Rigídos</a>
+            <a href="index.html#filter=bandeiras">Bandeiras Publicitárias</a>
+            <a href="index.html#filter=sacos">Sacos</a>
+            <a href="index.html#filter=vestuario">Vestuário</a>
+            <a href="index.html#filter=all">Ver Tudo</a>
         </div>
         <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>            
 `;
@@ -36,9 +36,9 @@ const footerHTML = `
             </div>
             <div class="footer-column">
                 <h4>Produtos</h4>
-                <a href="https://graficapt.com/index.html">Todos os produtos</a>
-                <a href="https://graficapt.com/index.html#filter=bandeiras">Bandeiras</a>
-                <a href="https://graficapt.com/index.html#filter=sacos">Sacos</a>
+                <a href="index.html">Todos os produtos</a>
+                <a href="index.html#filter=bandeiras">Bandeiras</a>
+                <a href="index.html#filter=sacos">Sacos</a>
             </div>
             <div class="footer-column">
                 <h4>Subscreve a nossa newsletter</h4>
