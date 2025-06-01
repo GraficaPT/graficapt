@@ -319,11 +319,11 @@ button:hover {
   .t-c {
     padding: 1vh;
     font-size: 1.7vh;
-    width: 85vw;
+    width: 30%;
   }
   
   .t-c:nth-child(even){
-    width: 85vw;
+    width: 70%;
   }
 
   .carrossel-container {
