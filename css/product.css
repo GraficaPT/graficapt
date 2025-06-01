@@ -37,6 +37,7 @@ body {
   padding: 1vh;
   border-color: rgb(219, 219, 219);
   font-size: 1.9vh;
+  color:#3198a7;
 }
 
 .t-c:nth-child(even){
