@@ -321,6 +321,10 @@ button:hover {
     font-size: 1.7vh;
     width: 100%;
   }
+  
+  .t-c:nth-child(even){
+    width: 100%;
+  }
 
   .carrossel-container {
     width: 100%;
