@@ -23,9 +23,9 @@ a {
 }
 
 .sidebar-header{
-    width: 60%;
+    width: 70%;
     align-items: center;
-    margin: 5% 20%;
+    margin: 5% 0;
 }
 
 .sidebar-social-icons{
