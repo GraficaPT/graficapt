@@ -20,7 +20,7 @@ body {
 
 .table{
   margin:auto;
-  font-size: 2.3vh;
+  font-size: 2vh;
   width: 63vw;
   display: block;
 }
@@ -41,6 +41,11 @@ body {
 
 .t-c:nth-child(even){
   width: 80%;
+}
+
+.t-c a{
+  font-weight: bolder;
+  font-size: 2.3vh;
 }
 
 tbody{
