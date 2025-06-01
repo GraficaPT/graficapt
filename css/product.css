@@ -18,6 +18,14 @@ body {
   overflow: hidden;
 }
 
+tbody{
+  width: 100%;
+}
+
+th{
+  width: 50%;
+}
+
 .product-image {
   flex: 1 1 100%;
 
