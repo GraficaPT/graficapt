@@ -25,7 +25,7 @@ a {
 .sidebar-header{
     width: 60%;
     align-items: center;
-    margin:auto
+    margin: 20% 0;
 }
 
 .sidebar-social-icons{
