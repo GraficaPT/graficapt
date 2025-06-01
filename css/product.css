@@ -22,12 +22,14 @@ body {
   margin:auto;
   width: 63vw;
   display: block;
+  border-style: solid;
+  border-width: 2px;
+  border-color:#3198a7;
 }
 
 .t-r{
   display: flex;
   width: 100%;
-
 }
 
 .t-c {
