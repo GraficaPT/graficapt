@@ -38,7 +38,7 @@ body {
   border-color: rgb(219, 219, 219);
 }
 
-.t-c:nth-child(odd){
+.t-c:nth-child(even){
   width: 80%;
 }
 
