@@ -24,12 +24,12 @@ body {
   font-weight:lighter;
   width: 63vw;
   display: block;
-  box-shadow: 0 0 0.5vh rgba(0, 0, 0, 0.2);
 }
 
 .t-r{
   display: flex;
   width: 100%;
+  box-shadow: 0 0 0.5vh rgba(0, 0, 0, 0.2);
 }
 
 .t-c {
