@@ -22,7 +22,7 @@ body {
   margin:auto;
   font-size: 2.3vh;
   font-weight:lighter;
-  width: 65vw;
+  width: 63vw;
   display: block;
 }
 
@@ -34,7 +34,7 @@ body {
 .t-c {
   width: 50%;
   padding: 1vh;
-  border-style: dashed;
+  border-style:dotted;
   border-width: 0.1vh;
   border-color: rgb(219, 219, 219);
 }
