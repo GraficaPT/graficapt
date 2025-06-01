@@ -3,17 +3,12 @@
   box-sizing: border-box;
 }
 
-table{
-  width: 60%;
-  margin: 0 20%;
-}
-
 body {
   overflow-x: hidden;
   font-family: 'League Spartan', sans-serif;
 }
 
-.product {
+.product, table {
   display: flex;
   flex-wrap: wrap;
   max-width: 65vw;
