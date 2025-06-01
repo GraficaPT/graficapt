@@ -313,7 +313,7 @@ button:hover {
   }
   
   .t-r{
-    display: flex;
+    display: block;
   }
 
   .t-c {
