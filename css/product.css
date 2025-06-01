@@ -307,6 +307,12 @@ button:hover {
 
 /* Responsividade */
 @media (max-width: 768px) {
+  .table{
+    margin:auto;
+    width: 85vw;
+    display: flex;
+  }
+  
   .carrossel-container {
     width: 100%;
     max-width: 100%;
