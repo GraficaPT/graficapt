@@ -12,7 +12,7 @@ form.addEventListener('submit', function (e) {
     })
     .then(response => {
     if (response.ok) {
-        alert("Pedido de orçamento enviado com sucesso!");
+        alert("Pedido de orçamento enviado com sucesso!<br>Iremos responder com a maior breviedade possível!");
         window.location.href = "https://graficapt.com";
     } else {
         alert("Erro ao enviar. Tente novamente.");

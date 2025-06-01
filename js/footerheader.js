@@ -29,7 +29,7 @@ const footerHTML = `
         <div class="footer-columns">
             <div class="footer-column">
                 <h4>Ajuda</h4>
-                <a>graficapt.comercial@gmail.com</a>
+                <a>comercial@graficapt.com</a>
                 <a href="https://www.instagram.com/graficapt/">@graficapt</a>
             </div>
             <div class="footer-column">
