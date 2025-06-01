@@ -23,8 +23,13 @@ a {
 }
 
 .sidebar-header{
-    width: 80%;
+    width: 60%;
     align-items: center;
+    margin:auto
+}
+
+.sidebar-social-icons{
+    
 }
 
 .topbar {
