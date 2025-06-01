@@ -3,6 +3,10 @@
   box-sizing: border-box;
 }
 
+.tbody{
+  width: 60%;
+  margin: 0 20%;
+}
 
 body {
   overflow-x: hidden;
