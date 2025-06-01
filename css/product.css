@@ -20,7 +20,6 @@ body {
 
 .table{
   margin:auto;
-  font-size: 2vh;
   width: 63vw;
   display: block;
 }
@@ -37,6 +36,8 @@ body {
   width: 20%;
   padding: 1vh;
   border-color: rgb(219, 219, 219);
+  font-size: 1.8vh;
+  font-weight: lighter;
 }
 
 .t-c:nth-child(even){
