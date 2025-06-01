@@ -1,25 +1,34 @@
 const topbarHTML = `
-        <div class="bar">
-            <img src="../imagens/logo_minimal.svg" onclick="location.href = 'index.html'">
-            <div class="tabs desktop-only">
-                <a href="index.html#filter=rigidos">Suportes Rigídos</a>
-                <a href="index.html#filter=bandeiras">Bandeiras Publicitárias</a>
-                <a href="index.html#filter=sacos">Sacos</a>
-                <a href="index.html#filter=vestuario">Vestuário</a>
-                <a href="index.html#filter=all">Ver Tudo</a>
-            </div>
-            <div class="hamburger mobile-only" onclick="toggleSidebar()">☰</div>
-        </div>
-
-        <div class="sidebar" id="sidebar">
+    <div class="bar">
+        <img src="../imagens/logo_minimal.svg" onclick="location.href = 'index.html'">
+        <div class="tabs desktop-only">
             <a href="index.html#filter=rigidos">Suportes Rigídos</a>
             <a href="index.html#filter=bandeiras">Bandeiras Publicitárias</a>
             <a href="index.html#filter=sacos">Sacos</a>
             <a href="index.html#filter=vestuario">Vestuário</a>
             <a href="index.html#filter=all">Ver Tudo</a>
         </div>
-        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>            
+        <div class="hamburger mobile-only" onclick="toggleSidebar()">☰</div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../imagens/logo_minimal.svg" class="sidebar-logo" onclick="location.href = 'index.html'">
+        </div>
+        <a href="index.html#filter=rigidos">Suportes Rigídos</a>
+        <a href="index.html#filter=bandeiras">Bandeiras Publicitárias</a>
+        <a href="index.html#filter=sacos">Sacos</a>
+        <a href="index.html#filter=vestuario">Vestuário</a>
+        <a href="index.html#filter=all">Ver Tudo</a>
+        <div class="sidebar-social-icons">
+            <img src="../imagens/facebook.svg" alt="Facebook">
+            <img src="../imagens/instagram.svg" alt="Instagram">
+            <img src="../imagens/whatsapp.svg" alt="WhatsApp">
+        </div>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 `;
+
 
 const footerHTML = ` 
         <div class="footer-columns">
