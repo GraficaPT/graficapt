@@ -313,8 +313,13 @@ button:hover {
     display: block;
   }
   
+  .t-c {
+    padding: 1vh;
+    font-size: 1.7vh;
+  }
+  
   .t-c:nth-child(even){
-    width: 70%;
+    width: 80%;
   }
 
   .carrossel-container {
