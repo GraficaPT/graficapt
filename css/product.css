@@ -24,6 +24,7 @@ body {
   font-weight:lighter;
   width: 63vw;
   display: block;
+  box-shadow: 0 0 0.5vh rgba(0, 0, 0, 0.2);
 }
 
 .t-r{
@@ -35,7 +36,6 @@ body {
   width: 50%;
   padding: 1vh;
   border-color: rgb(219, 219, 219);
-  box-shadow: 0 0 0.5vh rgba(0, 0, 0, 0.2);
 }
 
 tbody{
