@@ -1,4 +1,4 @@
-wconst topbarHTML = `
+const topbarHTML = `
     <div class="bar">
         <img src="../imagens/logo_minimal.svg" onclick="location.href = 'index.html'">
         <div class="tabs desktop-only">
