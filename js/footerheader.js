@@ -1,4 +1,4 @@
-const topbarHTML = `
+wconst topbarHTML = `
     <div class="bar">
         <img src="../imagens/logo_minimal.svg" onclick="location.href = 'index.html'">
         <div class="tabs desktop-only">
@@ -51,9 +51,9 @@ const footerHTML = `
                     <button type="submit">Subscrever</button>
                 </form>
                 <div class="social-icons hcenter">
-                    <img src="../imagens/facebook.svg" alt="Facebook">
-                    <img src="../imagens/instagram.svg" alt="Instagram">
-                    <img src="../imagens/whatsapp.svg" alt="WhatsApp">
+                    <img href="https://www.facebook.com/profile.php?id=61564124441415" src="../imagens/facebook.svg" alt="Facebook">
+                    <img href="https://www.instagram.com/graficapt/" src="../imagens/instagram.svg" alt="Instagram">
+                    <img href="https://wa.me/351969205741" src="../imagens/whatsapp.svg" alt="WhatsApp">
                 </div>
             </div>
         </div>
