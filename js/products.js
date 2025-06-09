@@ -448,7 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
               tipo: "imagem-radio",
               valores: [
                 {
-                  nome: "S Frente e Verso",
+                  nome: "S",
                   imagem: "../imagens/produtos/rollup/s.webp"
                 }
               ]
