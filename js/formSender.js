@@ -6,7 +6,7 @@ form.addEventListener('submit', function (e) {
 
     const formData = new FormData(form);
 
-    fetch("https://formsubmit.co/graficapt.comercial@gmail.com", {
+    fetch("https://formsubmit.co/orcamentos@graficapt.com", {
     method: "POST",
     body: formData
     })
