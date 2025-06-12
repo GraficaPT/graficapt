@@ -701,7 +701,6 @@ const criarCarrossel = (imagens) => {
           <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
           <div class="product-details">
             <h1>${produto.nome}</h1>
-            <p class="descricao">${produto.descricao}</p>
             ${Object.entries(produto.opcoes).map(([label, op]) => `
               <div class="option-group">
                 <div class="overcell">
@@ -745,6 +744,7 @@ const criarCarrossel = (imagens) => {
             <input type="hidden" name="_next" value="https://graficapt.com">
 
             <button type="submit">Pedir Orçamento</button>
+            <p class="descricao">${produto.descricao}</p>
           </div>
           <input type="text" value="${produto.nome}" class="productname" id="productname" name="Produto">
         </form>
