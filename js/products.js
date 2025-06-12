@@ -700,7 +700,7 @@ const criarCarrossel = (imagens) => {
           </div>
           <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
           <div class="product-details">
-            <h1>${produto.nome}</h1>
+            <h1>${produto.nome}</h1><br>
             ${Object.entries(produto.opcoes).map(([label, op]) => `
               <div class="option-group">
                 <div class="overcell">
