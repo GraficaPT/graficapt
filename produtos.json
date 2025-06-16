@@ -1,0 +1,35 @@
+[
+  {
+    "id": "tshirt",
+    "nome": "T-shirt Personalizada",
+    "preco": "12.00",
+    "imagem": "imagens/tshirt.webp",
+    "cores": [
+      "Branco",
+      "Preto",
+      "Azul"
+    ],
+    "descricao": "T-shirt de algodão personalizada com a tua marca."
+  },
+  {
+    "id": "rollup",
+    "nome": "Roll-Up Publicitário",
+    "preco": "29.99",
+    "imagem": "imagens/banner.webp",
+    "cores": [
+      "Branco",
+      "Preto"
+    ],
+    "descricao": "Roll-up ideal para eventos e promoções."
+  },
+  {
+    "id": "sacokraft",
+    "nome": "Saco Kraft",
+    "preco": "0.50",
+    "imagem": "imagens/sacoskraft.jpg",
+    "cores": [
+      "Bege"
+    ],
+    "descricao": "Saco em papel kraft ecológico, ideal para lojas e brindes."
+  }
+]
