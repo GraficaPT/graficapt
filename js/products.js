@@ -729,9 +729,7 @@ return `
               <input type="tel" name="telemovel" placeholder="Ex: 912 345 678" required>
             </div>
           </div>
-        </div>
-        <div class="form-row">
-        <div class="form-group">
+          <div class="form-group">
             <div class="overcell">
               <label for="email">Logotipo:</label>
                 <input type="file" id="ficheiro" required>
@@ -739,6 +737,8 @@ return `
                 <p id="uploadStatus"></p>
             </div>
           </div>
+        </div>
+        <div class="form-row">
           <div class="form-group">
             <div class="overcell">
               <label for="email">Email:</label>
