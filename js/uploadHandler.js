@@ -20,24 +20,22 @@ document.addEventListener("DOMContentLoaded", () => {
       formData.append("name", ficheiro.name);
 
       try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbwALvmtB1RzY3xKAlECemjWh91PxyDoARXiI9CU-7fdGezjuo25G2kX12yQuwZc-pJ-7A/exec", {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyIEbcsFJvpM5GPico5d2g_CXpHD1OzkTDaSeWj37n_N5lzxc7xagVQfdRqAHSFCtmD2g/exec", {
           method: "POST",
           body: formData
         });
 
-        const html = await res.text();
-        const match = html.match(/window\.location\.href='([^']+)'/);
-        const link = match ? match[1] : '';
+        const link = await res.text();
 
         if (link.startsWith("http")) {
           linkHidden.value = link;
           if (status) status.innerHTML = `✅ <a href="${link}" target="_blank">Ficheiro carregado</a>`;
         } else {
-          if (status) status.textContent = "❌ Erro ao extrair o link do ficheiro.";
+          status.textContent = "❌ Erro ao carregar: " + link;
         }
 
       } catch (erro) {
-        if (status) status.textContent = "❌ Erro: " + erro.message;
+        status.textContent = "❌ Erro: " + erro.message;
       }
     };
 
