@@ -731,7 +731,7 @@ return `
           </div>
         </div>
         <div class="form-row">
-        div class="form-group">
+        <div class="form-group">
             <div class="overcell">
               <label for="email">Logotipo:</label>
                 <input type="file" id="ficheiro" required>
