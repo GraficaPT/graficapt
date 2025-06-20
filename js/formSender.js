@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
-  
 const form = document.getElementById('orcamentoForm');
           
 form.addEventListener('submit', function (e) {
