@@ -54,10 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Por favor aguarde o carregamento do ficheiro.");
         return;
       }
-  
-      // ⚠️ Remover ficheiro do DOM já feito — garantido
-      // ⚠️ NADA DE FETCH para o FormSubmit!
-      // ⚠️ Deixa o FormSubmit fazer o que sabe: receber o POST real do formulário
     });
   });
   
