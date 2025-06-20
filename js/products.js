@@ -698,7 +698,7 @@ const criarCarrossel = (imagens) => {
           <div class="product-image">
             ${criarCarrossel(produto.imagens)}
           </div>
-          <form class="product" id="orcamentoForm" action="https://formsubmit.co/orcamentos@graficapt.com" method="POST" enctype="multipart/form-data">
+          <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
           <div class="product-details">
             <h1>${produto.nome}</h1><br>
             ${Object.entries(produto.opcoes).map(([label, op]) => `
