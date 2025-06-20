@@ -740,8 +740,9 @@ return `
           </div>
           <div class="form-group">
             <div class="overcell">
-              <input type="file" id="ficheiro">
-              <input type="hidden" name="link_ficheiro" id="link_ficheiro" value="https://exemplo.com">
+            <label for="email">Logotipo:</label>
+              <input type="file" id="ficheiro" required>
+              <input type="hidden" name="link_ficheiro" id="link_ficheiro">
               <p id="uploadStatus"></p>
             </div>
           </div>
