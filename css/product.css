@@ -214,8 +214,11 @@ button:hover {
 
 .option-group, .form-group, .options-row {
   border-style: solid;
-  border-width: 2px;
-  border-bottom: #3198a7;
+  border-width: 1px;
+  border-color:#3198a7;
+  border-top:none;
+  border-left:none;
+  border-right:none;
 }
 .options-row {
   display: flex;
