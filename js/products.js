@@ -732,16 +732,8 @@ const criarCarrossel = (imagens) => {
             </div>
             <div class="form-group">
               <div class="overcell">
-                <label for="ficheiro">Enviar logotipo (opcional):</label>
-                <input 
-                  type="hidden"
-                  role="uploadcare-uploader"
-                  name="ficheiro"
-                  data-public-key="5ec12db5712715683bca"
-                  data-tabs="file url"
-                  data-clearable
-                  data-locale="pt"
-                />
+                <input type="file" id="ficheiro"><br>
+                <input type="hidden" name="link_ficheiro" id="link_ficheiro">
               </div>
             </div>
             <div class="form-row">
