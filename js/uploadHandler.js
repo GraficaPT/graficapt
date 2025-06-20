@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const ficheiroInput = document.getElementById('ficheiro');
   const linkHidden = document.getElementById('link_ficheiro');
-  const status = document.getElementById('uploadStatus'); // opcional no HTML
+  const status = document.getElementById('uploadStatus');
 
   ficheiroInput.addEventListener('change', async function () {
     const ficheiro = ficheiroInput.files[0];
@@ -29,13 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (link.startsWith("http")) {
           linkHidden.value = link;
-
-          if (status) {
-            status.innerHTML = `✅ <a href="${link}" target="_blank">Ficheiro carregado</a>`;
-          }
-
-          // ✅ Remove o input file completamente do DOM
-          ficheiroInput.parentNode.removeChild(ficheiroInput);
+          if (status) status.innerHTML = `✅ <a href="${link}" target="_blank">Ficheiro carregado</a>`;
+          
+          // 🔥 Remover completamente o input file
+          ficheiroInput.remove();
         } else {
           if (status) status.textContent = "❌ Erro ao carregar: " + link;
         }
