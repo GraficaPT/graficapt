@@ -35,7 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
           if (link.startsWith("http")) {
             linkHidden.value = link;
             status.innerHTML = `✅ <a href="${link}" target="_blank">Ficheiro carregado</a>`;
+  
+            // remove o input file completamente
             ficheiroInput.parentNode.removeChild(ficheiroInput);
+  
             if (btnSubmit) btnSubmit.disabled = false;
           } else {
             status.textContent = "❌ Erro ao carregar ficheiro: " + link;
@@ -49,11 +52,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   
     form.addEventListener('submit', function (e) {
+      // Impede submissão se ainda não há link
       if (!linkHidden.value) {
         e.preventDefault();
         alert("Por favor aguarde o carregamento do ficheiro.");
         return;
       }
+  
+      // ✅ Permite que o form continue a ser enviado normalmente (não uses fetch!)
+      // Nada de e.preventDefault() aqui
     });
   });
   
