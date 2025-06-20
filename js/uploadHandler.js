@@ -9,11 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const extensao = ficheiro.name.split('.').pop();
     const random = Math.floor(Math.random() * 10000);
     const nomeAleatorio = `logotipo_${random}.${extensao}`;
-
-    if (linkHidden) {
-      linkHidden.value = nomeAleatorio;
-    }
-
     const reader = new FileReader();
 
     reader.onload = async function () {
@@ -31,7 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const result = await response.text();
-        console.log("📁 Resposta do Apps Script:", result);
+        console.log("📁 ", result);
+        if (linkHidden) {
+          linkHidden.value = result;
+        }
+    
 
       } catch (erro) {
         console.error("❌ Erro ao enviar ficheiro:", erro.message);
