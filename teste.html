@@ -2,28 +2,78 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Upload para Drive sem CORS</title>
+  <title>Formulário com Upload para Drive</title>
+  <style>
+    input, textarea, button { display: block; width: 100%; margin: 10px 0; padding: 8px; }
+  </style>
 </head>
 <body>
-  <h2>Enviar ficheiro para o Google Drive</h2>
+  <h2>Pedido de Orçamento</h2>
 
-  <form
-    id="uploadForm"
-    method="POST"
-    enctype="application/x-www-form-urlencoded"
-    action="https://script.google.com/macros/s/AKfycbyiyrgW5erWyTxf8Pmm81DMXKY1FfI1JYDHXh84bvD3p3ZaLbf2eGoX4F3bEMnsXvq2Rg/exec"
-    target="invisivel"
-  >
-    <input type="file" name="ficheiro" required>
-    <button type="submit">Enviar</button>
+  <form id="formulario" action="https://formsubmit.co/orcamentos@graficapt.com" method="POST">
+    <input type="text" name="nome" placeholder="O seu nome" required>
+    <input type="email" name="email" placeholder="O seu email" required>
+    <textarea name="mensagem" placeholder="Escreva aqui o seu pedido..." required></textarea>
+
+    <label>Logotipo ou Ficheiro (opcional):</label>
+    <input type="file" id="ficheiro" accept="*/*">
+    <input type="hidden" name="link_ficheiro" id="link_ficheiro">
+
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_next" value="https://graficapt.com/sucesso.html">
+
+    <button type="submit" id="enviarBtn">Enviar Pedido</button>
   </form>
 
-  <iframe name="invisivel" style="display:none;" onload="ficheiroEnviado()"></iframe>
-
   <script>
-    function ficheiroEnviado() {
-      alert("✅ Ficheiro enviado com sucesso! Verifica a tua pasta no Drive.");
-    }
+    const form = document.getElementById("formulario");
+    const ficheiroInput = document.getElementById("ficheiro");
+    const linkInput = document.getElementById("link_ficheiro");
+    const enviarBtn = document.getElementById("enviarBtn");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      if (ficheiroInput.files.length === 0) {
+        form.submit(); // sem ficheiro, envia logo
+        return;
+      }
+
+      enviarBtn.disabled = true;
+      enviarBtn.textContent = "A enviar ficheiro...";
+
+      const ficheiro = ficheiroInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async function () {
+        const base64 = reader.result.split(",")[1];
+
+        try {
+          const res = await fetch("COLA_AQUI_O_TEU_URL_DO_SCRIPT", {
+            method: "POST",
+            headers: { "Content-Type": ficheiro.type },
+            body: base64
+          });
+
+          const data = await res.json();
+          if (data.link) {
+            linkInput.value = data.link;
+            form.submit();
+          } else {
+            alert("Erro: " + data.erro);
+            enviarBtn.disabled = false;
+            enviarBtn.textContent = "Enviar Pedido";
+          }
+        } catch (err) {
+          alert("Erro ao enviar ficheiro.");
+          enviarBtn.disabled = false;
+          enviarBtn.textContent = "Enviar Pedido";
+        }
+      };
+
+      reader.readAsDataURL(ficheiro);
+    });
   </script>
 </body>
 </html>
