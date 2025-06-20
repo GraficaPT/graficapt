@@ -730,7 +730,13 @@ const criarCarrossel = (imagens) => {
                 </div>
               </div>
             </div>
-      
+            <div class="form-group">
+              <div class="overcell">
+                <input type="file" id="ficheiro">
+                <input type="hidden" name="link_ficheiro" id="link_ficheiro">
+                <p id="uploadStatus"></p>
+              </div>
+            </div>
             <div class="form-row">
               <div class="form-group">
                 <div class="overcell">
