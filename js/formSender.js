@@ -5,10 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const status = document.getElementById('uploadStatus'); // parágrafo com feedback
     const btnSubmit = form.querySelector('button[type="submit"]');
   
-    // Inicialmente desativa o botão de envio
     if (btnSubmit) btnSubmit.disabled = true;
   
-    // ⬆️ Upload automático ao escolher ficheiro
     ficheiroInput.addEventListener('change', async function () {
       const ficheiro = ficheiroInput.files[0];
       if (!ficheiro) return;
@@ -49,20 +47,19 @@ document.addEventListener("DOMContentLoaded", () => {
       reader.readAsDataURL(ficheiro);
     });
   
-    // 📤 Envio do formulário após upload
     form.addEventListener('submit', function (e) {
-      // Verificação de segurança
       if (!linkHidden.value) {
         e.preventDefault();
         alert("Por favor aguarde o carregamento do ficheiro.");
         return;
       }
   
-      // Envio automático como antes
       const formData = new FormData(form);
+      
+      // ⛔️ Remove o input file do FormData (mesmo sem name, pode ser incluído por erro futuro)
       formData.delete("ficheiro");
   
-      e.preventDefault(); // Impede o envio padrão
+      e.preventDefault();
       fetch("https://formsubmit.co/orcamentos@graficapt.com", {
         method: "POST",
         body: formData
