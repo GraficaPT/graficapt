@@ -2,52 +2,28 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Upload para Google Drive</title>
+  <title>Upload para Drive sem CORS</title>
 </head>
 <body>
-  <h2>Upload de ficheiro</h2>
-  <form id="uploadForm">
-    <input type="file" id="ficheiro" required>
+  <h2>Enviar ficheiro para o Google Drive</h2>
+
+  <form
+    id="uploadForm"
+    method="POST"
+    enctype="application/x-www-form-urlencoded"
+    action="https://script.google.com/macros/s/AKfycbzElkmNYd7uxYoIxnBvNqzPV3L0f3Q0H1x1yZ9bjIDcHDQhjklUQXzc2j0P-1lZ-9dJcA/exec"
+    target="invisivel"
+  >
+    <input type="file" name="ficheiro" required>
     <button type="submit">Enviar</button>
   </form>
-  <p id="resultado"></p>
+
+  <iframe name="invisivel" style="display:none;" onload="ficheiroEnviado()"></iframe>
 
   <script>
-    const form = document.getElementById('uploadForm');
-    const resultado = document.getElementById('resultado');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const ficheiroInput = document.getElementById('ficheiro');
-      const ficheiro = ficheiroInput.files[0];
-
-      const reader = new FileReader();
-
-      reader.onload = async function () {
-        const base64Data = reader.result.split(',')[1]; // remove o prefixo data:...
-        try {
-          const res = await fetch('https://script.google.com/macros/s/AKfycbzElkmNYd7uxYoIxnBvNqzPV3L0f3Q0H1x1yZ9bjIDcHDQhjklUQXzc2j0P-1lZ-9dJcA/exec', {
-            method: 'POST',
-            headers: {
-              'Content-Type': ficheiro.type
-            },
-            body: base64Data
-          });
-
-          const data = await res.json();
-          if (data.link) {
-            resultado.innerHTML = `✅ <a href="${data.link}" target="_blank">Ficheiro enviado com sucesso</a>`;
-          } else {
-            resultado.innerText = `❌ Erro: ${data.erro}`;
-          }
-
-        } catch (err) {
-          resultado.innerText = `❌ Erro inesperado: ${err.message}`;
-        }
-      };
-
-      reader.readAsDataURL(ficheiro);
-    });
+    function ficheiroEnviado() {
+      alert("✅ Ficheiro enviado com sucesso! Verifica a tua pasta no Drive.");
+    }
   </script>
 </body>
 </html>
