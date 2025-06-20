@@ -2,84 +2,46 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Pedido com Upload</title>
+  <title>Upload para o Google Drive</title>
 </head>
 <body>
-  <h2>Pedido de Orçamento</h2>
+  <h2>Enviar ficheiro</h2>
 
-  <form id="pedido" action="https://formsubmit.co/orcamentos@graficapt.com" method="POST">
-    <input type="text" name="nome" placeholder="Nome" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <textarea name="mensagem" placeholder="Mensagem" required></textarea>
+  <input type="file" id="ficheiro" required>
+  <button onclick="enviar()">Enviar</button>
 
-    <label>Logotipo ou Ficheiro:</label>
-    <input type="file" id="ficheiro">
-    <input type="hidden" name="link_ficheiro" id="link_ficheiro">
-
-    <button type="submit" id="btn">Enviar Pedido</button>
-
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" name="_next" value="https://graficapt.com/sucesso.html">
-  </form>
-
-  <!-- Formulário invisível para upload -->
-  <form id="uploadForm" target="uploadIframe" method="POST" style="display:none;">
-    <input type="hidden" name="base64" id="base64">
-    <input type="hidden" name="type" id="type">
-    <input type="hidden" name="name" id="name">
-  </form>
-
-  <iframe name="uploadIframe" style="display:none;"></iframe>
+  <p id="resposta"></p>
 
   <script>
-    const pedidoForm = document.getElementById('pedido');
-    const uploadForm = document.getElementById('uploadForm');
-    const ficheiroInput = document.getElementById('ficheiro');
-    const btn = document.getElementById('btn');
-
-    const base64Input = document.getElementById('base64');
-    const typeInput = document.getElementById('type');
-    const nameInput = document.getElementById('name');
-    const linkInput = document.getElementById('link_ficheiro');
-
-    pedidoForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      if (ficheiroInput.files.length === 0) {
-        pedidoForm.submit();
+    async function enviar() {
+      const ficheiro = document.getElementById("ficheiro").files[0];
+      if (!ficheiro) {
+        alert("Seleciona um ficheiro.");
         return;
       }
 
-      btn.disabled = true;
-      btn.textContent = "A enviar ficheiro...";
-
-      const file = ficheiroInput.files[0];
       const reader = new FileReader();
+      reader.onload = async function () {
+        const base64 = reader.result.split(',')[1];
 
-      reader.onload = function() {
-        const result = reader.result.split(',');
-        base64Input.value = result[1];
-        typeInput.value = file.type;
-        nameInput.value = file.name;
+        const formData = new FormData();
+        formData.append("base64", base64);
+        formData.append("type", ficheiro.type);
+        formData.append("name", ficheiro.name);
 
-        uploadForm.action = "https://script.google.com/macros/s/AKfycbybrjnBOD_b7erQ6MECqFb3stntl9QU0k-1L56zpRFGK36CwNybZY1E8j25IBS0TDaIbA/exec";
-        uploadForm.submit();
+        const resposta = await fetch("https://script.google.com/macros/s/AKfycbwALvmtB1RzY3xKAlECemjWh91PxyDoARXiI9CU-7fdGezjuo25G2kX12yQuwZc-pJ-7A/exec", {
+          method: "POST",
+          body: formData
+        });
+
+        const texto = await resposta.text();
+        document.getElementById("resposta").innerHTML = texto.startsWith("http")
+          ? `✅ <a href="${texto}" target="_blank">Ficheiro carregado</a>`
+          : `❌ ${texto}`;
       };
 
-      reader.readAsDataURL(file);
-    });
-
-    window.addEventListener("message", (event) => {
-      if (event.data.startsWith("http")) {
-        linkInput.value = event.data;
-        pedidoForm.submit();
-      } else {
-        alert(event.data);
-        btn.disabled = false;
-        btn.textContent = "Enviar Pedido";
-      }
-    });
+      reader.readAsDataURL(ficheiro);
+    }
   </script>
 </body>
 </html>
