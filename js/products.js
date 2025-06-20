@@ -699,6 +699,11 @@ return `
         ${criarCarrossel(produto.imagens)}
       </div>
       <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
+      
+      <input type="file" id="ficheiro" required>
+      <input type="hidden" name="link_ficheiro" id="link_ficheiro">
+      <p id="uploadStatus"></p>
+
       <div class="product-details">
         <h1>${produto.nome}</h1><br>
         ${Object.entries(produto.opcoes).map(([label, op]) => `
@@ -729,7 +734,6 @@ return `
               <input type="tel" name="telemovel" placeholder="Ex: 912 345 678" required>
             </div>
           </div>
-          
         </div>
         <div class="form-row">
           <div class="form-group">
