@@ -2,42 +2,56 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Formulário com Upload</title>
-  <script>
-    UPLOADCARE_PUBLIC_KEY = "5ec12db5712715683bca";
-  </script>
-  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
+  <title>Upload para Google Drive</title>
   <style>
-    body { font-family: Arial; max-width: 600px; margin: 50px auto; }
-    input, textarea, button { display: block; margin: 15px 0; width: 100%; padding: 10px; }
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; }
+    input, button { margin: 15px 0; padding: 10px; width: 100%; }
+    #resultado a { color: green; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <h2>Enviar pedido com ficheiro</h2>
+  <h2>Enviar ficheiro para o Google Drive</h2>
 
-  <form action="https://formsubmit.co/orcamentos@graficapt.com" method="POST">
-    <!-- Substitui com o teu email acima -->
-    <input type="text" name="nome" placeholder="O seu nome" required>
-    <input type="email" name="email" placeholder="O seu email" required>
-    
-    <!-- Uploadcare Widget -->
-    <input 
-      type="hidden" 
-      role="uploadcare-uploader" 
-      name="ficheiro"
-      data-clearable
-      data-locale="pt"
-      data-tabs="file url"
-    />
-
-    <!-- Campos ocultos (opcional) -->
-    <input type="hidden" name="_subject" value="Novo pedido do formulário">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" name="_captcha" value="false">
-
+  <form id="uploadForm">
+    <input type="file" name="ficheiro" required>
     <button type="submit">Enviar</button>
   </form>
+
+  <p id="resultado"></p>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const resultado = document.getElementById('resultado');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const ficheiro = form.ficheiro.files[0];
+      const formData = new FormData();
+      formData.append('ficheiro', ficheiro);
+
+      resultado.textContent = "⏳ A enviar ficheiro...";
+
+      try {
+        const res = await fetch('https://script.google.com/macros/s/AKfycbwDPR3ZeU3ycZwkql-Yc_YMvGSQjSjsqvVAwrEHR_g4RXKMVfqmvAkXWhM2VPmq2HY_nA/exec', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.link) {
+          resultado.innerHTML = `✅ Ficheiro enviado com sucesso: <br><a href="${data.link}" target="_blank">${data.link}</a>`;
+        } else {
+          resultado.innerHTML = `❌ Erro ao enviar: ${data.erro}`;
+        }
+
+      } catch (err) {
+        resultado.innerHTML = `❌ Erro inesperado: ${err.message}`;
+      }
+    });
+  </script>
 
 </body>
 </html>
