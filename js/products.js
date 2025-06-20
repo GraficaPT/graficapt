@@ -572,8 +572,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       };
-
-      
   
       const path = window.location.pathname;
       const produtoID = path.substring(path.lastIndexOf("/") + 1).replace(".html", "");
