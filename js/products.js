@@ -350,7 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "../imagens/produtos/bandeiragota/mockup3.webp",
         "../imagens/produtos/bandeiragota/mockup4.webp"
       ],
-      descricao: "Bandeiras promocionais em diversos tamanhos, ideais para destacar a sua marca em eventos e pontos de venda.<br>Este kit contem 1 base de fixacao, 1 mastro completo e 1 bandeira com o design que escolher.",
+      descricao: "",
       opcoes: {
 
         "Tamanho": {
@@ -396,7 +396,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "../imagens/produtos/bandeiravela/mockup3.webp",
         "../imagens/produtos/bandeiravela/mockup4.webp"
       ],
-      descricao: "Bandeiras promocionais em diversos tamanhos, ideais para destacar a sua marca em eventos e pontos de venda.<br>Este kit contem 1 base de fixacao, 1 mastro completo e 1 bandeira com o design que escolher.",
+      descricao: "",
       opcoes: {
 
         "Tamanho": {
@@ -442,7 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "../imagens/produtos/rollup/mockup3.webp",
         "../imagens/produtos/rollup/mockup4.webp"
       ],
-      descricao: "O Roll-Up 85x200 cm é uma solução fantástica para expor a publicidade do seu cliente. Graças à sua leveza e facilidade de montagem, é uma das opções mais versáteis para a publicidade em feiras, pontos de venda, recepções, centros comerciais, etc.<br><br>A impressão pode ser enrolada na estrutura inferior e é fornecida com uma mala de transporte para armazenamento e transporte. Pode ser montada em apenas alguns segundos.<br><br>O desenho é impresso em 340 g/m² e a Pet Banner oferece rigidez graças ao seu suporte cinzento, é totalmente opaca para não apresentar qualquer tipo de transparência.",
+      descricao: "",
       opcoes: {
         "Tamanho": {
           tipo: "imagem-radio",
