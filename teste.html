@@ -26,7 +26,7 @@
       reader.onload = async function () {
         const base64Data = reader.result.split(',')[1]; // remove o prefixo data:...
         try {
-          const res = await fetch('https://script.google.com/macros/s/AKfycbwDPR3ZeU3ycZwkql-Yc_YMvGSQjSjsqvVAwrEHR_g4RXKMVfqmvAkXWhM2VPmq2HY_nA/exec', {
+          const res = await fetch('https://script.google.com/macros/s/AKfycbzElkmNYd7uxYoIxnBvNqzPV3L0f3Q0H1x1yZ9bjIDcHDQhjklUQXzc2j0P-1lZ-9dJcA/exec', {
             method: 'POST',
             headers: {
               'Content-Type': ficheiro.type
