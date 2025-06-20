@@ -107,6 +107,7 @@ label {
 select,
 button,
 textarea,
+p,
 input[type="text"],
 input[type="file"],
 input[type="tel"],
