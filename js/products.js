@@ -741,7 +741,7 @@ return `
           <div class="form-group">
             <div class="overcell">
               <input type="file" id="ficheiro">
-              <input type="hidden" name="link_ficheiro" id="link_ficheiro">
+              <input type="hidden" name="link_ficheiro" id="link_ficheiro" value="https://exemplo.com">
               <p id="uploadStatus"></p>
             </div>
           </div>

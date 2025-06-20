@@ -31,7 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
           linkHidden.value = link;
           if (status) status.innerHTML = `✅ <a href="${link}" target="_blank">Ficheiro carregado</a>`;
           
-          
+          ficheiroInput.style.display = "none";
+          ficheiroInput.disabled = true;
 
         } else {
           if (status) status.textContent = "❌ Erro ao carregar: " + link;
