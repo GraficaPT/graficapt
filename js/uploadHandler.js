@@ -25,18 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
           body: formData
         });
 
-        const link = await res.text();
+        const html = await res.text();
+        const match = html.match(/window\.location\.href='([^']+)'/);
+        const link = match ? match[1] : '';
 
         if (link.startsWith("http")) {
           linkHidden.value = link;
           if (status) status.innerHTML = `✅ <a href="${link}" target="_blank">Ficheiro carregado</a>`;
-          
-          ficheiroInput.style.display = "none";
-          ficheiroInput.disabled = true;
-
         } else {
-          if (status) status.textContent = "❌ Erro ao carregar: " + link;
+          if (status) status.textContent = "❌ Erro ao extrair o link do ficheiro.";
         }
+
       } catch (erro) {
         if (status) status.textContent = "❌ Erro: " + erro.message;
       }
