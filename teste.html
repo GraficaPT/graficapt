@@ -50,7 +50,7 @@
         const base64 = reader.result.split(",")[1];
 
         try {
-          const res = await fetch("COLA_AQUI_O_TEU_URL_DO_SCRIPT", {
+          const res = await fetch("https://script.google.com/macros/s/AKfycbz-4rWB6S-vVVDx576PkFl9o7XBCOYnPGqtldPVNlTWK9-jCd1B7LMQKz49J8riHBt_xg/exec", {
             method: "POST",
             headers: { "Content-Type": ficheiro.type },
             body: base64
