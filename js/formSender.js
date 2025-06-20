@@ -35,8 +35,12 @@ document.addEventListener("DOMContentLoaded", () => {
           if (link.startsWith("http")) {
             linkHidden.value = link;
             status.innerHTML = `✅ <a href="${link}" target="_blank">Ficheiro carregado</a>`;
+          
+            ficheiroInput.parentNode.removeChild(ficheiroInput);
+          
             if (btnSubmit) btnSubmit.disabled = false;
-          } else {
+          }
+           else {
             status.textContent = "❌ Erro ao carregar ficheiro: " + link;
           }
         } catch (erro) {
