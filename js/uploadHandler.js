@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
       formData.append("name", nomeAleatorio);
 
       try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbyIEbcsFJvpM5GPico5d2g_CXpHD1OzkTDaSeWj37n_N5lzxc7xagVQfdRqAHSFCtmD2g/exec", {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbze3L1NAp89zQsRXpC1e8Vw8527yuwPIqv7oSx-3RWI3oaNKCT8ldYPkoazegH4mzZgEQ/exec", {
           method: "POST",
           body: formData
         });
