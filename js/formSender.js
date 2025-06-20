@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById('orcamentoForm');
-    const ficheiroInput = document.getElementById('ficheiro'); // input type="file"
-    const linkHidden = document.getElementById('link_ficheiro'); // input type="hidden"
+    const ficheiroInput = document.getElementById('ficheiro'); // input type="file" (sem name!)
+    const linkHidden = document.getElementById('link_ficheiro'); // input type="hidden" com name="link_ficheiro"
   
     form.addEventListener('submit', async function (e) {
       e.preventDefault(); // Impede envio imediato
@@ -47,6 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
   
     function enviarFormulario() {
       const formData = new FormData(form);
+  
+      // ⚠️ Remove o ficheiro real se por acaso tiver name definido (evita erro no FormSubmit)
+      formData.delete("ficheiro");
   
       fetch("https://formsubmit.co/orcamentos@graficapt.com", {
         method: "POST",
