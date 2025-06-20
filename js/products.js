@@ -732,20 +732,20 @@ return `
           </div>
         </div>
         <div class="options-row">
-          
+          <div class="form-group">
             <div class="overcell">
               <label for="email">Email:</label>
               <input type="email" name="email" placeholder="seu@email.com" required>
             </div>
-          
-          
+          </div>
+          <div class="form-group">
             <div class="overcell">
             <label for="email">Logotipo:</label>
               <input type="file" id="ficheiro">
               <input type="hidden" name="link_ficheiro" id="link_ficheiro">
               <p id="uploadStatus" style="display: none;"></p>
             </div>
-          
+          </div>
         </div>
           
         <input type="hidden" name="_captcha" value="false">

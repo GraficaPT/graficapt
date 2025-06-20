@@ -215,6 +215,7 @@ button:hover {
 .options-row {
   display: flex;
   flex-wrap: wrap;
+  box-shadow: 0 0 0.5vh rgba(0, 0, 0, 0.2);
 }
 
 .options-row > div {
