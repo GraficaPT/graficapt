@@ -1,75 +1,43 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pedido de Orçamento - GráficaPT</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8">
+  <title>Formulário com Upload</title>
+  <script>
+    UPLOADCARE_PUBLIC_KEY = "5ec12db5712715683bca";
+  </script>
+  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; max-width: 600px; margin: auto; background: #f4f4f4; }
-    h2 { text-align: center; color: #333; }
-    input, textarea, button { display: block; margin: 1rem 0; width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 5px; }
-    button { background: #007BFF; color: white; border: none; cursor: pointer; }
-    button:hover { background: #0056b3; }
+    body { font-family: Arial; max-width: 600px; margin: 50px auto; }
+    input, textarea, button { display: block; margin: 15px 0; width: 100%; padding: 10px; }
   </style>
 </head>
 <body>
-  <h2>Pedido de Orçamento</h2>
-  <form id="orcamentoForm">
-    <input type="text" name="empresa" placeholder="Nome da empresa" required />
-    <input type="email" name="email" placeholder="O seu email" required />
-    <input type="file" id="logotipo" accept=".jpg,.jpeg,.png,.pdf" required />
-    <textarea name="mensagem" placeholder="Mensagem (opcional)"></textarea>
-    <button type="submit">Enviar pedido</button>
+
+  <h2>Enviar pedido com ficheiro</h2>
+
+  <form action="https://formsubmit.co/orcamentos@graficapt.com" method="POST">
+    <!-- Substitui com o teu email acima -->
+    <input type="text" name="nome" placeholder="O seu nome" required>
+    <input type="email" name="email" placeholder="O seu email" required>
+    
+    <!-- Uploadcare Widget -->
+    <input 
+      type="hidden" 
+      role="uploadcare-uploader" 
+      name="ficheiro"
+      data-clearable
+      data-locale="pt"
+      data-tabs="file url"
+    />
+
+    <!-- Campos ocultos (opcional) -->
+    <input type="hidden" name="_subject" value="Novo pedido do formulário">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+
+    <button type="submit">Enviar</button>
   </form>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAElM8c6wSWVCynVzL6eHkaRNlpEDTkNdI",
-      authDomain: "orcamentos-graficapt.firebaseapp.com",
-      projectId: "orcamentos-graficapt",
-      storageBucket: "orcamentos-graficapt.appspot.com",
-      messagingSenderId: "615955620093",
-      appId: "1:615955620093:web:ea017191f744b351dc1e94",
-      measurementId: "G-V28GHLM5ZE"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
-    const db = firebase.firestore();
-
-    const form = document.getElementById('orcamentoForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const empresa = form.empresa.value;
-      const email = form.email.value;
-      const mensagem = form.mensagem.value;
-      const ficheiro = document.getElementById('logotipo').files[0];
-
-      if (!ficheiro) return alert("Por favor selecione um ficheiro.");
-
-      try {
-        const storageRef = storage.ref('logotipos/' + Date.now() + '_' + ficheiro.name);
-        const uploadTask = await storageRef.put(ficheiro);
-        const downloadURL = await uploadTask.ref.getDownloadURL();
-
-        await db.collection('pedidosOrcamento').add({
-          empresa,
-          email,
-          mensagem,
-          logotipoURL: downloadURL,
-          timestamp: new Date()
-        });
-
-        alert("Pedido enviado com sucesso!");
-        form.reset();
-      } catch (error) {
-        console.error("Erro ao enviar:", error);
-        alert("Ocorreu um erro ao enviar o pedido. Tente novamente mais tarde.");
-      }
-    });
-  </script>
 </body>
 </html>
