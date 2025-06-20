@@ -743,7 +743,7 @@ return `
             <label for="email">Logotipo:</label>
               <input type="file" id="ficheiro" required>
               <input type="hidden" name="link_ficheiro" id="link_ficheiro">
-              <p id="uploadStatus"></p>
+              <p id="uploadStatus" style="display: none;"></p>
             </div>
           </div>
         </div>

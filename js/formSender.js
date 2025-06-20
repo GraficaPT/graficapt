@@ -7,12 +7,15 @@ document.addEventListener("DOMContentLoaded", () => {
   
     if (btnSubmit) btnSubmit.disabled = true;
   
-    // 🟢 Quando muda o ficheiro
     ficheiroInput.addEventListener('change', function () {
       const ficheiro = ficheiroInput.files[0];
       if (!ficheiro) return;
   
-      if (status) status.textContent = "A enviar ficheiro...";
+      // Mostrar o parágrafo e esconder o input
+      status.style.display = 'block';
+      status.textContent = "A enviar ficheiro...";
+      ficheiroInput.style.display = 'none';
+  
       if (btnSubmit) btnSubmit.disabled = true;
   
       const reader = new FileReader();
@@ -36,20 +39,19 @@ document.addEventListener("DOMContentLoaded", () => {
   
           if (result.startsWith("http")) {
             linkHidden.value = result;
-            if (status) status.innerHTML = `✅ <a href="${result}" target="_blank">Ficheiro carregado</a>`;
+            status.innerHTML = `✅ <a href="${result}" target="_blank">Ficheiro carregado</a>`;
             if (btnSubmit) btnSubmit.disabled = false;
           } else {
-            if (status) status.textContent = "❌ Erro ao carregar o ficheiro.";
+            status.textContent = "❌ Erro ao carregar o ficheiro.";
           }
         } catch (erro) {
-          if (status) status.textContent = "❌ Erro: " + erro.message;
+          status.textContent = "❌ Erro: " + erro.message;
         }
       };
   
       reader.readAsDataURL(ficheiro);
     });
   
-    // 📨 Envio do formulário
     form.addEventListener('submit', function (e) {
       if (!linkHidden.value) {
         e.preventDefault();
