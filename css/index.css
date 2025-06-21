@@ -87,7 +87,7 @@ a {
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(2, 40%);
+    grid-template-columns: repeat(3, 25%);
     justify-content: center;
     margin-bottom: 4vh;
 }
