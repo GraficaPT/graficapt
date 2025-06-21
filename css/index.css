@@ -87,7 +87,7 @@ a {
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(4, 18%);
+    grid-template-columns: repeat(2, 40%);
     justify-content: center;
     margin-bottom: 4vh;
 }
@@ -103,12 +103,6 @@ a {
 
 .cell {
     aspect-ratio: 1 / 1;
-    border-bottom: #267a89;
-    border-style:solid;
-    border-top:none;
-    border-left:none;
-    border-right:none;
-    border-width: 2px;
     display: flex;
     justify-content: center;
     align-items: center;
