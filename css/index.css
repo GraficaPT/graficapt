@@ -118,9 +118,15 @@ a {
     cursor: pointer;
 }
 
-.cellText {
+.cellText,.cellBtn {
     font-size: 3.5vh;
     font-family: 'League Spartan', sans-serif;
+}
+
+.cellText{
+    background-color: #267a89;
+    border-radius: 1%;
+    padding: 10%;
 }
 
 .cell img {
