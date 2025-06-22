@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "portachaves": {
       nome: "Porta Chaves Acrílico",
       imagens: [
-        "../imagens/produtos/portachaves/mockup.webp"
+        "../imagens/produtos/portachaves/mockup1.webp"
       ],
       descricao: "Porta chaves de acrilico com dupla camada resistente, dê vida ao seu logotipo com um brinde extra!<br>Tamanho maximo 5x5cm",
       opcoes: {
