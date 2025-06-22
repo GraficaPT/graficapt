@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const formData = new FormData(form);
 
-    fetch("https://formsubmit.co/orcamentos@graficapt.com", {
+    fetch("https://script.google.com/macros/s/AKfycbyA2cuBpgSttDVGpwNMSHSIW5EKRCjufbJemKeiHIwnfcDbO7sNctzSdFg_a-1AjiS79w/exec", {
       method: "POST",
       body: formData
     })
