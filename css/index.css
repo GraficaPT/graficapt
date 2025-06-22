@@ -113,11 +113,7 @@ a {
     opacity: 0;
     animation: fadeIn 1s forwards;
     padding: 2vh;
-    border-style: solid;
-    border-color: #191919;
-    border-width: 1px;
-    border-left: transparent;
-    border-right: transparent;
+
 }
 
 .cell:hover {
