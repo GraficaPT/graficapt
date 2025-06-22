@@ -6,6 +6,13 @@ body, a, input, textarea, button {
     font-family: "OpenSauce", sans-serif;
 }
 
+.optionsBtn {
+    float:inline-end;
+    margin:auto;
+    width: 50%;
+    height: 20%;
+}
+
 div:focus {
     outline: none;
 }
