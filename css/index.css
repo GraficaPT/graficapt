@@ -116,6 +116,9 @@ a {
     border-style: solid;
     border-color: #191919;
     border-width: 1px;
+    border-top: transparent;
+    border-left: transparent;
+    border-right: transparent;
 }
 
 .cell:hover {
