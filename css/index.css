@@ -121,6 +121,7 @@ a {
 }
 
 .cellText,.cellBtn {
+    text-align: center;
     font-size: 3.5vh;
     font-family: 'League Spartan', sans-serif;
     margin-top: 0.5vh;
