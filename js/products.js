@@ -699,7 +699,7 @@ return `
         ${criarCarrossel(produto.imagens)}
       </div>
       <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
-
+      <input type="text" value="${produto.nome}" class="productname" id="productname" name="Produto">
       <div class="product-details">
         <h1>${produto.nome}</h1><br>
         ${Object.entries(produto.opcoes).map(([label, op]) => `
@@ -713,7 +713,7 @@ return `
         <div class="form-group">
           <div class="overcell">
             <label for="detalhes">Detalhes:</label>
-            <textarea name="detalhes" placeholder="Descreve todas as informações sobre a tua encomenda!" required></textarea>
+            <textarea name="Detalhes" placeholder="Descreve todas as informações sobre a tua encomenda!" required></textarea>
           </div>
         </div>
   
@@ -721,13 +721,13 @@ return `
           <div class="form-group">
             <div class="overcell">
               <label for="empresa">Empresa / Nome:</label>
-              <input type="text" name="empresa" placeholder="Empresa ou nome pessoal" required>
+              <input type="text" name="Empresa" placeholder="Empresa ou nome pessoal" required>
             </div>
           </div>
           <div class="form-group">
             <div class="overcell">
               <label for="telemovel">Telemóvel:</label>
-              <input type="tel" name="telemovel" placeholder="Ex: 912 345 678" required>
+              <input type="tel" name="Telemovel" placeholder="Ex: 912 345 678" required>
             </div>
           </div>
         </div>
@@ -735,14 +735,14 @@ return `
           <div class="form-group">
             <div class="overcell">
               <label for="email">Email:</label>
-              <input type="email" name="email" placeholder="seu@email.com" required>
+              <input type="email" name="Email" placeholder="seu@email.com" required>
             </div>
           </div>
           <div class="form-group">
             <div class="overcell">
             <label for="email">Logotipo:</label>
               <input type="file" id="ficheiro">
-              <input type="hidden" name="link_ficheiro" id="link_ficheiro">
+              <input type="hidden" name="Logotipo" id="link_ficheiro">
               <p id="uploadStatus" style="display: none;"></p>
             </div>
           </div>
@@ -753,7 +753,7 @@ return `
 
         <button type="submit">Pedir Orçamento</button><br>
       </div>
-      <input type="text" value="${produto.nome}" class="productname" id="productname" name="Produto">
+      
     </form>
   `;
   
