@@ -124,6 +124,7 @@ a {
 }
 
 .cellBtn{
+    margin-top: 0.5vh;
     font-size: 2.5vh;
     background-color:#191919;
     padding: 3%;
