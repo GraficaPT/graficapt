@@ -113,7 +113,7 @@ a {
     opacity: 0;
     animation: fadeIn 1s forwards;
     padding: 2vh;
-
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
 .cell:hover {
