@@ -126,6 +126,10 @@ a {
     margin:5%;
     opacity: 0;
     animation: fadeIn 1s forwards;
+    border:#267a89;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 2%;
 }
 
 .cell img {
