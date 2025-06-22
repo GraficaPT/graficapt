@@ -421,7 +421,7 @@ a {
 
     .products-grid {
         grid-template-columns: repeat(2, 50%);
-        margin-bottom: 1.5vh;
+        margin-bottom: 1vh;
     }
 
     .cell {
