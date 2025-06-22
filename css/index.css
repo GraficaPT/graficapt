@@ -123,10 +123,10 @@ a {
     font-family: 'League Spartan', sans-serif;
 }
 
-.cellText{
-    background-color: #267a89;
-    border-radius: 1%;
-    padding: 10%;
+.cellBtn{
+    background-color:#3198a7;
+    border-radius: 5%;
+    padding: 5%;
 }
 
 .cell img {
