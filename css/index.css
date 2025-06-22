@@ -115,7 +115,9 @@ a {
 }
 
 .cellText {
-    font-size: 2vh;
+    font-size: 4vh;
+    font-family: 'League Spartan', sans-serif;
+    font-weight: bold;
 }
 
 .cell img {
