@@ -6,10 +6,6 @@ body, a, input, textarea, button {
     font-family: "OpenSauce", sans-serif;
 }
 
-.optionsBtn {
-
-}
-
 div:focus {
     outline: none;
 }
@@ -107,7 +103,7 @@ a {
 
 .cell {
     aspect-ratio: 1 / 1;
-    display: flex;
+    display: block;
     justify-content: center;
     align-items: center;
     overflow: hidden;
@@ -117,8 +113,12 @@ a {
     animation: fadeIn 1s forwards;
 }
 
+.cellText {
+    font-size: 2vh;
+}
+
 .cell img {
-    height: 90%;
+    height: 70%;
     transition: scale 0.2s ease-in-out;
 }
 
