@@ -113,6 +113,7 @@ a {
     opacity: 0;
     animation: fadeIn 1s forwards;
     box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+    padding: 1vh;
 }
 
 .cell:hover {
@@ -125,7 +126,6 @@ a {
 }
 
 .cellBtn{
-    margin-top: 1vh;
     font-size: 2.5vh;
     background-color:#191919;
     padding: 3%;
