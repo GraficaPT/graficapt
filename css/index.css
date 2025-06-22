@@ -114,6 +114,10 @@ a {
     animation: fadeIn 1s forwards;
 }
 
+.cell:hover {
+    cursor: pointer;
+}
+
 .cellText {
     font-size: 3.5vh;
     font-family: 'League Spartan', sans-serif;
@@ -126,7 +130,6 @@ a {
 
 .cell img:hover {
     scale: 105%;
-    cursor: pointer;
 }
 
 .subtitle, .overtitle {
