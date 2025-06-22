@@ -7,18 +7,7 @@ body, a, input, textarea, button {
 }
 
 .optionsBtn {
-    width: 30%;
-    height: 10%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    font-size: 3vh;
-    background-color: #267a89;
-    border-radius: 5%;
-    justify-content: center;
-    padding-top: 50%;
+
 }
 
 div:focus {
