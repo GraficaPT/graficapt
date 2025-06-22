@@ -126,7 +126,13 @@ a {
 .cellBtn{
     background-color:#3198a7;
     border-radius: 5%;
-    padding: 5%;
+    padding: 2%;
+    color: white;
+}
+
+.cellBtn:hover{
+    cursor: pointer;
+    background-color: #267a89;
 }
 
 .cell img {
