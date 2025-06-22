@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const formData = new FormData(form);
 
-    fetch("https://script.google.com/macros/s/AKfycbyA2cuBpgSttDVGpwNMSHSIW5EKRCjufbJemKeiHIwnfcDbO7sNctzSdFg_a-1AjiS79w/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbyZo3TNBoxKVHGgP_J1rKX1C3fEcD79i7VyUpMHV9J7gjJlmHQrD3Cm0l_i5fMllJnH/exec", {
       method: "POST",
       body: formData
     })
