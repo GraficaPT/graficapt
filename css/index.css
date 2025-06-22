@@ -134,13 +134,13 @@ a {
 
 .cellBtn{
     width: 40%;
-    background-color:#191919;
+    background-color:#267a89;
     color: white;
 }
 
 .cellBtn:hover{
     cursor: pointer;
-    background-color: #267a89;
+    background-color: #191919;
 }
 
 .cell img {
