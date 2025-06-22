@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "portachaves": {
       nome: "Porta Chaves Acrílico",
       imagens: [
-        "../imagens/produtos/portachaves/mockup1.webp"
+        "../imagens/produtos/portachaves/mockup.webp"
       ],
       descricao: "Porta chaves de acrilico com dupla camada resistente, dê vida ao seu logotipo com um brinde extra!<br>Tamanho maximo 5x5cm",
       opcoes: {
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "tshirt": {
       nome: "T-Shirt Personalizada",
       imagens: [
-        "../imagens/produtos/tshirt/mockup1.webp",
+        "../imagens/produtos/tshirt/mockup.webp",
         "../imagens/produtos/tshirt/mockup2.webp",
         "../imagens/produtos/tshirt/mockup3.webp"
       ],
