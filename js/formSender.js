@@ -3,21 +3,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const ficheiroInput = document.getElementById('ficheiro');
   const linkHidden = document.getElementById('link_ficheiro');
   const status = document.getElementById('uploadStatus');
-  const btnSubmit = document.getElementById('submit'); // BOTÃO EXATO
+  const btnSubmit = document.getElementById('submit');
 
-  if (btnSubmit) btnSubmit.disabled = false; // Por padrão, ativado
+  let ficheiroEmUpload = false;
+
+  if (btnSubmit) {
+    btnSubmit.disabled = false;
+    btnSubmit.style.backgroundColor = ''; // cor original
+  }
 
   ficheiroInput.addEventListener('change', function () {
     const ficheiro = ficheiroInput.files[0];
     if (!ficheiro) return;
 
-    // Mostrar status de envio
+    // Marcar como upload em curso
+    ficheiroEmUpload = true;
+
+    // Mostrar status
     status.style.display = 'block';
     status.textContent = "A enviar ficheiro...";
     ficheiroInput.style.display = 'none';
 
-    // ❌ Desativa botão enquanto envia
-    if (btnSubmit) btnSubmit.disabled = true;
+    // Desativar botão e mudar cor
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.style.backgroundColor = '#191919';
+    }
 
     const reader = new FileReader();
 
@@ -40,8 +51,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (result.startsWith("http")) {
           linkHidden.value = result;
+          ficheiroEmUpload = false;
           status.innerHTML = `✅ <a href="${result}" target="_blank">Ficheiro carregado</a>`;
-          if (btnSubmit) btnSubmit.disabled = false;
+
+          if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.style.backgroundColor = ''; // restaurar cor original
+          }
         } else {
           status.textContent = "❌ Erro ao carregar o ficheiro.";
           ficheiroInput.style.display = 'block';
@@ -56,8 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   form.addEventListener('submit', function (e) {
-    // ❌ Bloqueia envio se ficheiro ainda estiver a carregar
-    if (ficheiroInput.files.length > 0 && !linkHidden.value) {
+    // Bloquear envio se ficheiro ainda estiver a carregar
+    if (ficheiroEmUpload) {
       e.preventDefault();
       alert("Por favor aguarde o carregamento do ficheiro.");
       return;
