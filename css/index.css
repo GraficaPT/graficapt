@@ -113,7 +113,7 @@ a {
     opacity: 0;
     animation: fadeIn 1s forwards;
     box-shadow: 2px 0 5px rgba(0,0,0,0.3);
-    padding: 1vh;
+    padding: 2vh;
 }
 
 .cell:hover {
@@ -125,15 +125,14 @@ a {
     font-size: 3.5vh;
     font-family: 'League Spartan', sans-serif;
     margin-top: 0.5vh;
-    background-color:#191919;
-    color: white;
     font-size: 2.5vh;
     padding: 3%;
 }
 
 .cellBtn{
     width: 40%;
-
+    background-color:#191919;
+    color: white;
 }
 
 .cellBtn:hover{
