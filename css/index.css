@@ -7,10 +7,14 @@ body, a, input, textarea, button {
 }
 
 .optionsBtn {
-    float:inline-end;
-    margin:auto;
-    width: 50%;
-    height: 20%;
+    width: 60px;
+  height: 60px;
+  background: blue;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
 div:focus {
