@@ -354,6 +354,10 @@ a {
         font-size: 2vh;
     }
 
+    .cellBtn{
+        width: 70%;
+    }
+
     .banner {
         width: 95vw;
         margin-bottom: 5vh;
