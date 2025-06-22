@@ -124,10 +124,9 @@ a {
 }
 
 .cellBtn{
-    font-size: 3vh;
+    font-size: 2.8vh;
     background-color:#3198a7;
-    border-radius: 20%;
-    padding: 2%;
+    padding: 3%;
     color: white;
 }
 
