@@ -124,7 +124,7 @@ a {
 }
 
 .cellBtn{
-    margin-top: 0.5vh;
+    margin-top: 1vh;
     font-size: 2.5vh;
     background-color:#191919;
     padding: 3%;
@@ -346,6 +346,10 @@ a {
 }
 
 @media screen and (max-width: 768px) {
+    .cellText,.cellBtn {
+        font-size: 2vh;
+    }
+
     .banner {
         width: 95vw;
         margin-bottom: 5vh;
