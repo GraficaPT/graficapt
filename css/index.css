@@ -129,7 +129,7 @@ a {
 }
 
 .cell img {
-    height: 80%;
+    object-fit: contain;
     transition: scale 0.2s ease-in-out;
 }
 
