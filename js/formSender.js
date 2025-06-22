@@ -3,18 +3,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const ficheiroInput = document.getElementById('ficheiro');
   const linkHidden = document.getElementById('link_ficheiro');
   const status = document.getElementById('uploadStatus');
-  const btnSubmit = form.querySelector('button[type="submit"]');
+  const btnSubmit = document.getElementById('submit'); // BOTÃO EXATO
 
-  if (btnSubmit) btnSubmit.disabled = false; // Por padrão, permitir envio
+  if (btnSubmit) btnSubmit.disabled = false; // Por padrão, ativado
 
   ficheiroInput.addEventListener('change', function () {
     const ficheiro = ficheiroInput.files[0];
     if (!ficheiro) return;
 
+    // Mostrar status de envio
     status.style.display = 'block';
     status.textContent = "A enviar ficheiro...";
     ficheiroInput.style.display = 'none';
 
+    // ❌ Desativa botão enquanto envia
     if (btnSubmit) btnSubmit.disabled = true;
 
     const reader = new FileReader();
@@ -54,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   form.addEventListener('submit', function (e) {
-    // Só bloqueia se houver ficheiro selecionado e link ainda não disponível
+    // ❌ Bloqueia envio se ficheiro ainda estiver a carregar
     if (ficheiroInput.files.length > 0 && !linkHidden.value) {
       e.preventDefault();
       alert("Por favor aguarde o carregamento do ficheiro.");

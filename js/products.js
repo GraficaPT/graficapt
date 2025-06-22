@@ -751,7 +751,7 @@ return `
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" value="https://graficapt.com">
 
-        <button type="submit">Pedir Orçamento</button><br>
+        <button id="submit" type="submit">Pedir Orçamento</button><br>
       </div>
       
     </form>
