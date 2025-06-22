@@ -1,24 +1,29 @@
-<!DOCTYPE html>
-<html lang="pt-PT">
-<head>
-  <meta charset="UTF-8">
-  <title>Formulário de Teste</title>
-</head>
-<body>
-  <h2>Pedido de Orçamento</h2>
-  <form action="https://formsubmit.co/orcamentos@graficapt.com" method="POST">
+<form id="orcamentoForm">
+  <input type="text" name="nome" placeholder="O seu nome" required>
+  <input type="email" name="email" placeholder="O seu email" required>
+  <textarea name="mensagem" placeholder="Escreva aqui a sua mensagem..." required></textarea>
+  <button type="submit">Enviar Pedido</button>
+  <p id="status"></p>
+</form>
 
+<script>
+document.getElementById("orcamentoForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = new FormData(form);
+  const status = document.getElementById("status");
 
-    <label for="nome">Nome:</label><br>
-    <input type="text" id="nome" name="nome" required><br><br>
-
-    <label for="email">Email:</label><br>
-    <input type="email" id="email" name="email" required><br><br>
-
-    <label for="mensagem">Mensagem:</label><br>
-    <textarea id="mensagem" name="mensagem" rows="5" required></textarea><br><br>
-
-    <button type="submit">Enviar</button>
-  </form>
-</body>
-</html>
+  fetch("https://script.google.com/macros/s/AKfycbwbIeMwfF0CdK8mFbbmYwJ8wjf9iTMPrKYKeUbk0ObmhEdFCmCjXlVOt9JoMUEACaUs6w/exec", {
+    method: "POST",
+    body: data
+  })
+  .then(response => response.text())
+  .then(result => {
+    status.textContent = result;
+    form.reset();
+  })
+  .catch(error => {
+    status.textContent = "Erro ao enviar o formulário. Tente mais tarde.";
+  });
+});
+</script>
