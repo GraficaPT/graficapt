@@ -12,6 +12,9 @@ body, a, input, textarea, button {
     padding: 0.5vh;
     text-align: center;
     font-size: 2vh;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 
 div:focus {
