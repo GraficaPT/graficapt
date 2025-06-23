@@ -7,16 +7,11 @@ body, a, input, textarea, button {
 }
 
 .overtop{
-    background-color: #267a89;
+    background-color: #3198a7;
     color: white;
     padding: 0.5vh;
     text-align: center;
     font-size: 2vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
 }
 
 div:focus {
