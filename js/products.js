@@ -127,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
           tipo: "cores",
           valores: [
             "Branco",
+            "Preto",
             "Branco absoluto",
             "Branco suave",
             "Bege claro",
@@ -153,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "Azul jeans",
             "Azul marinho",
             "Azul escuro",
-            "Preto",
             "Cinza médio",
             "Cinza claro",
             "Cinza suave",
