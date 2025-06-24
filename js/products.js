@@ -172,9 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
             "Terra"
           ] 
         },
-        "Tamanho": {
-          tipo: "select",
-          valores: ["S até 2XL", "3XL até 5XL", "Outros Tamanhos"]
+        "Tamanhos": {
+          tipo: "quantidade-por-tamanho",
+          valores: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"]
         },
         "Quantidade": {
           tipo: "number",
@@ -670,6 +670,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const gerarOpcoes = (label, op) => {
     switch (op.tipo) {
+      case "quantidade-por-tamanho":
+      return `
+        <div class="quantidades-tamanhos">
+          ${op.valores.map(t => `
+            <div class="tamanho-input">
+              <label for="tamanho-${t}">${t}:</label>
+              <input type="number" id="tamanho-${t}" name="Tamanho - ${t}" min="0" value="0">
+            </div>
+          `).join('')}
+        </div>
+      `;
       case "cores":
         return `
           <div class="color-options">
