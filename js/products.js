@@ -97,6 +97,90 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     },
+    "teste": {
+      nome: "T-Shirt Personalizada",
+      imagens: [
+        "../imagens/produtos/tshirt/mockup.webp",
+        "../imagens/produtos/tshirt/mockup2.webp",
+        "../imagens/produtos/tshirt/mockup3.webp"
+      ],
+      descricao: "",
+      opcoes: {
+        "Posicionamento": {
+          tipo: "imagem-radio",
+          valores: [
+            {
+              nome: "Frente e Verso",
+              imagem: "../imagens/produtos/tshirt/fv.webp"
+            },
+            {
+              nome: "Frente",
+              imagem: "../imagens/produtos/tshirt/f.webp"
+            },
+            {
+              nome: "Verso",
+              imagem: "../imagens/produtos/tshirt/v.webp"
+            }
+          ]
+        },
+        "Cor": {
+          tipo: "cores",
+          valores: [
+            "Branco",
+            "Preto",
+            "Branco absoluto",
+            "Branco suave",
+            "Bege claro",
+            "Areia",
+            "Amarelo claro",
+            "Amarelo limão",
+            "Amarelo",
+            "Pêssego",
+            "Laranja",
+            "Vermelho",
+            "Vermelho vivo",
+            "Bordeaux",
+            "Rosa claro",
+            "Rosa médio",
+            "Orquídea",
+            "Fúcsia",
+            "Violeta claro",
+            "Roxo escuro",
+            "Azul céu",
+            "Azul claro",
+            "Ciano",
+            "Azul real",
+            "Azul petróleo",
+            "Azul jeans",
+            "Azul marinho",
+            "Azul escuro",
+            "Cinza médio",
+            "Cinza claro",
+            "Cinza suave",
+            "Cinza escuro",
+            "Cinza profundo",
+            "Verde suave",
+            "Verde maçã",
+            "Verde lima",
+            "Esmeralda",
+            "Verde prado",
+            "Verde escuro",
+            "Khaki",
+            "Cinza zinco",
+            "Verde tropa",
+            "Chocolate",
+            "Terra"
+          ] 
+        },
+        "Tamanho": {
+          tipo: "select",
+          valores: ["S até 2XL", "3XL até 5XL", "Outros Tamanhos"]
+        },
+        "Quantidade": {
+          tipo: "number",
+        }
+      }
+    },
     "tshirt": {
       nome: "T-Shirt Personalizada",
       imagens: [
