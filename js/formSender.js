@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Desativar botão e mudar cor
     if (btnSubmit) {
-      btnSubmit.disabled = true;
       btnSubmit.style.backgroundColor = '#191919';
     }
 
