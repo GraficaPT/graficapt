@@ -2,48 +2,61 @@ document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("produto-dinamico");
   
   const colorMap = {
-    "Branco": "#ffffff", "Branco absoluto": "#fefefe", "Branco suave": "#f4f4f4", "Bege claro": "#fdf7e4", 
-    "Areia": "#e9d8a6", "Amarelo claro": "#fff7b2", "Amarelo limão": "#f4f91e", "Amarelo": "#ffff00", 
-    "Pêssego": "#ffcba4", "Laranja": "#ffa500", "Vermelho": "#ff0000", "Vermelho vivo": "#e94b3c", 
-    "Bordeaux": "#800000", "Rosa claro": "#ffdbe5", "Rosa médio": "#f28db3", "Orquídea": "#da70d6", 
-    "Fúcsia": "#ff00ff", "Magenta": "#ff00ff", "Violeta claro": "#c8a2c8", "Roxo escuro": "#4b0082", 
-    "Azul céu": "#87ceeb", "Azul claro": "#00bcd4", "Ciano": "#00ffff", "Azul Cian": "#00ffff", 
-    "Azul real": "#4169e1", "Azul petróleo": "#008b8b", "Azul jeans": "#1560bd", "Azul marinho": "#000080", 
-    "Azul escuro": "#002366", "Azul Reflex": "#001489", "Preto": "#0b0b0b", 
-    "Cinza médio": "#a9a9a9", "Cinza claro": "#d3d3d3", "Cinza suave": "#bfbfbf", 
-    "Cinza escuro": "#999999", "Cinza profundo": "#4f4f4f", 
-    "Verde suave": "#c7dd64", "Verde maçã": "#8db600", "Verde lima": "#caff70", 
-    "Esmeralda": "#50c878", "Verde prado": "#66bb66", "Verde escuro": "#006400", 
-    "Verde Pistacho": "#a8c256", "Khaki": "#c3b091", "Cinza zinco": "#7f7f7f", 
-    "Verde tropa": "#556b2f", "Chocolate": "#7b3f00", "Terra": "#a0522d", "Kraft": "#b89b72", 
-    "Multiplas Cores": "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)", 
-    "Preto - Pantone Process Black U": "#2D2926", "Azul Claro – Pantone Process Blue": "#0085CA", 
-    "Azul Médio – Pantone 300 U": "#0077C8", "Azul Escuro – Pantone Process Blue 072 U": "#10069F", 
-    "Castanho – Pantone 4635 U": "#996046", "Laranja – Pantone Orange 021 U": "#FE5000", 
-    "Verde Claro – Pantone 375 U": "#84BD00", "Verde Médio – Pantone 354 U": "#00B140", 
-    "Verde Escuro – Pantone 357 U": "#215732", "Vermelho – Pantone Warm Red U": "#F9423A", 
-    "Rosa – Pantone Rhodamine Red U": "#E10098", "Bordeaux – Pantone 188 U": "#7C2529",
-    "Cinza Puro": "#c0c0c0",
-    "Preto": "#242021",
-    "Cinza Puro": "#969791",
+    "Branco": "#ffffff",
+    "Bege claro": "#fdf7e4",
+    "Areia": "#e9d8a6",
+    "Amarelo claro": "#fff7b2",
+    "Amarelo": "#ffff00",
+    "Pêssego": "#ffcba4",
+    "Laranja": "#ffa500",
+    "Vermelho": "#ff0000",
+    "Bordeaux": "#800000",
+    "Rosa claro": "#ffdbe5",
+    "Rosa médio": "#f28db3",
+    "Orquídea": "#da70d6",
+    "Fúcsia": "#ff00ff",
+    "Violeta claro": "#c8a2c8",
+    "Roxo escuro": "#4b0082",
+    "Azul céu": "#87ceeb",
+    "Azul claro": "#00bcd4",
+    "Ciano": "#00ffff",
+    "Azul real": "#4169e1",
+    "Azul petróleo": "#008b8b",
+    "Azul jeans": "#1560bd",
+    "Azul marinho": "#000080",
+    "Azul escuro": "#002366",
+    "Preto": "#0b0b0b",
+    "Cinza claro": "#d3d3d3",
+    "Cinza médio": "#a9a9a9",
+    "Cinza escuro": "#999999",
+    "Cinza profundo": "#4f4f4f",
     "Cinzento matizado": "#96a7af",
     "Cinzento ratinho": "#41454e",
-    "Off-white": "#f2efe6",
-    "Linen": "#fff4d6",
-    "Corda": "#cfbfb2",
-    "Vermelho": "#f60001",
-    "Bordeaux": "#902c44",
-    "Cor-de-Rosa Doce": "#ffd6e2",
-    "Azul céu": "#009ad0",
+    "Verde suave": "#c7dd64",
+    "Verde maçã": "#8db600",
+    "Verde lima": "#caff70",
+    "Verde prado": "#66bb66",
+    "Verde escuro": "#006400",
+    "Verde pistacho": "#a8c256",
+    "Verde tropa": "#556b2f",
     "Verde garrafa": "#565040",
-    "Rosa médio": "#cf6977",
+    "Castanho": "#996046",
+    "Chocolate": "#7b3f00",
+    "Terra": "#a0522d",
+    "Kraft": "#b89b72",
+    "Off-white": "#f2efe6",
+    "Linho": "#fff4d6",
+    "Corda": "#cfbfb2",
+    "Cor-de-rosa doce": "#ffd6e2",
     "Lilás": "#662c55",
     "Aqua": "#529eab",
-    "Real": "#0057a4",
-    "Denim": "#113c5e",
     "Azul profundo": "#002b46",
-    "Verde dos prados": "#009c53"
+    "Azul denim": "#113c5e",
+    "Azul real escuro": "#0057a4",
+    "Verde dos prados": "#009c53",
+    "Multicolor": "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)"
   };
+  
 
   const produtos = {
     "ardosia": {
@@ -84,13 +97,31 @@ document.addEventListener("DOMContentLoaded", () => {
       descricao: "Porta chaves de acrilico com dupla camada resistente, dê vida ao seu logotipo com um brinde extra!<br>Tamanho maximo 5x5cm",
       opcoes: {
         "Cor Fundo": {
-          tipo: "cores",
-          valores: ["Branco", "Preto", "Azul jeans", "Verde Escuro – Pantone 357 U", "Rosa – Pantone Rhodamine Red U", "Vermelho", "Laranja – Pantone Orange 021 U", "Amarelo limão"]
-        },
-        "Cor Principal": {
-          tipo: "cores",
-          valores: ["Branco", "Preto", "Azul jeans", "Verde Escuro – Pantone 357 U", "Rosa – Pantone Rhodamine Red U", "Vermelho", "Laranja – Pantone Orange 021 U", "Amarelo limão"]
-        },
+        tipo: "cores",
+        valores: [
+          "#ffffff",
+          "#0b0b0b",
+          "#1560bd",
+          "#215732",
+          "#E10098",
+          "#ff0000",
+          "#FE5000",
+          "#f4f91e"
+        ]
+      },
+      "Cor Principal": {
+        tipo: "cores",
+        valores: [
+          "#ffffff",
+          "#0b0b0b",
+          "#1560bd",
+          "#215732",
+          "#E10098",
+          "#ff0000",
+          "#FE5000",
+          "#f4f91e"
+        ]
+      },
         "Quantidade": {
           tipo: "select",
           valores: ["20 Unidades", "40 Unidades", "80 Unidades", "120 Unidades", "200 Unidades", "Outras Quantidades"]
@@ -126,17 +157,17 @@ document.addEventListener("DOMContentLoaded", () => {
         "Cor": {
           tipo: "cores",
           valores: [
-            "Branco",
-            "Preto",
-            "Cinza médio",
-            "Cinzento matizado",
-            "Laranja",
-            "Vermelho",
-            "Azul real",
-            "Azul marinho",
-            "Verde",
-            "Verde escuro"
-          ]          
+            "#ffffff",
+            "#0b0b0b",
+            "#a9a9a9",
+            "#96a7af",
+            "#ffa500",
+            "#ff0000",
+            "#4169e1",
+            "#000080",
+            "#66bb66",
+            "#006400"
+          ]    
         },
         "Tamanhos": {
           tipo: "quantidade-por-tamanho",
@@ -156,12 +187,29 @@ document.addEventListener("DOMContentLoaded", () => {
         "Cor": {
           tipo: "cores",
           valores: [
-            "Branco", "Preto", "Azul",
-            "Cinza Puro", "Cinzento matizado", "Cinzento ratinho",
-            "Off-white", "Linen", "Corda", "Amarelo", "Laranja", "Vermelho",
-            "Cor-de-Rosa Doce", "Lilás", "Azul céu", "Aqua", "Real", "Denim",
-            "Azul profundo", "Verde dos prados", "Verde garrafa"
+            "#ffffff",
+            "#0b0b0b",
+            "#0077C8",
+            "#c0c0c0",
+            "#96a7af",
+            "#41454e",
+            "#f2efe6",
+            "#fff4d6",
+            "#cfbfb2",
+            "#ffff00",
+            "#ffa500",
+            "#ff0000",
+            "#ffd6e2",
+            "#662c55",
+            "#009ad0",
+            "#529eab",
+            "#0057a4",
+            "#113c5e",
+            "#002b46",
+            "#009c53",
+            "#565040"
           ]
+          
         }, 
         "Posicionamento": {
           tipo: "imagem-radio",
@@ -434,20 +482,19 @@ document.addEventListener("DOMContentLoaded", () => {
         "Cor": {
           tipo: "cores",
           valores: [
-            "Branco",                
-            "Preto",                  
-            "Cinza profundo",         
-            "Areia",                 
-            "Amarelo limão",          
-            "Laranja",                 
-            "Vermelho",               
-            "Roxo escuro",             
-            "Azul céu",              
-            "Azul real",               
-            "Azul escuro",       
-            "Verde lima"  
-          ]       
-          
+            "#ffffff",
+            "#0b0b0b",
+            "#4f4f4f",
+            "#e9d8a6",
+            "#f4f91e",
+            "#ffa500",
+            "#ff0000",
+            "#4b0082",
+            "#009ad0",
+            "#4169e1",
+            "#002366",
+            "#caff70"
+          ]         
         },
         "Quantidade": {
           tipo: "select",
@@ -563,13 +610,12 @@ document.addEventListener("DOMContentLoaded", () => {
       case "cores":
         return `
           <div class="color-options">
-            ${op.valores.map((cor, index) => {
+            ${op.valores.map((hex, index) => {
               const colorID = `${label.replace(/\s+/g, '-').toLowerCase()}-color-${index}`;
-              const colorHex = colorMap[cor] || "#ccc";
               return `
                 <div class="overcell">
-                  <input type="radio" name="${label}" value="${cor}" id="${colorID}" ${index === 0 ? "checked" : ""} required>
-                  <label class="color-circle" for="${colorID}" style="background: ${colorHex};" title="${cor}"></label>
+                  <input type="radio" name="${label}" value="${hex}" id="${colorID}" ${index === 0 ? "checked" : ""} required>
+                  <label class="color-circle" for="${colorID}" style="background: ${hex};" title="${hex}"></label>
                 </div>
               `;
             }).join('')}
