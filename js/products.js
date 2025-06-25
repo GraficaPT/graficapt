@@ -256,37 +256,38 @@ document.addEventListener("DOMContentLoaded", () => {
         "Cor do Saco": {
           tipo: "cores",
           valores: [
-            "Kraft",
-            "Branco",
-            "Preto",
-            "Azul jeans",
-            "Amarelo",
-            "Magenta",
-            "Azul Cian",
-            "Azul Reflex",
-            "Vermelho",
-            "Verde Pistacho",
-            "Laranja"
+            "#b89b72", // Kraft
+            "#ffffff", // Branco
+            "#0b0b0b", // Preto
+            "#1560bd", // Azul jeans
+            "#ffff00", // Amarelo
+            "#ff00ff", // Magenta
+            "#00ffff", // Azul Cian
+            "#001489", // Azul Reflex
+            "#ff0000", // Vermelho
+            "#a8c256", // Verde Pistacho
+            "#ffa500"  // Laranja
           ]
         },
-        "Cor da Personalização": {
+       "Cor da Personalização": {
           tipo: "cores",
           valores: [
-            "Preto - Pantone Process Black U",
-            "Azul Claro – Pantone Process Blue",
-            "Azul Médio – Pantone 300 U",
-            "Azul Escuro – Pantone Process Blue 072 U",
-            "Castanho – Pantone 4635 U",
-            "Laranja – Pantone Orange 021 U",
-            "Verde Claro – Pantone 375 U",
-            "Verde Médio – Pantone 354 U",
-            "Verde Escuro – Pantone 357 U",
-            "Vermelho – Pantone Warm Red U",
-            "Rosa – Pantone Rhodamine Red U",
-            "Bordeaux – Pantone 188 U",
-            "Multiplas Cores"
+            "#2D2926", // Preto - Pantone Process Black U
+            "#0085CA", // Azul Claro – Pantone Process Blue
+            "#0077C8", // Azul Médio – Pantone 300 U
+            "#10069F", // Azul Escuro – Pantone Process Blue 072 U
+            "#996046", // Castanho – Pantone 4635 U
+            "#FE5000", // Laranja – Pantone Orange 021 U
+            "#84BD00", // Verde Claro – Pantone 375 U
+            "#00B140", // Verde Médio – Pantone 354 U
+            "#215732", // Verde Escuro – Pantone 357 U
+            "#F9423A", // Vermelho – Pantone Warm Red U
+            "#E10098", // Rosa – Pantone Rhodamine Red U
+            "#7C2529", // Bordeaux – Pantone 188 U
+            "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)" // Multiplas Cores
           ]
         },
+
         "Posicionamento": {
           tipo: "imagem-radio",
           valores: [
