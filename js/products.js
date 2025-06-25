@@ -756,7 +756,7 @@ return `
           </div>
           <div class="form-group">
             <div class="overcell">
-            <label for="email">Logotipo:</label>
+            <label for="email">(Opcional) Logotipo:</label>
               <input type="file" id="ficheiro">
               <input type="hidden" name="Logotipo" id="link_ficheiro">
               <p id="uploadStatus" style="display: none;"></p>
