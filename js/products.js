@@ -239,12 +239,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           ]
         },
-        "Tamanho": {
-          tipo: "select",
-          valores: ["S até 2XL", "3XL até 5XL", "Outros Tamanhos"]
-        },
-        "Quantidade": {
-          tipo: "number",
+        "Tamanhos": {
+          tipo: "quantidade-por-tamanho",
+          valores: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"]
         }
       }
     },
