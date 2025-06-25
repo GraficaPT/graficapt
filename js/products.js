@@ -128,16 +128,15 @@ document.addEventListener("DOMContentLoaded", () => {
           valores: [
             "Branco",
             "Preto",
-            "Branco absoluto",
             "Cinza médio",
             "Cinzento matizado",
             "Laranja",
             "Vermelho",
-            "Azul Real",
-            "Azul petróleo",
+            "Azul real",
+            "Azul marinho",
             "Verde",
-            "Verde Escuro"
-          ] 
+            "Verde escuro"
+          ]          
         },
         "Tamanhos": {
           tipo: "quantidade-por-tamanho",
