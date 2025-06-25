@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         "Tamanhos": {
           tipo: "quantidade-por-tamanho",
-          valores: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"]
+          valores: ["S", "M", "L", "XL", "XXL", "Outro"]
         }
       }
     },
