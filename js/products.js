@@ -729,7 +729,7 @@ return `
         <div class="form-group">
           <div class="overcell">
             <label for="detalhes">Detalhes:</label>
-            <textarea name="Detalhes" placeholder="Descreve todas as informações sobre a tua encomenda!" required></textarea>
+            <textarea name="Detalhes" placeholder="Descreve todas as informações sobre como queres o design e atenções extras!" required></textarea>
           </div>
         </div>
   
