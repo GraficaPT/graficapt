@@ -188,28 +188,26 @@ document.addEventListener("DOMContentLoaded", () => {
           tipo: "cores",
           valores: [
             "#ffffff",
-            "#0b0b0b",
-            "#0077C8",
-            "#c0c0c0",
+            "#242021",
             "#96a7af",
+            "#999993",
             "#41454e",
             "#f2efe6",
-            "#fff4d6",
             "#cfbfb2",
-            "#ffff00",
-            "#ffa500",
-            "#ff0000",
-            "#ffd6e2",
-            "#662c55",
+            "#dad3c0",
+            "#ffc100",
+            "#fe8d00",
+            "#f60001",
+            "#fb97a7",
+            "#e1c6e7",
+            "#75c0e8",
             "#009ad0",
-            "#529eab",
             "#0057a4",
             "#113c5e",
             "#002b46",
             "#009c53",
-            "#565040"
-          ]
-          
+            "#01452c"
+          ]  
         }, 
         "Posicionamento": {
           tipo: "imagem-radio",
