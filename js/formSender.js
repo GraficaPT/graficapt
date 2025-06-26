@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       )
       .then(response => {
         if (response.ok) {
-          alert("Pedido de orçamento enviado com sucesso! Iremos contactá-lo em breve.");
+          alert("Pedido de orçamento enviado com sucesso!\nIremos contactá-lo em breve.");
           window.location.href = "https://graficapt.com";
         } else {
           throw new Error("Resposta não OK");
