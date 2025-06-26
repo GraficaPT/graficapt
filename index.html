@@ -93,10 +93,26 @@
         </div>
     </div>
         <a class="overtitle hcenter">Não encontras o que precisas?</a>
+        <form id="orcamentoForm">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" required />
+        
+            <label for="contacto">Contacto</label>
+            <input type="text" id="contacto" name="contacto" required />
+        
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+
+            <label for="detalhes">Detalhes</label>
+            <textarea id="detalhes" name="detalhes" rows="4" placeholder="Descreva os detalhes do seu pedido…"></textarea>
+            
+            <button type="submit" id="submit">Enviar Pedido</button>
+          </form>
         <h2 class="hcenter">Envia um email para orcamentos@graficapt.com!</h2>
         
         <footer class="footer" id="footer">
         <script src="js/footerheader.js"></script>
+        <script src="js/formSender.js"></script>
         <script src="js/filter.js"></script>
 
     </body>
