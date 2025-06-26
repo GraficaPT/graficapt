@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           ]
         },
-        "Cor": {
+        "Cor da T-Shirt": {
           tipo: "cores",
           valores: [
             "#f7f7f7",
