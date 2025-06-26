@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
       descricao: "",
       opcoes: {
-        "Posicionamento": {
+        "Posicionamento da Personalização": {
           tipo: "imagem-radio",
           valores: [
             {
