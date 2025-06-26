@@ -93,22 +93,20 @@
         </div>
     </div>
         <a class="overtitle hcenter">Não encontras o que precisas?</a>
-        <form id="orcamentoForm">
-            <label for="nome">Nome</label>
-            <input type="text" id="nome" name="nome" required />
-        
-            <label for="contacto">Contacto</label>
-            <input type="text" id="contacto" name="contacto" required />
-        
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required />
-
-            <label for="detalhes">Detalhes</label>
-            <textarea id="detalhes" name="detalhes" rows="4" placeholder="Descreva os detalhes do seu pedido…"></textarea>
-            
-            <button type="submit" id="submit">Enviar Pedido</button>
-          </form>
-        <h2 class="hcenter">Envia um email para orcamentos@graficapt.com!</h2>
+        <form id="orcamentoForm" method="POST" enctype="multipart/form-data" class="invoce hcenter">
+            <input required placeholder="Nome" type="text" name="name" class="name">
+            <input required placeholder="Email" type="email" name="email" class="email">
+            <input required placeholder="Telefone" type="text" name="phone" class="phone">
+            <input placeholder="Empresa" type="text" name="company" class="company">
+            <textarea required rows="5" placeholder="Descrição" name="description" class="description"></textarea><br>
+    
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="https://graficapt.com">
+          <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://graficapt.com">
+            <button type="submit">ENVIAR</button>
+        </form>
+        <h2 class="hcenter">Ou envia um email diretamente para orcamentos@graficapt.com!</h2>
         
         <footer class="footer" id="footer">
         <script src="js/footerheader.js"></script>
