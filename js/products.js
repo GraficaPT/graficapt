@@ -71,6 +71,53 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     },
+    "tshirt": {
+      nome: "T-Shirt Personalizada",
+      imagens: [
+        "../imagens/produtos/tshirt/mockup.webp",
+        "../imagens/produtos/tshirt/mockup2.webp",
+        "../imagens/produtos/tshirt/mockup3.webp"
+      ],
+      descricao: "",
+      opcoes: {
+        "Posicionamento da Personalização": {
+          tipo: "imagem-radio",
+          valores: [
+            {
+              nome: "Frente e Verso",
+              imagem: "../imagens/produtos/tshirt/fv.webp"
+            },
+            {
+              nome: "Frente",
+              imagem: "../imagens/produtos/tshirt/f.webp"
+            },
+            {
+              nome: "Verso",
+              imagem: "../imagens/produtos/tshirt/v.webp"
+            }
+          ]
+        },
+        "Cor da T-Shirt": {
+          tipo: "cores",
+          valores: [
+            "#f7f7f7",
+            "#000000",
+            "#53565b",
+            "#9c9b96",
+            "#fe883e",
+            "#de5060",
+            "#3155a6",
+            "#061b2d",
+            "#4ea94e",
+            "#163f35"
+          ]
+        },
+        "Tamanhos": {
+          tipo: "quantidade-por-tamanho",
+          valores: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"]
+        }
+      }
+    },
     "polo": {
       nome: "T-Shirt Polo Personalizado",
       imagens: [
