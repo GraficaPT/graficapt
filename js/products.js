@@ -685,8 +685,10 @@ return `
           </div>
           <div class="form-group">
             <div class="overcell">
-              <label for="telemovel">Telemóvel:</label>
-              <input type="tel" name="Telemovel" placeholder="Ex: 912 345 678" required>
+            <label for="email">(Opcional) Logotipo:</label>
+              <input type="file" id="ficheiro">
+              <input type="hidden" name="Logotipo" id="link_ficheiro">
+              <p id="uploadStatus" style="display: none;"></p>
             </div>
           </div>
         </div>
@@ -703,6 +705,12 @@ return `
               <input type="file" id="ficheiro">
               <input type="hidden" name="Logotipo" id="link_ficheiro">
               <p id="uploadStatus" style="display: none;"></p>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="overcell">
+              <label for="telemovel">Telemóvel:</label>
+              <input type="tel" name="Telemovel" placeholder="Ex: 912 345 678" required>
             </div>
           </div>
         </div>
