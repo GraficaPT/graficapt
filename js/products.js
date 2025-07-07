@@ -683,8 +683,14 @@ return `
               <input type="text" name="Empresa" placeholder="Empresa ou nome pessoal" required>
             </div>
           </div>
-          
-          
+          <div class="form-group">
+            <div class="overcell">
+            <label for="email">(Opcional) Logotipo:</label>
+              <input type="file" id="ficheiro">
+              <input type="hidden" name="Logotipo" id="link_ficheiro">
+              <p id="uploadStatus" style="display: none;"></p>
+            </div>
+          </div>
         </div>
         <div class="options-row">
           <div class="form-group">
