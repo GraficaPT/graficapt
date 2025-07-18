@@ -248,7 +248,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   `;
 
   document.getElementById("produto-dinamico").innerHTML = html;
-
+  setTimeout(() => {
+    const script = document.createElement('script');
+    script.src = 'js/formSender.js';
+    document.body.appendChild(script);
+  }, 100);
+  
 
   imagemAtual = 0;
   setTimeout(() => atualizarIndicadores(), 20);
