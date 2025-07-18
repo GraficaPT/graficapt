@@ -36,11 +36,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     return STORAGE_PUBLIC + `${imagem}`;
   }
 
-  // Variáveis globais para imagens do carrossel
   let imagensCarrossel = produto.images || [];
   let imagemAtual = 0;
 
-  // --- Carrossel de imagens ---
   window.mudarImagem = (incremento) => {
     const imagens = document.querySelectorAll('.carrossel-img');
     const wrapper = document.querySelector('.carrossel-imagens');
