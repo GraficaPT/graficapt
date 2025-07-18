@@ -1,0 +1,38 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Backoffice | GraficaPT</title>
+</head>
+<body>
+  <h1>Login Admin</h1>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button type="submit">Entrar</button>
+    <p id="loginError" style="color:red;"></p>
+  </form>
+
+  <script type="module">
+    import { supabase } from './js/supamanager/supabase.js';
+
+    const form = document.getElementById('loginForm');
+    const errorEl = document.getElementById('loginError');
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        errorEl.textContent = "Login inválido.";
+      } else {
+        window.location.href = 'manager.html';
+      }
+    };
+  </script>
+</body>
+</html>

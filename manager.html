@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Gestão Produtos | GraficaPT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/manager.css">
+</head>
+<body>
+    <h1>Painel de Gestão de Produtos</h1>
+    <button class="btn btn-new" id="addProductBtn">+ Novo Produto</button>
+    <div id="produtosList" class="produtos-list"></div>
+
+    <div id="formContainer" class="form-section" style="display:none;">
+        <form id="produtoForm">
+            <label>Nome do Produto</label>
+            <input type="text" id="inputName" required>
+
+            <label>Slug (único, sem espaços)</label>
+            <input type="text" id="inputSlug" pattern="^[a-z0-9\-]+$" required>
+
+            <label>Categoria</label>
+            <input type="text" id="inputCategory" list="categoryList" required>
+            <datalist id="categoryList"></datalist>
+
+            <label>Banner do Produto</label>
+            <input type="file" id="inputBanner" accept="image/*">
+            <div class="img-preview" id="bannerPreview"></div>
+            <input type="hidden" id="inputBannerJson">
+
+            <label>Imagens (carrega várias)</label>
+            <input type="file" id="inputImages" multiple accept="image/*">
+            <div class="img-preview" id="imagePreview"></div>
+            <input type="hidden" id="inputImagesJson">
+
+            <div class="divider"></div>
+
+            <label>Opções do Produto</label>
+            <div id="opcoesList" class="opcoes-list"></div>
+
+            <div class="divider"></div>
+            <button id="addOpcaoBtn" type="button" class="btn btn-secondary">+ Nova Opção</button>
+            <button type="submit" class="btn btn-new" id="saveBtn">Guardar</button>
+            <button type="button" class="btn btn-delete" id="cancelBtn">Cancelar</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script type="module" src="js/supamanager/manager.js"></script>
+    <script type="module" src="js/supamanager/opcoes-ui.js"></script>
+    <script type="module" src="js/supamanager/produtos-ui.js"></script>
+    <script type="module" src="js/supamanager/supabase.js"></script>
+</body>
+</html>

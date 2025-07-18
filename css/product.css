@@ -158,7 +158,6 @@ button:hover {
 .color-options input[type="radio"]:checked + .color-circle {
   transform: scale(1.2);
   border-color: #3198a7;
-  z-index: 1;
   position: relative;
 }
 
@@ -196,7 +195,6 @@ button:hover {
 .posicionamento-options input[type="radio"]:checked + .posicionamento-label .posicionamento-img {
   transform: scale(1.1);
   border: 0.1vh solid #3198a7;
-  z-index: 1;
   position: relative;
 }
 
@@ -427,3 +425,37 @@ button:hover {
     flex: 1 1 30%;
   }
 }
+
+.posicionamento-label {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 20vh;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+
+
+.posicionamento-nome {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  width: 100%;
+  transform: translate(-50%, 50%);
+  color: #111;
+  font-weight: bold;
+  font-size: 2.3vh;
+  text-align: center;
+  word-break:keep-all;
+}
+
+.posicionamento-options input[type="radio"]:checked + .posicionamento-label .posicionamento-img {
+  border: 0.3vh solid #3198a7;
+  transform: scale(1.08);
+}
+
+

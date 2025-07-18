@@ -1,6 +1,6 @@
 const topbarHTML = `
     <div class="bar">
-        <img src="../imagens/logo_minimal.svg" onclick="location.href = 'index.html'">
+        <img src="../imagens/social/logo_minimal.svg" onclick="location.href = 'index.html'">
         <div class="tabs desktop-only">
             <a href="index.html#filter=rigidos">Suportes Rigídos</a>
             <a href="index.html#filter=bandeiras">Bandeiras Publicitárias</a>
@@ -13,12 +13,12 @@ const topbarHTML = `
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <img src="../imagens/logo_minimal.svg" class="sidebar-logo" onclick="location.href = 'index.html'">
+            <img src="../imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = 'index.html'">
         </div>
-        <a href="index.html#filter=rigidos">Suportes Rigídos</a>
-        <a href="index.html#filter=bandeiras">Bandeiras Publicitárias</a>
-        <a href="index.html#filter=sacos">Sacos</a>
-        <a href="index.html#filter=vestuario">Vestuário</a>
+        <a href="index.html#filter=Rigidos">Suportes Rigídos</a>
+        <a href="index.html#filter=Bandeiras">Bandeiras Publicitárias</a>
+        <a href="index.html#filter=Sacos">Sacos</a>
+        <a href="index.html#filter=Vestuario">Vestuário</a>
         <a href="index.html#filter=all">Ver Tudo</a>
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -40,9 +40,9 @@ const footerHTML = `
             </div>
             <div class="footer-column">
                 <h4>Produtos</h4>
-                <a href="index.html">Todos os produtos</a>
-                <a href="index.html#filter=bandeiras">Bandeiras</a>
-                <a href="index.html#filter=sacos">Sacos</a>
+                <a href="index.html#filter=all"">Todos os produtos</a>
+                <a href="index.html#filter=Bandeiras">Bandeiras</a>
+                <a href="index.html#filter=Sacos">Sacos</a>
             </div>
             <div class="footer-column">
                 <h4>Subscreve a nossa newsletter</h4>
@@ -51,9 +51,9 @@ const footerHTML = `
                     <button type="submit">Subscrever</button>
                 </form>
                 <div class="social-icons hcenter">
-                    <img href="https://www.facebook.com/profile.php?id=61564124441415" src="../imagens/facebook.svg" alt="Facebook">
-                    <img href="https://www.instagram.com/graficapt/" src="../imagens/instagram.svg" alt="Instagram">
-                    <img href="https://wa.me/351969205741" src="../imagens/whatsapp.svg" alt="WhatsApp">
+                    <img href="https://www.facebook.com/profile.php?id=61564124441415" src="../imagens/social/facebook.svg" alt="Facebook">
+                    <img href="https://www.instagram.com/graficapt/" src="../imagens/social/instagram.svg" alt="Instagram">
+                    <img href="https://wa.me/351969205741" src="../imagens/social/whatsapp.svg" alt="WhatsApp">
                 </div>
             </div>
         </div>

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt">
     <head>
+      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         
@@ -36,10 +38,10 @@
     <div class="topbar" id="topbar"></div>
 
     <div class="banner hcenter">
-        <img class="banner-left" src="imagens/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy" onclick="location.href = 'bandeiravela.html'">
+        <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy" onclick="location.href = 'product.html?slug=bandeiravela'">
         <div class="banner-right">
-            <img src="imagens/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy" onclick="location.href = 'tshirt.html'">
-            <img src="imagens/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy" onclick="location.href = 'sacoskraft.html'">
+            <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy" onclick="location.href = 'product.html?slug=tshirt'">
+            <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy" onclick="location.href = 'product.html?slug=sacoskraft'">
         </div> 
     </div>
 
@@ -47,13 +49,7 @@
         <a class="subtitle hcenter">Produtos Personalizáveis</a>
 
         <div class="filter-sort">
-            <select id="filterCategory" onchange="location.hash = 'filter=' + this.value">
-                <option value="all">Todos os Produtos</option>
-                <option value="rigidos">Suportes Rígidos</option>
-                <option value="bandeiras">Bandeiras</option>
-                <option value="sacos">Sacos</option>
-                <option value="vestuario">Vestuário</option>
-            </select>
+            <select id="filterCategory" onchange="location.hash = 'filter=' + this.value"></select>
             <select id="sortBy" onchange="applyFilters()">
                 <option value="default">Ordenar por</option>
                 <option value="az">Nome A-Z</option>
@@ -61,58 +57,7 @@
             </select>
         </div>
 
-        <div class="products-grid">
-            <div class="cell" data-categoria="rigidos" data-nome="ardosia" onclick="location.href = 'ardosia.html'">
-                <img src="imagens/produtos/ardosia.png" alt="Ardósia alimentar personalizada" loading="lazy">
-                <div class="cellText">Ardósia Alimentar</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="brindes" data-nome="portachaves" onclick="location.href = 'portachaves.html'">
-                <img src="imagens/produtos/portachaves.png" alt="Porta-chaves personalizado" loading="lazy">
-                <div class="cellText">Porta Chaves</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="vestuario" data-nome="tshirt" onclick="location.href = 'tshirt.html'">
-                <img src="imagens/produtos/tshirt.png" alt="T-shirt personalizada" loading="lazy">
-                <div class="cellText">T-Shirt</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="sacos" data-nome="sacoskraft" onclick="location.href = 'sacoskraft.html'">
-                <img src="imagens/produtos/sacokraft.png" alt="Saco kraft personalizado" loading="lazy">
-                <div class="cellText">Saco Kraft</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="bandeiras" data-nome="rollup" onclick="location.href = 'rollup.html'">
-                <img src="imagens/produtos/rollup.png" alt="Roll-up personalizado" loading="lazy">
-                <div class="cellText">Roll-Up</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="bandeiras" data-nome="bandeiravela" onclick="location.href = 'bandeiravela.html'">
-                <img src="imagens/produtos/bandeiravela.png" alt="Bandeira vela personalizada" loading="lazy">
-                <div class="cellText">Bandeira Vela</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="bandeiras" data-nome="bandeiragota" onclick="location.href = 'bandeiragota.html'">
-                <img src="imagens/produtos/bandeiragota.png" alt="Bandeira gota personalizada" loading="lazy">
-                <div class="cellText">Bandeira Gota</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="sacos" data-nome="sacospano" onclick="location.href = 'sacospano.html'">
-                <img src="imagens/produtos/sacopano.png" alt="Saco pano personalizado" loading="lazy">
-                <div class="cellText">Saco Pano</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="sacos" data-nome="sacostecido" onclick="location.href = 'sacostecido.html'">
-                <img src="imagens/produtos/sacotecido.png" alt="Saco tecido personalizado" loading="lazy">
-                <div class="cellText">Saco Tecido</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-            <div class="cell" data-categoria="vestuario" data-nome="tshirtpolo" onclick="location.href = 'polo.html'">
-                <img src="imagens/produtos/polo.png" alt="Polo personalizado" loading="lazy">
-                <div class="cellText">Polo T-Shirt</div>
-                <div class="cellBtn">Ver Opções</div>
-            </div>
-        </div>
+        <div id="products-grid" class="products-grid"></div>
     </div>
 
     <a class="overtitle hcenter">Não encontras o que precisas?</a>
@@ -128,7 +73,7 @@
     </form>
 
     <footer class="footer" id="footer"></footer>
-
+    <script type="module" src="js/productsgrid.js"></script>
     <script src="js/footerheader.js"></script>
     <script src="js/formSender.js"></script>
     <script src="js/filter.js"></script>
