@@ -1,4 +1,4 @@
-export function inicializarForm() {
+function inicializarForm() {
   const form = document.getElementById('orcamentoForm');
   const ficheiroInput = document.getElementById('ficheiro');
   const linkHidden = document.getElementById('link_ficheiro');
@@ -84,3 +84,5 @@ export function inicializarForm() {
     });
   });
 }
+
+inicializarForm()
