@@ -248,8 +248,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   `;
 
   document.getElementById("produto-dinamico").innerHTML = html;
+  setTimeout(() => {
+    const script = document.createElement('script');
+    script.src = 'js/formSender.js';
+    script.onload = () => console.log("formSender carregado com sucesso");
+    script.onerror = () => console.error("Erro ao carregar formSender");
+    document.body.appendChild(script);
+  }, 50);
 
-  // Inicializa indicadores do carrossel
   imagemAtual = 0;
   setTimeout(() => atualizarIndicadores(), 20);
 });
