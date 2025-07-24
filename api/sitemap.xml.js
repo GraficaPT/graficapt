@@ -11,29 +11,29 @@ export default async function handler(req, res) {
   try {
     const { data: products, error } = await supabase
       .from('products')
-      .select('slug, updated_at')
+      .select('slug')
 
-    if (error) throw error
+    if (error || !products) {
+      console.error('Erro ao obter produtos:', error)
+      return res.status(500).send('Erro ao gerar sitemap.')
+    }
+
+    const today = new Date().toISOString().split('T')[0]
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${products
-  .map(({ slug, updated_at }) => {
-    const lastmod = updated_at
-      ? new Date(updated_at).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0]
-    return `<url>
-  <loc>${BASE_URL}/product.html?slug=${slug}</loc>
-  <lastmod>${lastmod}</lastmod>
-</url>`
-  })
-  .join('\n')}
+${products.map(p => `
+  <url>
+    <loc>${BASE_URL}/product.html?slug=${p.slug}</loc>
+    <lastmod>${today}</lastmod>
+  </url>
+`).join('')}
 </urlset>`
 
     res.setHeader('Content-Type', 'application/xml')
     res.status(200).send(xml)
   } catch (err) {
-    console.error('Erro ao gerar sitemap:', err)
+    console.error('Erro inesperado:', err)
     res.status(500).send('Erro ao gerar o sitemap')
   }
 }
