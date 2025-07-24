@@ -1,5 +1,4 @@
 
-// generate-sitemap.js
 const fs = require("fs");
 const { createClient } = require("@supabase/supabase-js");
 
