@@ -43,7 +43,7 @@ async function renderProdutos() {
     }
     productsGrid.innerHTML = lista.map(prod => {
       const imgSrc = getBannerUrl(prod);
-      let href = `product.html?slug=${prod.slug}`;
+      let href = `/produto/${prod.slug}`;
       return `
         <div class="cell" data-categoria="${prod.category}" data-nome="${prod.slug}" onclick="location.href = '${href}'">
           <img src="${imgSrc}" alt="${prod.name}" loading="lazy">
