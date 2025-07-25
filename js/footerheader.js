@@ -1,25 +1,25 @@
 const topbarHTML = `
     <div class="bar">
-        <img src="../imagens/social/logo_minimal.svg" onclick="location.href = 'index.html'">
+        <img src="../imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
         <div class="tabs desktop-only">
-            <a href="index.html#filter=rigidos">Suportes Rigídos</a>
-            <a href="index.html#filter=bandeiras">Bandeiras Publicitárias</a>
-            <a href="index.html#filter=sacos">Sacos</a>
-            <a href="index.html#filter=vestuario">Vestuário</a>
-            <a href="index.html#filter=all">Ver Tudo</a>
+            <a href="/index.html#filter=rigidos">Suportes Rigídos</a>
+            <a href="/index.html#filter=bandeiras">Bandeiras Publicitárias</a>
+            <a href="/index.html#filter=sacos">Sacos</a>
+            <a href="/index.html#filter=vestuario">Vestuário</a>
+            <a href="/index.html#filter=all">Ver Tudo</a>
         </div>
         <div class="hamburger mobile-only" onclick="toggleSidebar()">☰</div>
     </div>
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <img src="../imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = 'index.html'">
+            <img src="../imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = '/index.html'">
         </div>
-        <a href="index.html#filter=Rigidos">Suportes Rigídos</a>
-        <a href="index.html#filter=Bandeiras">Bandeiras Publicitárias</a>
-        <a href="index.html#filter=Sacos">Sacos</a>
-        <a href="index.html#filter=Vestuario">Vestuário</a>
-        <a href="index.html#filter=all">Ver Tudo</a>
+        <a href="/index.html#filter=Rigidos">Suportes Rigídos</a>
+        <a href="/index.html#filter=Bandeiras">Bandeiras Publicitárias</a>
+        <a href="/index.html#filter=Sacos">Sacos</a>
+        <a href="/index.html#filter=Vestuario">Vestuário</a>
+        <a href="/index.html#filter=all">Ver Tudo</a>
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 `;
@@ -40,9 +40,9 @@ const footerHTML = `
             </div>
             <div class="footer-column">
                 <h4>Produtos</h4>
-                <a href="index.html#filter=all"">Todos os produtos</a>
-                <a href="index.html#filter=Bandeiras">Bandeiras</a>
-                <a href="index.html#filter=Sacos">Sacos</a>
+                <a href="/index.html#filter=all"">Todos os produtos</a>
+                <a href="/index.html#filter=Bandeiras">Bandeiras</a>
+                <a href="/index.html#filter=Sacos">Sacos</a>
             </div>
             <div class="footer-column">
                 <h4>Subscreve a nossa newsletter</h4>
