@@ -3,7 +3,13 @@ import { supabase } from './supamanager/supabase.js';
 document.addEventListener("DOMContentLoaded", async function () {
   const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
   const params = new URLSearchParams(window.location.search);
-  const slug = params.get("slug");
+  let slug = params.get("slug");
+
+  if (!slug) {
+    const pathParts = window.location.pathname.split('/');
+    slug = pathParts[pathParts.length - 1] || null;
+  }
+
   if (!slug) {
     document.getElementById("produto-dinamico").innerHTML = "<p>Produto não especificado.</p>";
     return;
