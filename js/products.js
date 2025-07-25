@@ -8,7 +8,6 @@ const params = new URLSearchParams(window.location.search);
 slug = params.get("slug");
 
 if (!slug) {
-
   const pathParts = window.location.pathname.split("/");
   const last = pathParts[pathParts.length - 1];
   if (last && last !== "produto") {
@@ -18,10 +17,7 @@ if (!slug) {
 
 if (!slug) {
   document.getElementById("produto-dinamico").textContent = "Produto não especificado.";
-} else {
-  carregarProduto(slug);
-}
-
+} 
 
   let { data: produto, error } = await supabase
     .from('products')
