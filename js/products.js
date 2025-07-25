@@ -2,25 +2,12 @@ import { supabase } from './supamanager/supabase.js';
 
 document.addEventListener("DOMContentLoaded", async function () {
   const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
-
-  let slug = null;
-
   const params = new URLSearchParams(window.location.search);
-  slug = params.get("slug");
-  
+  const slug = params.get("slug");
   if (!slug) {
-    const path = window.location.pathname;
-    const match = path.match(/\/produto\/([^\/]+)/);
-    if (match && match[1]) {
-      slug = decodeURIComponent(match[1]);
-    }
+    document.getElementById("produto-dinamico").innerHTML = "<p>Produto não especificado.</p>";
+    return;
   }
-  
-if (!slug) {
-  document.getElementById("produto-dinamico").textContent = "Produto não especificado.";
-} 
-
-console.log("Slug final extraído:", slug);
 
   let { data: produto, error } = await supabase
     .from('products')
