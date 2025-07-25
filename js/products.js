@@ -5,12 +5,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   let slug = null;
 
-  // Tenta obter do query param (?slug=...)
   const params = new URLSearchParams(window.location.search);
   slug = params.get("slug");
   
   if (!slug) {
-    // Se vier de uma URL amigável como /produto/caneta-aluminio
     const path = window.location.pathname;
     const match = path.match(/\/produto\/([^\/]+)/);
     if (match && match[1]) {
@@ -21,6 +19,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 if (!slug) {
   document.getElementById("produto-dinamico").textContent = "Produto não especificado.";
 } 
+
+console.log("Slug final extraído:", slug);
 
   let { data: produto, error } = await supabase
     .from('products')
