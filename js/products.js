@@ -3,19 +3,21 @@ import { supabase } from './supamanager/supabase.js';
 document.addEventListener("DOMContentLoaded", async function () {
   const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
 
-let slug = null;
-const params = new URLSearchParams(window.location.search);
-slug = params.get("slug");
-console.log("Slug:", slug);
+  let slug = null;
 
-if (!slug) {
-  const pathParts = window.location.pathname.split("/");
-  const last = pathParts[pathParts.length - 1];
-  if (last && last !== "produto") {
-    slug = decodeURIComponent(last);
+  // Tenta obter do query param (?slug=...)
+  const params = new URLSearchParams(window.location.search);
+  slug = params.get("slug");
+  
+  if (!slug) {
+    // Se vier de uma URL amigável como /produto/caneta-aluminio
+    const path = window.location.pathname;
+    const match = path.match(/\/produto\/([^\/]+)/);
+    if (match && match[1]) {
+      slug = decodeURIComponent(match[1]);
+    }
   }
-}
-
+  
 if (!slug) {
   document.getElementById("produto-dinamico").textContent = "Produto não especificado.";
 } 
