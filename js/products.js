@@ -246,8 +246,39 @@ document.addEventListener("DOMContentLoaded", async function () {
       </div>
     </form>
   `;
-
+ 
   document.getElementById("produto-dinamico").innerHTML = html;
+
+function atualizarSEO(produto) {
+  document.title = `${produto.name || produto.nome} | GráficaPT`;
+
+  let metaDesc = document.querySelector('meta[name="description"]');
+  if (!metaDesc) {
+    metaDesc = document.createElement('meta');
+    metaDesc.setAttribute('name', 'description');
+    document.head.appendChild(metaDesc);
+  }
+  metaDesc.setAttribute(
+    'content',
+    `Compra ${produto.name || produto.nome} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`
+  );
+
+  let metaKeywords = document.querySelector('meta[name="keywords"]');
+  if (!metaKeywords) {
+    metaKeywords = document.createElement('meta');
+    metaKeywords.setAttribute('name', 'keywords');
+    document.head.appendChild(metaKeywords);
+  }
+
+  const baseKeywords = metaKeywords.getAttribute('content') || '';
+  const extraWords = (produto.metawords || []).filter(Boolean).join(', ');
+  const combined = baseKeywords + (extraWords ? ', ' + extraWords : '');
+  metaKeywords.setAttribute('content', combined);
+}
+
+atualizarSEO(produto);
+
+
   setTimeout(() => {
     const script = document.createElement('script');
     script.src = 'js/formSender.js';
