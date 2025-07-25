@@ -21,7 +21,7 @@ window.editProduto = function(id) {
     } else {
       document.getElementById('bannerPreview').innerHTML = '';
     }
-
+    document.getElementById('inputMetawords').value = (prod.metawords || []).join(', ');
     document.getElementById('formContainer').style.display = 'block';
     document.getElementById('inputName').value = prod.name || '';
     document.getElementById('inputSlug').value = prod.slug || '';
@@ -125,9 +125,13 @@ document.getElementById('produtoForm').onsubmit = async function (e) {
         }
         opcoes.push({ label, tipo, valores });
     });
+    const metawordsRaw = document.getElementById('inputMetawords').value.trim();
+    const metawords = metawordsRaw
+    ? metawordsRaw.split(',').map(w => w.trim()).filter(w => w)
+    : [];
 
     const banner = document.getElementById('inputBannerJson').value || '';
-    const body = { name, slug, category, images, opcoes, banner };
+    const body = { name, slug, category, images, opcoes, banner, metawords };
     let result;
     if (editingId) {
         result = await supabase.from('products').update(body).eq('id', editingId);
