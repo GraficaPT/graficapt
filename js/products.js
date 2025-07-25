@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   let { data: produto, error } = await supabase
     .from('products')
-    .select('*')
+    .select('slug, titulo, descricao, preco, images, opcoes, metawords')
     .eq('slug', slug)
     .single();
 
