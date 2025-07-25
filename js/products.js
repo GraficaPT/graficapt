@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 let slug = null;
 const params = new URLSearchParams(window.location.search);
 slug = params.get("slug");
+console.log("Slug:", slug);
 
 if (!slug) {
   const pathParts = window.location.pathname.split("/");
