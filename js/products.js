@@ -287,7 +287,7 @@ atualizarSEO(produto);
 
   setTimeout(() => {
     const script = document.createElement('script');
-    script.src = 'js/formSender.js';
+    script.src = '/js/formSender.js';
     document.body.appendChild(script);
   }, 100);
   
