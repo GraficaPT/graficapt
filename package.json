@@ -1,10 +1,10 @@
 {
     "name": "graficapt",
     "scripts": {
-      "build": "node generate-sitemap.js"
+        "build": "node generate-sitemap.js"
     },
     "dependencies": {
-      "@supabase/supabase-js": "^2.42.3"
+        "@supabase/supabase-js": "^2.42.3",
+        "@vercel/analytics": "^1.5.0"
     }
-  }
-  
+}
