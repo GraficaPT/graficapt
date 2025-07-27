@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       ${(opcoes || []).map((opt, idx) => `
         <div class="option-group">
           <div class="overcell">
-            <label for="${opt.label || idx}">${opt.label ? opt.label : (idx + 1) + ':'}</label>
+            <label for="${opt.label || idx}">${opt.label ? opt.label : (idx + 1) + ':'} :</label>
           </div>
           ${renderOption(opt.label || '', opt.tipo, opt.valores)}
         </div>
