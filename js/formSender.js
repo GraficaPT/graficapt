@@ -7,7 +7,7 @@ function inicializarForm() {
 
   let ficheiroEmUpload = false;
 
-  if (!form || !ficheiroInput || !linkHidden || !status || !btnSubmit) return;
+  if (!form || !btnSubmit) return;
 
   btnSubmit.disabled = false;
   btnSubmit.style.backgroundColor = '';
