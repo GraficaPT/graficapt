@@ -1,6 +1,6 @@
 function inicializarForm() {
   const form = document.getElementById('orcamentoForm');
-  if (!form) return; // 🚨 Garante que só corre se o formulário existir
+  if (!form) return; // Não há formulário? Sai.
 
   const ficheiroInput = document.getElementById('ficheiro'); // Pode existir ou não
   const linkHidden = document.getElementById('link_ficheiro'); // Pode existir ou não
@@ -11,9 +11,9 @@ function inicializarForm() {
 
   // 🔹 SUBMISSÃO DO FORMULÁRIO
   form.addEventListener('submit', function (e) {
-    e.preventDefault();
+    e.preventDefault(); // 🚨 Impede sempre o envio nativo do formulário
 
-    // Se existir upload e ainda estiver a ser carregado
+    // Bloqueia se ainda está a enviar um ficheiro
     if (ficheiroInput && ficheiroEmUpload) {
       alert("Por favor aguarde o carregamento do ficheiro.");
       return;
@@ -23,6 +23,7 @@ function inicializarForm() {
     btnSubmit.style.backgroundColor = '#191919';
 
     const formData = new FormData(form);
+
     fetch(
       "https://script.google.com/macros/s/AKfycbyZo3TNBoxKVHGgP_J1rKX1C3fEcD79i7VyUpMHV9J7gjJlmHQrD3Cm0l_i5fMllJnH/exec",
       { method: "POST", body: formData }
@@ -32,7 +33,7 @@ function inicializarForm() {
           alert("Pedido de orçamento enviado com sucesso!\nIremos contactá-lo em breve.");
           window.location.href = "https://graficapt.com";
         } else {
-          throw new Error("Erro ao enviar formulário");
+          throw new Error("Erro ao enviar formulário (Resposta não OK)");
         }
       })
       .catch(error => {
@@ -42,7 +43,7 @@ function inicializarForm() {
       });
   });
 
-  // 🔹 UPLOAD (só corre se existir campo de ficheiro)
+  // 🔹 UPLOAD DE FICHEIRO (só corre se existir campo de upload)
   if (ficheiroInput && linkHidden && status) {
     ficheiroInput.addEventListener('change', function () {
       const ficheiro = ficheiroInput.files[0];
@@ -51,7 +52,7 @@ function inicializarForm() {
       ficheiroEmUpload = true;
       status.style.display = 'block';
       status.textContent = "A enviar ficheiro...";
-      ficheiroInput.style.display = 'none';
+      ficheiroInput.disabled = true;
       btnSubmit.disabled = true;
       btnSubmit.style.backgroundColor = '#191919';
 
@@ -73,14 +74,15 @@ function inicializarForm() {
             linkHidden.value = result;
             ficheiroEmUpload = false;
             status.innerHTML = `✅ <a href="${result}" target="_blank">Ficheiro carregado</a>`;
+            ficheiroInput.disabled = false;
             btnSubmit.disabled = false;
-            ficheiroInput.style.display = 'block';
+            btnSubmit.style.backgroundColor = '';
           } else {
             throw new Error("Resposta inesperada: " + result);
           }
         } catch (erro) {
           status.textContent = "❌ Erro: " + erro.message;
-          ficheiroInput.style.display = 'block';
+          ficheiroInput.disabled = false;
         }
       };
       reader.readAsDataURL(ficheiro);
