@@ -49,11 +49,11 @@ if (!window.formSenderInitialized) {
       ficheiroInput.addEventListener('change', function () {
         const ficheiro = ficheiroInput.files[0];
         if (!ficheiro) return;
-        ficheiroInput.display = 'none';
+        
         ficheiroEmUpload = true;
         status.style.display = 'block';
         status.textContent = "A enviar ficheiro...";
-        ficheiroInput.disabled = true;
+        ficheiroInput.display = 'none';
         btnSubmit.disabled = true;
         btnSubmit.style.backgroundColor = '#191919';
 
