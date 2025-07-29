@@ -75,7 +75,7 @@ if (!window.formSenderInitialized) {
               linkHidden.value = result;
               ficheiroEmUpload = false;
               status.innerHTML = `✅ <a href="${result}" target="_blank">Ficheiro carregado</a>`;
-              ficheiroInput.disabled = false;
+              ficheiroInput.style.disabled = false;
               btnSubmit.disabled = false;
               btnSubmit.style.backgroundColor = '';
             } else {
