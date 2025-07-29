@@ -1,8 +1,10 @@
 function inicializarForm() {
   const form = document.getElementById('orcamentoForm');
-  const ficheiroInput = document.getElementById('ficheiro'); // Pode não existir
-  const linkHidden = document.getElementById('link_ficheiro'); // Pode não existir
-  const status = document.getElementById('uploadStatus'); // Pode não existir
+  if (!form) return; // 🚨 Garante que só corre se o formulário existir
+
+  const ficheiroInput = document.getElementById('ficheiro'); // Pode existir ou não
+  const linkHidden = document.getElementById('link_ficheiro'); // Pode existir ou não
+  const status = document.getElementById('uploadStatus'); // Pode existir ou não
   const btnSubmit = document.getElementById('submit');
 
   let ficheiroEmUpload = false;
@@ -25,19 +27,19 @@ function inicializarForm() {
       "https://script.google.com/macros/s/AKfycbyZo3TNBoxKVHGgP_J1rKX1C3fEcD79i7VyUpMHV9J7gjJlmHQrD3Cm0l_i5fMllJnH/exec",
       { method: "POST", body: formData }
     )
-    .then(response => {
-      if (response.ok) {
-        alert("Pedido de orçamento enviado com sucesso!\nIremos contactá-lo em breve.");
-        window.location.href = "https://graficapt.com";
-      } else {
-        throw new Error("Erro ao enviar formulário");
-      }
-    })
-    .catch(error => {
-      alert("Erro ao enviar: " + error.message);
-      btnSubmit.disabled = false;
-      btnSubmit.style.backgroundColor = '';
-    });
+      .then(response => {
+        if (response.ok) {
+          alert("Pedido de orçamento enviado com sucesso!\nIremos contactá-lo em breve.");
+          window.location.href = "https://graficapt.com";
+        } else {
+          throw new Error("Erro ao enviar formulário");
+        }
+      })
+      .catch(error => {
+        alert("Erro ao enviar: " + error.message);
+        btnSubmit.disabled = false;
+        btnSubmit.style.backgroundColor = '';
+      });
   });
 
   // 🔹 UPLOAD (só corre se existir campo de ficheiro)
