@@ -1,83 +1,85 @@
 <!DOCTYPE html>
 <html lang="pt">
-    <head>
-      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        
-        <title>Gráfica Online em Portugal | Produtos Personalizados | GraficaPT</title>
-        
-        <meta name="description" content="Impressão online de t-shirts, sacos kraft, brindes e bandeiras. Personaliza os teus produtos com qualidade e entrega rápida em Portugal.">
-        
-        <meta name="keywords" content="gráfica online, impressão personalizada, sacos kraft, t-shirts personalizadas, brindes promocionais, bandeiras vela, Portugal">
-        
-        <meta name="robots" content="index, follow">
-        
-        <meta property="og:title" content="GraficaPT | Gráfica Online com Impressão de Produtos Personalizados">
-        <meta property="og:description" content="Descobre a nossa gama de produtos personalizados para marcas, eventos e empresas. Entregamos em todo o país.">
-        <meta property="og:image" content="https://graficapt.com/imagens/produtos/og/index.png">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-        <meta name="twitter:image" content="https://graficapt.com/imagens/produtos/og/index.png">
-        <meta property="og:type" content="website">
+  <title>Gráfica Online em Portugal | Produtos Personalizados | GraficaPT</title>
 
-        <meta property="og:url" content="https://graficapt.com">
-        
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="GraficaPT | T-shirts, Sacos e Brindes Personalizados">
-        <meta name="twitter:description" content="Personaliza os teus produtos com a GraficaPT. Impressão profissional e entrega rápida em Portugal.">
-        
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" href="imagens/logo.ico">
-        <link rel="stylesheet" href="css/index.css">
-        <link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
-    </head>
-    
+  <meta name="description" content="Impressão online de t-shirts, sacos kraft, brindes e bandeiras. Personaliza os teus produtos com qualidade e entrega rápida em Portugal.">
+  <meta name="keywords" content="gráfica online, impressão personalizada, sacos kraft, t-shirts personalizadas, brindes promocionais, bandeiras vela, Portugal">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:title" content="GraficaPT | Gráfica Online com Impressão de Produtos Personalizados">
+  <meta property="og:description" content="Descobre a nossa gama de produtos personalizados para marcas, eventos e empresas. Entregamos em todo o país.">
+  <meta property="og:image" content="https://graficapt.com/imagens/produtos/og/index.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://graficapt.com/imagens/produtos/og/index.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://graficapt.com">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GraficaPT | T-shirts, Sacos e Brindes Personalizados">
+  <meta name="twitter:description" content="Personaliza os teus produtos com a GraficaPT. Impressão profissional e entrega rápida em Portugal.">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="imagens/logo.ico">
+  <link rel="stylesheet" href="css/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
+</head>
+
 <body>
-    <div class="topbar" id="topbar"></div>
+  <div class="topbar" id="topbar"></div>
 
-    <div class="banner hcenter">
-        <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy" onclick="location.href = 'produto/bandeiravela'">
-        <div class="banner-right">
-            <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy" onclick="location.href = 'produto/tshirt'">
-            <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy" onclick="location.href = 'produto/sacoskraft'">
-        </div> 
+  <div class="banner hcenter">
+    <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy" onclick="location.href = 'produto/bandeiravela'">
+    <div class="banner-right">
+      <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy" onclick="location.href = 'produto/tshirt'">
+      <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy" onclick="location.href = 'produto/sacoskraft'">
     </div>
+  </div>
 
-    <div id="products">
-        <a class="subtitle hcenter">Produtos Personalizáveis</a>
-
-        <div class="filter-sort">
-            <select id="filterCategory" onchange="location.hash = 'filter=' + this.value"></select>
-            <select id="sortBy" onchange="applyFilters()">
-                <option value="default">Ordenar por</option>
-                <option value="az">Nome A-Z</option>
-                <option value="za">Nome Z-A</option>
-            </select>
-        </div>
-
-        <div id="products-grid" class="products-grid"></div>
+  <div id="products">
+    <a class="subtitle hcenter">Produtos Personalizáveis</a>
+    <div class="filter-sort">
+      <select id="filterCategory" onchange="location.hash = 'filter=' + this.value"></select>
+      <select id="sortBy" onchange="applyFilters()">
+        <option value="default">Ordenar por</option>
+        <option value="az">Nome A-Z</option>
+        <option value="za">Nome Z-A</option>
+      </select>
     </div>
+    <div id="products-grid" class="products-grid"></div>
+  </div>
 
-    <a class="overtitle hcenter">Não encontras o que precisas?</a>
-    <form id="orcamentoForm" method="POST" enctype="multipart/form-data" class="invoce hcenter">
-        <input required placeholder="Nome" type="text" name="name" class="name">
-        <input required placeholder="Email" type="email" name="email" class="email">
-        <input required placeholder="Telefone" type="text" name="phone" class="phone">
-        <input placeholder="Empresa" type="text" name="company" class="company">
-        <textarea required rows="5" placeholder="Descreve que produto procuras assim como qualquer outro detalhe relevante!" name="description" class="description"></textarea><br>
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://graficapt.com">
-        <button type="submit">ENVIAR</button>
-    </form>
+  <a class="overtitle hcenter">Não encontras o que precisas?</a>
+  <form id="orcamentoForm" enctype="multipart/form-data" class="invoce hcenter">
+    <input required placeholder="Nome" type="text" name="name" class="name">
+    <input required placeholder="Email" type="email" name="email" class="email">
+    <input required placeholder="Telefone" type="text" name="phone" class="phone">
+    <input placeholder="Empresa" type="text" name="company" class="company">
+    <textarea required rows="5" placeholder="Descreve que produto procuras assim como qualquer outro detalhe relevante!" name="description" class="description"></textarea>
+    
+    <!-- Upload de ficheiro -->
+    <label>Enviar ficheiro (opcional):</label>
+    <input type="file" id="ficheiro" accept=".jpg,.png,.pdf,.doc,.docx" />
+    <input type="hidden" id="link_ficheiro" name="link_ficheiro">
+    <div id="uploadStatus" style="display:none; font-size:14px; margin:5px 0;"></div>
 
-    <footer class="footer" id="footer"></footer>
-    <script type="module" src="js/productsgrid.js"></script>
-    <script src="js/footerheader.js"></script>
-    <script src="js/formSender.js"></script>
-    <script src="js/filter.js"></script>
-    <script src="/js/analytics.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V28GHLM5ZE"></script>
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="https://graficapt.com">
+    <button type="submit" id="submit">ENVIAR</button>
+  </form>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script type="module" src="js/productsgrid.js"></script>
+  <script src="js/footerheader.js"></script>
+  <script src="js/formSender.js"></script>
+  <script src="js/filter.js"></script>
+  <script src="/js/analytics.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V28GHLM5ZE"></script>
 </body>
 </html>
