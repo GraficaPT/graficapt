@@ -1,19 +1,17 @@
 function inicializarForm() {
   const form = document.getElementById('orcamentoForm');
-  if (!form) return; // Não há formulário? Sai.
+  if (!form) return; // Se o form ainda não existir, não corre nada
 
-  const ficheiroInput = document.getElementById('ficheiro'); // Pode existir ou não
-  const linkHidden = document.getElementById('link_ficheiro'); // Pode existir ou não
-  const status = document.getElementById('uploadStatus'); // Pode existir ou não
+  const ficheiroInput = document.getElementById('ficheiro');
+  const linkHidden = document.getElementById('link_ficheiro');
+  const status = document.getElementById('uploadStatus');
   const btnSubmit = document.getElementById('submit');
-
   let ficheiroEmUpload = false;
 
   // 🔹 SUBMISSÃO DO FORMULÁRIO
   form.addEventListener('submit', function (e) {
-    e.preventDefault(); // 🚨 Impede sempre o envio nativo do formulário
+    e.preventDefault(); // Impede envio nativo
 
-    // Bloqueia se ainda está a enviar um ficheiro
     if (ficheiroInput && ficheiroEmUpload) {
       alert("Por favor aguarde o carregamento do ficheiro.");
       return;
@@ -23,7 +21,6 @@ function inicializarForm() {
     btnSubmit.style.backgroundColor = '#191919';
 
     const formData = new FormData(form);
-
     fetch(
       "https://script.google.com/macros/s/AKfycbyZo3TNBoxKVHGgP_J1rKX1C3fEcD79i7VyUpMHV9J7gjJlmHQrD3Cm0l_i5fMllJnH/exec",
       { method: "POST", body: formData }
@@ -33,7 +30,7 @@ function inicializarForm() {
           alert("Pedido de orçamento enviado com sucesso!\nIremos contactá-lo em breve.");
           window.location.href = "https://graficapt.com";
         } else {
-          throw new Error("Erro ao enviar formulário (Resposta não OK)");
+          throw new Error("Erro ao enviar formulário");
         }
       })
       .catch(error => {
@@ -43,7 +40,7 @@ function inicializarForm() {
       });
   });
 
-  // 🔹 UPLOAD DE FICHEIRO (só corre se existir campo de upload)
+  // 🔹 UPLOAD DE FICHEIRO
   if (ficheiroInput && linkHidden && status) {
     ficheiroInput.addEventListener('change', function () {
       const ficheiro = ficheiroInput.files[0];
@@ -90,4 +87,11 @@ function inicializarForm() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", inicializarForm);
+// ✅ Espera até o form estar presente no DOM mesmo em páginas dinâmicas
+const observer = new MutationObserver(() => {
+  if (document.getElementById('orcamentoForm')) {
+    observer.disconnect();
+    inicializarForm();
+  }
+});
+observer.observe(document.body, { childList: true, subtree: true });
