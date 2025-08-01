@@ -3,11 +3,15 @@ import { supabase } from './supamanager/supabase.js';
 document.addEventListener("DOMContentLoaded", async function () {
   const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
   const params = new URLSearchParams(window.location.search);
-  let slug = params.get("slug");
 
-  if (!slug) {
+  // --- obter slug: primeiro da query, senão da URL "bonita" ---
+  let slug = params.get("slug");
+  const fromPretty = () => {
     const pathParts = window.location.pathname.split('/');
-    slug = pathParts[pathParts.length - 1] || null;
+    return pathParts[pathParts.length - 1] || null;
+  };
+  if (!slug) {
+    slug = fromPretty();
   }
 
   if (!slug) {
@@ -15,6 +19,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
+  // --- redireciona quem está em product.html?slug=... para /produto/slug (consolida canonical) ---
+  const isOnProductHtml = window.location.pathname.endsWith('product.html');
+  const prettyPath = `/produto/${encodeURIComponent(slug)}`;
+  if (isOnProductHtml && params.get("slug") && window.location.pathname + window.location.search !== prettyPath) {
+    window.location.replace(prettyPath);
+    return; // para evitar continuar execução nessa URL antiga
+  }
+
+  // --- busca o produto ---
   let { data: produto, error } = await supabase
     .from('products')
     .select('*')
@@ -26,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
-  // Garante que opções é sempre array
+  // --- normaliza opções ---
   let opcoes = [];
   if (Array.isArray(produto.opcoes)) {
     opcoes = produto.opcoes;
@@ -112,7 +125,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       atualizarIndicadores();
     }
   };
-  
 
   function renderOption(label, tipo, valores) {
     switch (tipo) {
@@ -145,28 +157,28 @@ document.addEventListener("DOMContentLoaded", async function () {
           </div>
         `;
       case "cores":
-      return `
-        <div class="color-options">
-          ${(valores || []).map((item, index) => {
-            let colorStyle = (typeof item === "object" && item.cor) ? item.cor : (item || "");
-            let colorTitle = (typeof item === "object" && item.nome) ? item.nome : (item || "");
-            let imgAssoc = (typeof item === "object" && item.imagem) ? item.imagem : null;
-            if (String(colorTitle).toLowerCase() === "multicolor" || String(colorTitle).toLowerCase() === "multicor") {
-              colorStyle = "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
-              colorTitle = "Multicor";
-            }
-            const colorID = `${label.replace(/\s+/g, '-').toLowerCase()}-color-${index}`;
-            return `
-              <div class="overcell">
-                <input type="radio" name="${label}" value="${colorTitle}" id="${colorID}" ${index === 0 ? "checked" : ""} required>
-                <label class="color-circle" for="${colorID}" style="background: ${colorStyle};" title="${colorTitle}"
-                  onclick="selecionarCorEImagem('${imgAssoc ? imgAssoc : ''}')">
-                </label>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      `;
+        return `
+          <div class="color-options">
+            ${(valores || []).map((item, index) => {
+              let colorStyle = (typeof item === "object" && item.cor) ? item.cor : (item || "");
+              let colorTitle = (typeof item === "object" && item.nome) ? item.nome : (item || "");
+              let imgAssoc = (typeof item === "object" && item.imagem) ? item.imagem : null;
+              if (String(colorTitle).toLowerCase() === "multicolor" || String(colorTitle).toLowerCase() === "multicor") {
+                colorStyle = "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
+                colorTitle = "Multicor";
+              }
+              const colorID = `${label.replace(/\s+/g, '-').toLowerCase()}-color-${index}`;
+              return `
+                <div class="overcell">
+                  <input type="radio" name="${label}" value="${colorTitle}" id="${colorID}" ${index === 0 ? "checked" : ""} required>
+                  <label class="color-circle" for="${colorID}" style="background: ${colorStyle};" title="${colorTitle}"
+                    onclick="selecionarCorEImagem('${imgAssoc ? imgAssoc : ''}')">
+                  </label>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
       case "quantidade-por-tamanho":
         return `
           <div class="quantidades-tamanhos">
@@ -252,45 +264,67 @@ document.addEventListener("DOMContentLoaded", async function () {
       </div>
     </form>
   `;
- 
+
   document.getElementById("produto-dinamico").innerHTML = html;
 
-function atualizarSEO(produto) {
-  document.title = `${produto.name || produto.nome} | GráficaPT`;
+  // --- SEO dinâmico ---
+  function atualizarSEO(produto) {
+    document.title = `${produto.name || produto.nome} | GráficaPT`;
 
-  let metaDesc = document.querySelector('meta[name="description"]');
-  if (!metaDesc) {
-    metaDesc = document.createElement('meta');
-    metaDesc.setAttribute('name', 'description');
-    document.head.appendChild(metaDesc);
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute(
+      'content',
+      `Compra ${produto.name || produto.nome} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`
+    );
+
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+
+    const baseKeywords = metaKeywords.getAttribute('content') || '';
+    const extraWords = (produto.metawords || []).filter(Boolean).join(', ');
+    const combined = baseKeywords + (extraWords ? ', ' + extraWords : '');
+    metaKeywords.setAttribute('content', combined);
   }
-  metaDesc.setAttribute(
-    'content',
-    `Compra ${produto.name || produto.nome} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`
-  );
 
-  let metaKeywords = document.querySelector('meta[name="keywords"]');
-  if (!metaKeywords) {
-    metaKeywords = document.createElement('meta');
-    metaKeywords.setAttribute('name', 'keywords');
-    document.head.appendChild(metaKeywords);
+  function atualizarCanonicalEOG(slug) {
+    const canonicalHref = `https://graficapt.com/produto/${encodeURIComponent(slug)}`;
+
+    // Canonical
+    let linkCanonical = document.querySelector('link[rel="canonical"]');
+    if (!linkCanonical) {
+      linkCanonical = document.createElement('link');
+      linkCanonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(linkCanonical);
+    }
+    linkCanonical.setAttribute('href', canonicalHref);
+
+    // OG URL
+    let ogUrl = document.querySelector('meta[property="og:url"]');
+    if (!ogUrl) {
+      ogUrl = document.createElement('meta');
+      ogUrl.setAttribute('property', 'og:url');
+      document.head.appendChild(ogUrl);
+    }
+    ogUrl.setAttribute('content', canonicalHref);
   }
 
-  const baseKeywords = metaKeywords.getAttribute('content') || '';
-  const extraWords = (produto.metawords || []).filter(Boolean).join(', ');
-  const combined = baseKeywords + (extraWords ? ', ' + extraWords : '');
-  metaKeywords.setAttribute('content', combined);
-}
-
-atualizarSEO(produto);
-
+  atualizarSEO(produto);
+  atualizarCanonicalEOG(slug);
 
   setTimeout(() => {
     const script = document.createElement('script');
     script.src = 'https://graficapt.com/js/formSender.js';
     document.body.appendChild(script);
   }, 100);
-  
 
   imagemAtual = 0;
   setTimeout(() => atualizarIndicadores(), 20);
