@@ -9,17 +9,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
   let slug = getSlugFromUrl();
 
-  console.log("Slug:", slug);
-console.log("Produto.images:", produto.images);
-if (produto.images && produto.images.length) {
-  produto.images.forEach((img, i) => {
-    let url = img.startsWith("http")
-      ? img
-      : `https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/${img}`;
-    console.log(`Imagem ${i}:`, url);
-  });
-}
-
+  
 
   if (!slug) {
     document.getElementById("produto-dinamico").innerHTML = "<p>Produto não especificado.</p>";
@@ -36,12 +26,25 @@ if (produto.images && produto.images.length) {
   }
 
   let produto;
+  
   try {
     produto = await fetchProductBySlug(slug);
   } catch (e) {
     document.getElementById("produto-dinamico").innerHTML = "<p>Produto não encontrado.</p>";
     return;
   }
+
+  console.log("Slug:", slug);
+console.log("Produto.images:", produto.images);
+if (produto.images && produto.images.length) {
+  produto.images.forEach((img, i) => {
+    let url = img.startsWith("http")
+      ? img
+      : `https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/${img}`;
+    console.log(`Imagem ${i}:`, url);
+  });
+}
+
 
   // normalizar opcoes
   let opcoes = [];
