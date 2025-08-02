@@ -5,8 +5,7 @@ export function criarCarrosselHTML(slug, imagens, storagePublic) {
     return storagePublic + imagem;
   }
 
-  // monta o HTML (mesma estrutura de antes, mas sem depender de setTimeout para os indicadores)
-  const html = `
+  return `
     <div class="carrossel-container">
       <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>
       <div class="carrossel-imagens-wrapper">
@@ -20,19 +19,26 @@ export function criarCarrosselHTML(slug, imagens, storagePublic) {
     </div>
     <div class="indicadores" id="indicadores"></div>
   `;
-
-  // depois de injetar no DOM, é preciso inicializar os indicadores/estado
-  // Para facilitar, expõe uma função que faz essa inicialização
-  return html;
 }
 
 export function initCarouselState() {
-  // estado global igual ao original
+  // estado global
   window.imagemAtual = window.imagemAtual ?? 0;
 
+  // helpers internos
+  function atualizarIndicadores() {
+    const indicadores = document.querySelectorAll('.indicador');
+    indicadores.forEach((el, i) => {
+      el.classList.toggle('ativo', i === window.imagemAtual);
+    });
+  }
+
+  const wrapper = document.querySelector('.carrossel-imagens');
+  if (!wrapper) return;
+
+  // funções expostas
   window.mudarImagem = (incremento) => {
     const imagens = document.querySelectorAll('.carrossel-img');
-    const wrapper = document.querySelector('.carrossel-imagens');
     if (!wrapper || imagens.length === 0) return;
     const total = imagens.length;
     window.imagemAtual = (window.imagemAtual + incremento + total) % total;
@@ -41,26 +47,28 @@ export function initCarouselState() {
   };
 
   window.irParaImagem = (index) => {
-    const wrapper = document.querySelector('.carrossel-imagens');
     if (!wrapper) return;
     window.imagemAtual = index;
     wrapper.style.transform = `translateX(-${window.imagemAtual * 100}%)`;
     atualizarIndicadores();
   };
 
-  function atualizarIndicadores() {
-    const indicadores = document.querySelectorAll('.indicador');
-    indicadores.forEach((el, i) => {
-      el.classList.toggle('ativo', i === window.imagemAtual);
+  window.selecionarCorEImagem = function (imgPath) {
+    if (!imgPath) return;
+    const imagens = document.querySelectorAll('.carrossel-img');
+    let idx = Array.from(imagens).findIndex(img => {
+      return img.src.endsWith(imgPath) || img.src.includes(imgPath);
     });
-  }
+    if (idx >= 0) {
+      window.irParaImagem(idx);
+    }
+  };
 
-  // cria pontos se ainda não existirem
+  // indicadores
   const criarIndicadores = () => {
     const imagens = document.querySelectorAll('.carrossel-img');
     const indicadoresContainer = document.getElementById('indicadores');
     if (!indicadoresContainer || imagens.length === 0) return;
-    // se já preenchido, não recriar
     if (indicadoresContainer.children.length === imagens.length) {
       atualizarIndicadores();
       return;
@@ -75,24 +83,69 @@ export function initCarouselState() {
     });
   };
 
-  // expõe seleção por caminho
-  window.selecionarCorEImagem = function(imgPath) {
-    if (!imgPath) return;
-    const imagens = document.querySelectorAll('.carrossel-img');
-    let idx = Array.from(imagens).findIndex(img => {
-      return img.src.endsWith(imgPath) || img.src.includes(imgPath);
-    });
-    if (idx >= 0) {
-      const wrapper = document.querySelector('.carrossel-imagens');
-      wrapper.style.transform = `translateX(-${idx * 100}%)`;
-      window.imagemAtual = idx;
-      atualizarIndicadores();
-    }
-  };
+  // swipe / drag support
+  function setupSwipe() {
+    const parent = document.querySelector('.carrossel-imagens-wrapper');
+    if (!parent) return;
 
-  // inicializa
+    let startX = 0;
+    let isDown = false;
+    let moved = false;
+
+    const threshold = 50; // px mínimo para considerar swipe
+
+    // pointer events cover mouse and touch
+    parent.addEventListener('pointerdown', (e) => {
+      isDown = true;
+      startX = e.clientX;
+      moved = false;
+      parent.setPointerCapture(e.pointerId);
+    });
+
+    parent.addEventListener('pointermove', (e) => {
+      if (!isDown) return;
+      const deltaX = e.clientX - startX;
+      if (Math.abs(deltaX) > 5) {
+        moved = true;
+      }
+      // opcional: feedback visual durante arrasto (pode comentar se não quiser)
+      // wrapper.style.transition = 'none';
+      // wrapper.style.transform = `translateX(calc(-${window.imagemAtual * 100}% + ${deltaX}px))`;
+    });
+
+    parent.addEventListener('pointerup', (e) => {
+      if (!isDown) return;
+      isDown = false;
+      const deltaX = e.clientX - startX;
+      // restabelece transform fixo
+      // wrapper.style.transition = '';
+      if (Math.abs(deltaX) >= threshold) {
+        if (deltaX > 0) {
+          window.mudarImagem(-1);
+        } else {
+          window.mudarImagem(1);
+        }
+      } else if (!moved) {
+        // clique curto sem arrasto: nada extra
+      } else {
+        // pequeno movimento, reposiciona
+        window.irParaImagem(window.imagemAtual);
+      }
+    });
+
+    parent.addEventListener('pointercancel', () => {
+      isDown = false;
+      window.irParaImagem(window.imagemAtual);
+    });
+
+    // Previne seleção indesejada durante swipe
+    parent.addEventListener('dragstart', (e) => e.preventDefault());
+  }
+
+  // inicialização visual
   criarIndicadores();
-  // garanta que o transform inicial está aplicado
-  const wrapper = document.querySelector('.carrossel-imagens');
-  if (wrapper) wrapper.style.transform = `translateX(-${window.imagemAtual * 100}%)`;
+  wrapper.style.transform = `translateX(-${window.imagemAtual * 100}%)`;
+
+  // monta swipe
+  setupSwipe();
 }
