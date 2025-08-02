@@ -366,7 +366,7 @@ button:hover {
 
   .posicionamento-label {
     flex: 1 1 20%;
-    max-width: 35vw;
+    max-width: 25vw;
     display: flex;
     flex-direction: column;
     align-items: center;
