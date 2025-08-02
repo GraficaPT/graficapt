@@ -1,117 +1,98 @@
-export function createCarousel(slug, imagens, storagePublic) {
-  const container = document.createElement('div');
-  container.className = 'carrossel-container';
-
-  let imagemAtual = 0;
-
-  const prev = document.createElement('button');
-  prev.className = 'carrossel-btn prev';
-  prev.setAttribute('aria-label', 'Anterior');
-  prev.innerHTML = '&#10094;'; // ❮
-
-  const next = document.createElement('button');
-  next.className = 'carrossel-btn next';
-  next.setAttribute('aria-label', 'Seguinte');
-  next.innerHTML = '&#10095;'; // ❯
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'carrossel-imagens-wrapper';
-
-  const inner = document.createElement('div');
-  inner.className = 'carrossel-imagens';
-
-  // helper
-  const getImageUrl = (imagem) => {
-    if (!imagem) {
-      console.warn('Imagem vazia recebida para o carrossel:', imagem);
-      return '';
-    }
+export function criarCarrosselHTML(slug, imagens, storagePublic) {
+  function getImageUrl(imagem) {
+    if (!imagem) return '';
     if (imagem.startsWith('http')) return imagem;
     return storagePublic + imagem;
-  };
-
-  if (!imagens || imagens.length === 0) {
-    const noImg = document.createElement('div');
-    noImg.className = 'no-images';
-    noImg.textContent = 'Sem imagens disponíveis';
-    container.appendChild(noImg);
-    return {
-      element: container,
-      indicadoresElement: document.createElement('div'),
-      mudarImagem: () => {},
-      irParaImagem: () => {},
-      selecionarPorCaminho: () => {},
-    };
   }
 
-  imagens.forEach((imagem, idx) => {
-    const img = document.createElement('img');
-    img.src = getImageUrl(imagem);
-    img.alt = `Imagem ${idx + 1}`;
-    img.className = 'carrossel-img';
-    img.loading = 'lazy';
-    img.onerror = () => {
-      img.style.opacity = '0.4';
-      img.alt = 'Erro ao carregar imagem';
-    };
-    inner.appendChild(img);
-  });
+  // monta o HTML (mesma estrutura de antes, mas sem depender de setTimeout para os indicadores)
+  const html = `
+    <div class="carrossel-container">
+      <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>
+      <div class="carrossel-imagens-wrapper">
+        <div class="carrossel-imagens" id="carrossel">
+          ${(imagens || []).map((imagem, index) => `
+            <img src="${getImageUrl(imagem)}" alt="Imagem ${index + 1}" class="carrossel-img" loading="lazy" onerror="this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">
+          `).join('')}
+        </div>
+      </div>
+      <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>
+    </div>
+    <div class="indicadores" id="indicadores"></div>
+  `;
 
-  wrapper.appendChild(inner);
-  container.append(prev, wrapper, next);
+  // depois de injetar no DOM, é preciso inicializar os indicadores/estado
+  // Para facilitar, expõe uma função que faz essa inicialização
+  return html;
+}
 
-  // indicadores internos
-  const indicadores = document.createElement('div');
-  indicadores.className = 'indicadores';
-  indicadores.id = `indicadores-${Math.random().toString(36).slice(2)}`;
+export function initCarouselState() {
+  // estado global igual ao original
+  window.imagemAtual = window.imagemAtual ?? 0;
+
+  window.mudarImagem = (incremento) => {
+    const imagens = document.querySelectorAll('.carrossel-img');
+    const wrapper = document.querySelector('.carrossel-imagens');
+    if (!wrapper || imagens.length === 0) return;
+    const total = imagens.length;
+    window.imagemAtual = (window.imagemAtual + incremento + total) % total;
+    wrapper.style.transform = `translateX(-${window.imagemAtual * 100}%)`;
+    atualizarIndicadores();
+  };
+
+  window.irParaImagem = (index) => {
+    const wrapper = document.querySelector('.carrossel-imagens');
+    if (!wrapper) return;
+    window.imagemAtual = index;
+    wrapper.style.transform = `translateX(-${window.imagemAtual * 100}%)`;
+    atualizarIndicadores();
+  };
 
   function atualizarIndicadores() {
-    Array.from(indicadores.children).forEach((el, i) => {
-      el.classList.toggle('ativo', i === imagemAtual);
+    const indicadores = document.querySelectorAll('.indicador');
+    indicadores.forEach((el, i) => {
+      el.classList.toggle('ativo', i === window.imagemAtual);
     });
   }
 
-  function irParaImagem(index) {
-    imagemAtual = index;
-    inner.style.transform = `translateX(-${imagemAtual * 100}%)`;
-    atualizarIndicadores();
-  }
+  // cria pontos se ainda não existirem
+  const criarIndicadores = () => {
+    const imagens = document.querySelectorAll('.carrossel-img');
+    const indicadoresContainer = document.getElementById('indicadores');
+    if (!indicadoresContainer || imagens.length === 0) return;
+    // se já preenchido, não recriar
+    if (indicadoresContainer.children.length === imagens.length) {
+      atualizarIndicadores();
+      return;
+    }
+    indicadoresContainer.innerHTML = '';
+    imagens.forEach((_, index) => {
+      const dot = document.createElement('div');
+      dot.classList.add('indicador');
+      if (index === window.imagemAtual) dot.classList.add('ativo');
+      dot.addEventListener('click', () => window.irParaImagem(index));
+      indicadoresContainer.appendChild(dot);
+    });
+  };
 
-  function mudarImagem(incremento) {
-    const total = imagens.length;
-    imagemAtual = (imagemAtual + incremento + total) % total;
-    inner.style.transform = `translateX(-${imagemAtual * 100}%)`;
-    atualizarIndicadores();
-  }
-
-  imagens.forEach((_, i) => {
-    const dot = document.createElement('div');
-    dot.className = 'indicador' + (i === 0 ? ' ativo' : '');
-    dot.setAttribute('aria-label', `Ir para imagem ${i + 1}`);
-    dot.addEventListener('click', () => irParaImagem(i));
-    indicadores.appendChild(dot);
-  });
-
-  // eventos nos botões
-  prev.addEventListener('click', () => mudarImagem(-1));
-  next.addEventListener('click', () => mudarImagem(1));
-
-  // inicializa visual
-  inner.style.transform = `translateX(0%)`;
-  atualizarIndicadores();
-
-  // anexa indicadores abaixo do wrapper
-  container.appendChild(indicadores);
-
-  return {
-    element: container,
-    indicadoresElement: indicadores,
-    mudarImagem,
-    irParaImagem,
-    selecionarPorCaminho: (imgPath) => {
-      const imgs = inner.querySelectorAll('.carrossel-img');
-      const idx = Array.from(imgs).findIndex(img => img.src.endsWith(imgPath) || img.src.includes(imgPath));
-      if (idx >= 0) irParaImagem(idx);
+  // expõe seleção por caminho
+  window.selecionarCorEImagem = function(imgPath) {
+    if (!imgPath) return;
+    const imagens = document.querySelectorAll('.carrossel-img');
+    let idx = Array.from(imagens).findIndex(img => {
+      return img.src.endsWith(imgPath) || img.src.includes(imgPath);
+    });
+    if (idx >= 0) {
+      const wrapper = document.querySelector('.carrossel-imagens');
+      wrapper.style.transform = `translateX(-${idx * 100}%)`;
+      window.imagemAtual = idx;
+      atualizarIndicadores();
     }
   };
+
+  // inicializa
+  criarIndicadores();
+  // garanta que o transform inicial está aplicado
+  const wrapper = document.querySelector('.carrossel-imagens');
+  if (wrapper) wrapper.style.transform = `translateX(-${window.imagemAtual * 100}%)`;
 }

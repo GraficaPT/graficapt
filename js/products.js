@@ -1,7 +1,7 @@
 import { fetchProductBySlug } from './services/productService.js';
 import { getSlugFromUrl } from './utils/slug.js';
 import { updateSEO, updateCanonicalAndOG } from './components/seo.js';
-import { createCarousel } from './components/carousel.js';
+import { criarCarrosselHTML, initCarouselState } from './components/carousel.js';
 import { renderOption } from './components/optionsRenderer.js';
 import { createStaticFields } from './components/formFields.js';
 
@@ -24,25 +24,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   let produto;
-  
   try {
     produto = await fetchProductBySlug(slug);
   } catch (e) {
     document.getElementById("produto-dinamico").innerHTML = "<p>Produto não encontrado.</p>";
     return;
   }
-
-  console.log("Slug:", slug);
-console.log("Produto.images:", produto.images);
-if (produto.images && produto.images.length) {
-  produto.images.forEach((img, i) => {
-    let url = img.startsWith("http")
-      ? img
-      : `https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/${img}`;
-    console.log(`Imagem ${i}:`, url);
-  });
-}
-
 
   // normalizar opcoes
   let opcoes = [];
@@ -51,43 +38,51 @@ if (produto.images && produto.images.length) {
     opcoes = Object.entries(produto.opcoes).map(([label, op]) => ({ label, ...op }));
   }
 
-  const container = document.getElementById('produto-dinamico');
+  const container = document.getElementById("produto-dinamico");
   container.innerHTML = '';
 
-  // produto name hidden input
+  // carrossel HTML string e injeção
+  if (produto.images && produto.images.length > 0) {
+    const imageSection = document.createElement('div');
+    imageSection.className = 'product-image';
+    imageSection.innerHTML = criarCarrosselHTML(slug, produto.images, STORAGE_PUBLIC);
+    container.appendChild(imageSection);
+
+    // inicializa o estado global do carrossel (indicadores, transform, etc)
+    initCarouselState();
+  }
+
+  // formulário
   const form = document.createElement('form');
-  form.className='product';
-  form.id='orcamentoForm';
-  form.method='POST';
-  form.enctype='multipart/form-data';
+  form.className = 'product';
+  form.id = 'orcamentoForm';
+  form.method = 'POST';
+  form.enctype = 'multipart/form-data';
 
   const productNameInput = document.createElement('input');
-  productNameInput.type='text';
-  productNameInput.value=produto.name || produto.nome;
-  productNameInput.className='productname';
-  productNameInput.id='productname';
-  productNameInput.name='Produto';
+  productNameInput.type = 'text';
+  productNameInput.value = produto.name || produto.nome;
+  productNameInput.className = 'productname';
+  productNameInput.id = 'productname';
+  productNameInput.name = 'Produto';
   form.appendChild(productNameInput);
 
   const detailsDiv = document.createElement('div');
-  detailsDiv.className='product-details';
+  detailsDiv.className = 'product-details';
 
   const h1 = document.createElement('h1');
-  h1.textContent=produto.name || produto.nome;
+  h1.textContent = produto.name || produto.nome;
   detailsDiv.appendChild(h1);
 
-  // opções dinamicas
   (opcoes || []).forEach((opt, idx) => {
-    const optWrapper = document.createElement('div');
-    optWrapper.className='option-group';
+    const optGroup = document.createElement('div');
+    optGroup.className = 'option-group';
     const rendered = renderOption(opt, idx);
-    optWrapper.appendChild(rendered);
-    detailsDiv.appendChild(optWrapper);
+    optGroup.appendChild(rendered);
+    detailsDiv.appendChild(optGroup);
   });
 
-  // campos fixos
   detailsDiv.appendChild(createStaticFields());
-
   form.appendChild(detailsDiv);
   container.appendChild(form);
 
@@ -95,7 +90,7 @@ if (produto.images && produto.images.length) {
   updateSEO(produto);
   updateCanonicalAndOG(slug);
 
-  // carregar script externo
+  // script externo
   setTimeout(() => {
     const script = document.createElement('script');
     script.src = 'https://graficapt.com/js/formSender.js';
