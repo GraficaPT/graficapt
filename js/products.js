@@ -9,8 +9,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
   let slug = getSlugFromUrl();
 
-  
-
   if (!slug) {
     document.getElementById("produto-dinamico").innerHTML = "<p>Produto não especificado.</p>";
     return;
