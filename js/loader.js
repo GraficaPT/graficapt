@@ -1,18 +1,19 @@
 // loader.js
 (function () {
   const OVERLAY_ID = 'loader-overlay';
-  const TARGET_ID = 'produto-dinamico';
-  const MAX_TIMEOUT_MS = 10000; // tempo máximo de espera
-  const DEBOUNCE_AFTER_LAST_LOAD_MS = 150; // espera breve depois da última imagem carregada
+  const TARGET_ID_PRODUCT = 'produto-dinamico';
+  const TARGET_ID_GRID = 'products-grid';
+  const MAX_TIMEOUT_MS = 12000;
+  const DEBOUNCE_AFTER_LAST_LOAD_MS = 300;
 
-  // Cria overlay
+  // cria overlay
   const overlay = document.createElement('div');
   overlay.id = OVERLAY_ID;
   overlay.setAttribute('role', 'status');
   overlay.setAttribute('aria-label', 'A carregar conteúdo da página');
   overlay.innerHTML = `
     <div class="logo-wrapper">
-      <img src="../imagens/social/logo_minimal.svg" alt="Logotipo GráficaPT">
+      <img src="/imagens/social/logo_minimal.svg" alt="Logotipo GráficaPT">
     </div>
     <div class="spinner" aria-hidden="true"></div>
     <div class="sr-only" aria-live="polite">Carregando…</div>
@@ -22,7 +23,6 @@
   document.body.classList.add('loading');
   document.body.appendChild(overlay);
 
-  // Função que esconde o loader com slide-up
   function hideLoader() {
     if (!overlay) return;
     document.body.classList.remove('loading');
@@ -32,16 +32,15 @@
     }, { once: true });
   }
 
-  // Observa e espera todas as imagens dentro de target carregarem
-  function waitForAllImages(target) {
+  // observa imagens dentro de um container e resolve quando todas carregam (com debounce)
+  function waitForImagesWithDebounce(container, signalDone) {
     return new Promise((resolve) => {
-      const pending = new Set(); // imgs ainda por carregar
+      const pending = new Set();
       let debounceTimer = null;
       let finished = false;
 
-      const checkIfDone = () => {
+      const checkDone = () => {
         if (pending.size === 0) {
-          // debounce para ver se não aparecem novas imagens imediatamente
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
             if (pending.size === 0 && !finished) {
@@ -53,57 +52,34 @@
         }
       };
 
-      const monitorImage = (img) => {
-        // Se já carregada com sucesso, ignora
+      const monitorImg = (img) => {
         if (img.complete && img.naturalWidth !== 0) return;
-
-        if (pending.has(img)) return; // já observado
-
+        if (pending.has(img)) return;
         pending.add(img);
         const onEvent = () => {
           img.removeEventListener('load', onEvent);
           img.removeEventListener('error', onEvent);
           pending.delete(img);
-          checkIfDone();
+          checkDone();
         };
         img.addEventListener('load', onEvent);
         img.addEventListener('error', onEvent);
       };
 
-      // Inicial: pega imagens já presentes
-      const scanExisting = () => {
-        target.querySelectorAll('img').forEach(monitorImage);
+      const scan = () => {
+        container.querySelectorAll('img').forEach(monitorImg);
+        checkDone();
       };
 
-      // Observer para novas imagens ou mudanças de atributos relevantes
-      const mutationObserver = new MutationObserver((mutations) => {
-        mutations.forEach((m) => {
-          if (m.type === 'childList') {
-            m.addedNodes.forEach(node => {
-              if (node.nodeName === 'IMG') monitorImage(node);
-              else if (node.querySelectorAll) {
-                node.querySelectorAll('img').forEach(monitorImage);
-              }
-            });
-          }
-          if (m.type === 'attributes' && m.target.nodeName === 'IMG') {
-            const attr = m.attributeName;
-            if (attr === 'src' || attr === 'srcset') {
-              monitorImage(m.target);
-            }
-          }
-        });
-        checkIfDone();
+      const mo = new MutationObserver(() => {
+        scan();
       });
 
-      mutationObserver.observe(target, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['src', 'srcset'],
-      });
+      mo.observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
 
-      // Timeout fallback
+      // inicial
+      scan();
+
       const timeout = setTimeout(() => {
         if (!finished) {
           finished = true;
@@ -115,45 +91,52 @@
       const cleanup = () => {
         clearTimeout(timeout);
         clearTimeout(debounceTimer);
-        mutationObserver.disconnect();
+        mo.disconnect();
       };
-
-      // Start scan
-      scanExisting();
-      checkIfDone();
     });
   }
 
-  // Inicia a lógica: espera que o conteúdo e imagens estejam prontos
-  function init() {
-    const target = document.getElementById(TARGET_ID);
-    if (!target) {
-      // fallback simples
-      window.addEventListener('load', hideLoader);
-      return;
-    }
+  // lógica principal para index (grid) ou product
+  async function init() {
+    const targetProduct = document.getElementById(TARGET_ID_PRODUCT);
+    const targetGrid = document.getElementById(TARGET_ID_GRID);
 
-    // Escuta evento customizado de que o produto foi inserido
-    const onProductReady = async () => {
-      // Espera todas as imagens internas carregarem (ou timeout)
-      await waitForAllImages(target);
+    let used = false;
+
+    // Handler comum: espera imagens e esconde
+    const finalize = async (container) => {
+      if (used) return;
+      used = true;
+      await waitForImagesWithDebounce(container);
       hideLoader();
     };
 
-    document.addEventListener('product:ready', onProductReady, { once: true });
+    // 1. Se for product.html e receber event
+    document.addEventListener('product:ready', () => {
+      if (targetProduct) finalize(targetProduct);
+    }, { once: true });
 
-    // Caso o conteúdo já esteja lá (renderizado rápido), dispara manualmente
-    if ((target.children.length > 0 || target.innerHTML.trim() !== '')) {
-      // delay breve para garantir que o evento product:ready seja o gatilho
-      setTimeout(() => {
-        document.dispatchEvent(new Event('product:ready'));
-      }, 0);
+    // 2. Se for index.html: observa o grid até ter filhos e depois espera imagens
+    if (targetGrid) {
+      const observer = new MutationObserver((mutations, obs) => {
+        if (targetGrid.children.length > 0) {
+          // Há conteúdo — parar observer e finalizar
+          obs.disconnect();
+          finalize(targetGrid);
+        }
+      });
+      observer.observe(targetGrid, { childList: true, subtree: false });
+
+      // Caso já esteja preenchido rápido
+      if (targetGrid.children.length > 0) {
+        finalize(targetGrid);
+      }
     }
 
-    // Safety fallback: se nem o event nem nada acontecer em X, esconde
+    // 3. Fallback absoluto
     setTimeout(() => {
       hideLoader();
-    }, MAX_TIMEOUT_MS + 500); // um pouco além do timeout interno
+    }, MAX_TIMEOUT_MS + 500);
   }
 
   if (document.readyState === 'loading') {
