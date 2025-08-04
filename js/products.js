@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   if (!slug) {
     document.getElementById("produto-dinamico").innerHTML = "<p>Produto não especificado.</p>";
+    dispatchReady(); // garante que o loader some mesmo em erro
     return;
   }
 
@@ -28,6 +29,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     produto = await fetchProductBySlug(slug);
   } catch (e) {
     document.getElementById("produto-dinamico").innerHTML = "<p>Produto não encontrado.</p>";
+    dispatchReady();
     return;
   }
 
@@ -41,6 +43,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   const container = document.getElementById("produto-dinamico");
   container.innerHTML = '';
 
+  let carouselImageElements = [];
+
   // carrossel HTML string e injeção
   if (produto.images && produto.images.length > 0) {
     const imageSection = document.createElement('div');
@@ -50,6 +54,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // inicializa o estado global do carrossel (indicadores, transform, etc)
     initCarouselState();
+
+    // captura imagens do carrossel para esperar pelo carregamento
+    carouselImageElements = Array.from(imageSection.querySelectorAll('img'));
   }
 
   // formulário
@@ -96,4 +103,45 @@ document.addEventListener("DOMContentLoaded", async function () {
     script.src = 'https://graficapt.com/js/formSender.js';
     document.body.appendChild(script);
   }, 100);
+
+  // espera imagens do carrossel carregarem (se houver), com timeout de segurança
+  await waitForImages(carouselImageElements, 5000);
+
+  // finalmente dispara o evento que o loader ouve
+  dispatchReady();
 });
+
+/**
+ * Dispara o evento global indicando que o produto está pronto.
+ */
+function dispatchReady() {
+  document.dispatchEvent(new Event('product:ready'));
+}
+
+/**
+ * Retorna uma promise que resolve quando todas as imagens da lista carregarem ou o timeout estourar.
+ * @param {HTMLImageElement[]} imgs 
+ * @param {number} timeoutMs 
+ * @returns {Promise<void>}
+ */
+function waitForImages(imgs, timeoutMs = 5000) {
+  if (!imgs || imgs.length === 0) return Promise.resolve();
+
+  const promises = imgs.map(img => {
+    if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
+    return new Promise(res => {
+      const onLoadOrError = () => {
+        img.removeEventListener('load', onLoadOrError);
+        img.removeEventListener('error', onLoadOrError);
+        res();
+      };
+      img.addEventListener('load', onLoadOrError);
+      img.addEventListener('error', onLoadOrError);
+    });
+  });
+
+  return Promise.race([
+    Promise.all(promises),
+    new Promise(res => setTimeout(res, timeoutMs))
+  ]);
+}

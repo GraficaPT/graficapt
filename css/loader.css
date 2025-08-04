@@ -1,0 +1,59 @@
+/* loader.css */
+#loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  transition: transform 0.8s cubic-bezier(.22,.61,.36,1);
+  will-change: transform;
+  overflow: hidden;
+  font-family: 'League Spartan', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+#loader-overlay.loaded {
+  transform: translateY(-100%);
+}
+
+.logo-wrapper {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-wrapper img {
+  width: 120px;
+  height: auto;
+  display: block;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(0,0,0,0.08);
+  border-top-color: #222;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-sizing: border-box;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Acessibilidade: texto escondido para leitores de ecrã */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
