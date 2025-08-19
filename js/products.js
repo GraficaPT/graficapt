@@ -111,11 +111,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   dispatchReady();
 });
 
-/**
- * Dispara o evento global indicando que o produto está pronto.
- */
+
 function dispatchReady() {
   document.dispatchEvent(new Event('product:ready'));
+  console.log("Pronto")
 }
 
 /**
