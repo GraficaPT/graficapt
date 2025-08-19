@@ -18,32 +18,34 @@ function getBannerUrl(prod) {
 }
 
 async function renderProdutos() {
+  const { data: produtos, error } = await supabase.from('products').select('*');
 
-  const { data: produtos, error } = await supabase
-    .from('products')
-    .select('*');
+  const grid = document.getElementById("products-grid");
 
   if (error) {
-    document.getElementById("products-grid").innerHTML = "<p>Erro a carregar produtos.</p>";
+    grid.innerHTML = "<p>Erro a carregar produtos.</p>";
+    window.prerenderReady = true; // mesmo em erro, solta o snapshot
     return;
   }
 
   const categorias = Array.from(new Set(produtos.map(p => p.category))).filter(Boolean);
-
   const filterCategory = document.getElementById("filterCategory");
-  filterCategory.innerHTML = `<option value="all">Todos os Produtos</option>` +
-    categorias.map(cat => `<option value="${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`).join('');
 
-  const productsGrid = document.getElementById("products-grid");
+  filterCategory.innerHTML =
+    `<option value="all">Todos os Produtos</option>` +
+    categorias.map(
+      cat => `<option value="${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`
+    ).join('');
 
   function showProdutos(category) {
     let lista = produtos;
     if (category && category !== "all") {
       lista = lista.filter(p => p.category === category);
     }
-    productsGrid.innerHTML = lista.map(prod => {
+
+    grid.innerHTML = lista.map(prod => {
       const imgSrc = getBannerUrl(prod);
-      let href = `/produto/${prod.slug}`;
+      const href = `/produto/${prod.slug}`;
       return `
         <div class="cell" data-categoria="${prod.category}" data-nome="${prod.slug}" onclick="location.href = '${href}'">
           <img src="${imgSrc}" alt="${prod.name}" loading="lazy">
@@ -52,9 +54,6 @@ async function renderProdutos() {
         </div>
       `;
     }).join('');
-    
-    console.log("Loaded")
-    window.prerenderReady = true;
   }
 
   filterCategory.onchange = function() {
@@ -62,6 +61,10 @@ async function renderProdutos() {
   };
 
   showProdutos("all");
+  console.log("Grid completo renderizado");
+  window.prerenderReady = true;
 }
 
 renderProdutos();
+
+setTimeout(() => { window.prerenderReady = true; }, 10000);
