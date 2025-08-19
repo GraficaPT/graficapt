@@ -86,8 +86,26 @@
   <script src="https://graficapt.com/js/analytics.js" defer></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-V28GHLM5ZE"></script>
   <script>
-    console.log("Loaded")
-    window.prerenderReady = true;
-  </script>
+
+  const observer = new MutationObserver(() => {
+    const grid = document.getElementById("products-grid");
+    if (grid && grid.children.length > 0) {
+      console.log("Product grid carregado:", grid.children.length, "itens");
+      window.prerenderReady = true;
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(document.getElementById("products-grid"), {
+    childList: true
+  });
+  setTimeout(() => {
+    if (!window.prerenderReady) {
+      console.log("Failsafe liberou prerender");
+      window.prerenderReady = true;
+    }
+  }, 10000);
+</script>
+
 </body>
 </html>
