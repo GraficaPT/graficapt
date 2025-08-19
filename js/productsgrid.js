@@ -1,3 +1,4 @@
+import { supabase } from './supamanager/supabase.js';
 const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
 
 function getBannerUrl(prod) {
@@ -51,7 +52,7 @@ async function renderProdutos() {
         </div>
       `;
     }).join('');
-
+    
     console.log("Loaded")
     window.prerenderReady = true;
   }
