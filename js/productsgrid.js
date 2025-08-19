@@ -52,6 +52,8 @@ async function renderProdutos() {
         </div>
       `;
     }).join('');
+    console.log("Loaded")
+  window.prerenderReady = true;
   }
 
   filterCategory.onchange = function() {
@@ -62,5 +64,3 @@ async function renderProdutos() {
 }
 
 renderProdutos();
-console.log("Loaded")
-window.prerenderReady = true;
