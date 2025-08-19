@@ -3,7 +3,28 @@
       {
         "source": "/produto/:slug",
         "destination": "/product.html?slug=:slug"
-      }
-    ]
+      },
+      {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "User-Agent",
+          "value": "(?i)(googlebot|bingbot|yandexbot|duckduckbot|baiduspider|facebookexternalhit|twitterbot|slackbot|linkedinbot|embedly|quora|pinterest|whatsapp|discordbot)"
+        }
+      ],
+      "destination": "https://service.prerender.io/https://graficapt.com/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Prerender-Token",
+          "value": "@prerender_token"
+        }
+      ]
+    }
+  ]
 }
-  
