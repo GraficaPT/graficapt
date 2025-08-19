@@ -1,19 +1,19 @@
 {
   "rewrites": [
     {
-      "source": "/produto/:slug",
-      "destination": "/product.html?slug=:slug"
-    },
-    {
       "source": "/(.*)",
       "has": [
         {
           "type": "header",
           "key": "user-agent",
-          "value": "(?i)(googlebot|bingbot|yandexbot|duckduckbot|baiduspider|facebookexternalhit|twitterbot|slackbot|linkedinbot|embedly|quora|pinterest|whatsapp|discordbot)"
+          "value": "(googlebot|bingbot|yandexbot|duckduckbot|baiduspider|facebookexternalhit|twitterbot|slackbot|linkedinbot|embedly|quora|pinterest|whatsapp|discordbot)"
         }
       ],
       "destination": "https://service.prerender.io/https://graficapt.com/$1"
+    },
+    {
+      "source": "/produto/:slug",
+      "destination": "/product.html?slug=:slug"
     }
   ],
   "headers": [
