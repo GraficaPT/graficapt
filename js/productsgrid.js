@@ -61,8 +61,11 @@ async function renderProdutos() {
   };
 
   showProdutos("all");
-  console.log("Grid completo renderizado");
-  window.prerenderReady = true;
+
+  if (grid.children.length > 0) {
+    console.log("Grid renderizado com", grid.children.length, "produtos");
+    window.prerenderReady = true;
+  }
 }
 
 renderProdutos();
