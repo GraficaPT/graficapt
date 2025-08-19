@@ -114,7 +114,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 function dispatchReady() {
   document.dispatchEvent(new Event('product:ready'));
-  console.log("Pronto")
+  console.log("Loaded")
+  window.prerenderReady = true;
 }
 
 /**
