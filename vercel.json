@@ -9,22 +9,17 @@
           "value": "(googlebot|bingbot|yandexbot|duckduckbot|baiduspider|facebookexternalhit|twitterbot|slackbot|linkedinbot|embedly|quora|pinterest|whatsapp|discordbot)"
         }
       ],
-      "destination": "https://service.prerender.io/https://graficapt.com/$1"
+      "destination": "/api/prerender?path=$1"
     },
     {
       "source": "/produto/:slug",
       "destination": "/product.html?slug=:slug"
     }
   ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Prerender-Token",
-          "value": "@prerender_token"
-        }
-      ]
+  "functions": {
+    "api/prerender.js": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 10
     }
-  ]
+  }
 }
