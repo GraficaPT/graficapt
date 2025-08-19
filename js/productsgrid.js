@@ -62,4 +62,5 @@ async function renderProdutos() {
 }
 
 renderProdutos();
+console.log("Loaded")
 window.prerenderReady = true;
