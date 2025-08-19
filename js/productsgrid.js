@@ -59,6 +59,8 @@ async function renderProdutos() {
   };
 
   showProdutos("all");
+  console.log("Loaded..");
+  window.prerenderReady = true;
 }
 
 renderProdutos();
