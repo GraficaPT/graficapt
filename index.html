@@ -79,11 +79,15 @@
   </form>
 
   <footer class="footer" id="footer"></footer>
-  <script src="https://graficapt.com/js/productsgrid.js"></script>
+  <script type="module" src="https://graficapt.com/js/productsgrid.js"></script>
   <script src="https://graficapt.com/js/footerheader.js" defer></script>
   <script src="https://graficapt.com/js/formSender.js" defer></script>
   <script src="https://graficapt.com/js/filter.js" defer></script>
   <script src="https://graficapt.com/js/analytics.js" defer></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-V28GHLM5ZE"></script>
+  <script>
+    console.log("Loaded")
+    window.prerenderReady = true;
+  </script>
 </body>
 </html>

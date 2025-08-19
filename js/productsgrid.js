@@ -18,34 +18,32 @@ function getBannerUrl(prod) {
 }
 
 async function renderProdutos() {
-  const { data: produtos, error } = await supabase.from('products').select('*');
 
-  const grid = document.getElementById("products-grid");
+  const { data: produtos, error } = await supabase
+    .from('products')
+    .select('*');
 
   if (error) {
-    grid.innerHTML = "<p>Erro a carregar produtos.</p>";
-    window.prerenderReady = true; // mesmo em erro, solta o snapshot
+    document.getElementById("products-grid").innerHTML = "<p>Erro a carregar produtos.</p>";
     return;
   }
 
   const categorias = Array.from(new Set(produtos.map(p => p.category))).filter(Boolean);
-  const filterCategory = document.getElementById("filterCategory");
 
-  filterCategory.innerHTML =
-    `<option value="all">Todos os Produtos</option>` +
-    categorias.map(
-      cat => `<option value="${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`
-    ).join('');
+  const filterCategory = document.getElementById("filterCategory");
+  filterCategory.innerHTML = `<option value="all">Todos os Produtos</option>` +
+    categorias.map(cat => `<option value="${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`).join('');
+
+  const productsGrid = document.getElementById("products-grid");
 
   function showProdutos(category) {
     let lista = produtos;
     if (category && category !== "all") {
       lista = lista.filter(p => p.category === category);
     }
-
-    grid.innerHTML = lista.map(prod => {
+    productsGrid.innerHTML = lista.map(prod => {
       const imgSrc = getBannerUrl(prod);
-      const href = `/produto/${prod.slug}`;
+      let href = `/produto/${prod.slug}`;
       return `
         <div class="cell" data-categoria="${prod.category}" data-nome="${prod.slug}" onclick="location.href = '${href}'">
           <img src="${imgSrc}" alt="${prod.name}" loading="lazy">
@@ -61,13 +59,7 @@ async function renderProdutos() {
   };
 
   showProdutos("all");
-
-  if (grid.children.length > 0) {
-    console.log("Grid renderizado com", grid.children.length, "produtos");
-    window.prerenderReady = true;
-  }
 }
 
 renderProdutos();
 
-setTimeout(() => { window.prerenderReady = true; }, 10000);
