@@ -62,3 +62,4 @@ async function renderProdutos() {
 }
 
 renderProdutos();
+window.prerenderReady = true;
