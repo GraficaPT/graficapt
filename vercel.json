@@ -1,15 +1,15 @@
 {
-    "rewrites": [
-      {
-        "source": "/produto/:slug",
-        "destination": "/product.html?slug=:slug"
-      },
-      {
+  "rewrites": [
+    {
+      "source": "/produto/:slug",
+      "destination": "/product.html?slug=:slug"
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
           "type": "header",
-          "key": "User-Agent",
+          "key": "user-agent",
           "value": "(?i)(googlebot|bingbot|yandexbot|duckduckbot|baiduspider|facebookexternalhit|twitterbot|slackbot|linkedinbot|embedly|quora|pinterest|whatsapp|discordbot)"
         }
       ],
