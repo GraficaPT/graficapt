@@ -15,11 +15,5 @@
       "source": "/produto/:slug",
       "destination": "/product.html?slug=:slug"
     }
-  ],
-  "functions": {
-    "api/prerender.js": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 10
-    }
-  }
+  ]
 }
