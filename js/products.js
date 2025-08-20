@@ -90,8 +90,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   container.appendChild(relatedSection);
   try { await loadRelatedProducts({ category: produto.category, currentSlug: slug, STORAGE_PUBLIC }); } catch(e) {}
 
+  const pageTitle = `${produto.name || produto.nome} | GráficaPT`;
+  setTitleEverywhere(pageTitle);
+
   updateSEO({
-    title: `${produto.name || produto.nome} | GráficaPT`,
+    title: pageTitle,
     description: produto.descricao || produto.description || 'Produto personalizado da GráficaPT.'
   });
   updateCanonicalAndOG({
@@ -102,6 +105,24 @@ document.addEventListener("DOMContentLoaded", async function () {
   await waitForImages(carouselImageElements, 5000);
   dispatchReady();
 });
+
+function setTitleEverywhere(titleText){
+  if (document.title !== titleText) document.title = titleText;
+  let og = document.querySelector('meta[property="og:title"]');
+  if (!og) {
+    og = document.createElement('meta');
+    og.setAttribute('property','og:title');
+    document.head.appendChild(og);
+  }
+  og.setAttribute('content', titleText);
+  let tw = document.querySelector('meta[name="twitter:title"]');
+  if (!tw) {
+    tw = document.createElement('meta');
+    tw.setAttribute('name','twitter:title');
+    document.head.appendChild(tw);
+  }
+  tw.setAttribute('content', titleText);
+}
 
 function buildRelatedSection(){
   const section = document.createElement('section');
@@ -170,12 +191,10 @@ function renderRelatedCard(p, STORAGE_PUBLIC){
 
 async function loadRelatedProducts({ category, currentSlug, limit = 4, STORAGE_PUBLIC }){
   const grid  = document.getElementById('related-grid');
-
   if (!category){
     grid.innerHTML = '';
     return;
   }
-
   let { data, error } = await supabase
     .from('products')
     .select('id, slug, name, images, banner, category')
@@ -183,12 +202,10 @@ async function loadRelatedProducts({ category, currentSlug, limit = 4, STORAGE_P
     .neq('slug', currentSlug)
     .order('id', { ascending: false })
     .limit(limit);
-
   if (error || !data || data.length === 0) {
     grid.innerHTML = '';
     return;
   }
-
   grid.innerHTML = data.map(p => renderRelatedCard(p, STORAGE_PUBLIC)).join('');
 }
 
