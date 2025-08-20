@@ -1,4 +1,5 @@
 import { fetchProductBySlug } from './services/productService.js';
+import { supabase } from './supamanager/supabase.js';
 import { getSlugFromUrl } from './utils/slug.js';
 import { updateSEO, updateCanonicalAndOG } from './components/seo.js';
 import { criarCarrosselHTML, initCarouselState } from './components/carousel.js';
@@ -43,9 +44,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   const container = document.getElementById("produto-dinamico");
   container.innerHTML = '';
 
+  // carrossel de imagens (se existir)
   let carouselImageElements = [];
-
-  // carrossel HTML string e injeção
   if (produto.images && produto.images.length > 0) {
     const imageSection = document.createElement('div');
     imageSection.className = 'product-image';
@@ -93,16 +93,21 @@ document.addEventListener("DOMContentLoaded", async function () {
   form.appendChild(detailsDiv);
   container.appendChild(form);
 
-  // SEO e canonical
-  updateSEO(produto);
-  updateCanonicalAndOG(slug);
+  // --- Bloco Produtos Relacionados ---
+  const relatedSection = buildRelatedSection();
+  container.appendChild(relatedSection);
+  try { await loadRelatedProducts({ category: produto.category, currentSlug: slug }); } catch(e) { console.error(e); }
+  // --- fim relacionados ---
 
-  // script externo
-  setTimeout(() => {
-    const script = document.createElement('script');
-    script.src = 'https://graficapt.com/js/formSender.js';
-    document.body.appendChild(script);
-  }, 100);
+  // SEO e canonical
+  updateSEO({
+    title: `${produto.name || produto.nome} | GráficaPT`,
+    description: produto.descricao || produto.description || 'Produto personalizado da GráficaPT.'
+  });
+  updateCanonicalAndOG({
+    url: `${location.origin}/produto/${encodeURIComponent(slug)}`,
+    image: (produto.images && produto.images[0]) ? `${STORAGE_PUBLIC}${slug}/${produto.images[0]}` : undefined
+  });
 
   // espera imagens do carrossel carregarem (se houver), com timeout de segurança
   await waitForImages(carouselImageElements, 5000);
@@ -112,6 +117,88 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 
+// ====== Produtos Relacionados (mesma categoria) ======
+function buildRelatedSection(){
+  const section = document.createElement('section');
+  section.id = 'related-products';
+  section.className = 'related';
+  section.innerHTML = `
+    <div class="related__head">
+      <h2>Produtos relacionados</h2>
+      <a id="related-more" class="related__more hidden" href="#">Ver mais</a>
+    </div>
+    <div id="related-grid" class="related__grid"></div>
+    <div id="related-empty" class="related__empty hidden">Sem produtos relacionados.</div>
+  `;
+  return section;
+}
+
+function renderRelatedCard(p){
+  const img = p.cover_image_url || 'https://placehold.co/600x400?text=Produto';
+  const name = p.name || 'Produto';
+  const price = Number.isFinite(p.price_cents) ? (p.price_cents/100).toLocaleString('pt-PT',{style:'currency',currency:'EUR'}) : '';
+  return `
+    <a class="related__card" href="/produto/${encodeURIComponent(p.slug)}" aria-label="${name}">
+      <div class="related__thumbwrap">
+        <img class="related__thumb" src="${img}" alt="${name}" loading="lazy">
+      </div>
+      <div class="related__body">
+        <h3 class="related__title">${name}</h3>
+        ${price ? `<p class="related__price">${price}</p>` : ``}
+      </div>
+    </a>
+  `;
+}
+
+async function loadRelatedProducts({ category, currentSlug, limit=4 }){
+  const grid  = document.getElementById('related-grid');
+  const empty = document.getElementById('related-empty');
+  const more  = document.getElementById('related-more');
+
+  if(!category){
+    empty.classList.remove('hidden');
+    return;
+  }
+
+  grid.innerHTML = `<div class="related__empty">A carregar…</div>`;
+
+  const { data, error } = await supabase
+    .from('products')
+    .select('id,slug,name,price_cents,cover_image_url,category,status,updated_at')
+    .eq('category', category)
+    .eq('status', 'published')
+    .neq('slug', currentSlug)
+    .order('updated_at', { ascending: false })
+    .limit(limit + 1);
+
+  if (error) {
+    console.error('Erro a carregar relacionados:', error);
+    grid.innerHTML = `<div class="related__empty error">Erro ao carregar.</div>`;
+    more.classList.add('hidden');
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    more.classList.add('hidden');
+    return;
+  }
+
+  const hasMore = data.length > limit;
+  const show = data.slice(0, limit);
+  grid.innerHTML = show.map(renderRelatedCard).join('');
+
+  if (hasMore) {
+    more.href = `/categoria/${encodeURIComponent(category)}`;
+    more.classList.remove('hidden');
+  } else {
+    more.classList.add('hidden');
+  }
+}
+// ====== /Produtos Relacionados ======
+
+
 function dispatchReady() {
   document.dispatchEvent(new Event('product:ready'));
   console.log("Loaded")
@@ -119,9 +206,9 @@ function dispatchReady() {
 }
 
 /**
- * Retorna uma promise que resolve quando todas as imagens da lista carregarem ou o timeout estourar.
- * @param {HTMLImageElement[]} imgs 
- * @param {number} timeoutMs 
+ * Espera pelo carregamento de todas as imagens ou timeout
+ * @param {HTMLImageElement[]} imgs
+ * @param {number} timeoutMs
  * @returns {Promise<void>}
  */
 function waitForImages(imgs, timeoutMs = 5000) {
@@ -140,8 +227,6 @@ function waitForImages(imgs, timeoutMs = 5000) {
     });
   });
 
-  return Promise.race([
-    Promise.all(promises),
-    new Promise(res => setTimeout(res, timeoutMs))
-  ]);
+  const timeout = new Promise(res => setTimeout(res, timeoutMs));
+  return Promise.race([Promise.all(promises), timeout]).then(() => {});
 }
