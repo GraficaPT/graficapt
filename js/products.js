@@ -110,10 +110,8 @@ function buildRelatedSection(){
   section.innerHTML = `
     <div class="related__head">
       <h2>Produtos relacionados</h2>
-      <a id="related-more" class="related__more hidden" href="#">Ver mais</a>
     </div>
     <div id="related-grid" class="related__grid"></div>
-    <div id="related-empty" class="related__empty hidden">Sem produtos relacionados.</div>
   `;
   return section;
 }
@@ -172,15 +170,11 @@ function renderRelatedCard(p, STORAGE_PUBLIC){
 
 async function loadRelatedProducts({ category, currentSlug, limit = 4, STORAGE_PUBLIC }){
   const grid  = document.getElementById('related-grid');
-  const empty = document.getElementById('related-empty');
-  const more  = document.getElementById('related-more');
 
   if (!category){
-    empty.classList.remove('hidden');
+    grid.innerHTML = '';
     return;
   }
-
-  grid.innerHTML = `<div class="related__empty">A carregar…</div>`;
 
   let { data, error } = await supabase
     .from('products')
@@ -188,33 +182,14 @@ async function loadRelatedProducts({ category, currentSlug, limit = 4, STORAGE_P
     .eq('category', category)
     .neq('slug', currentSlug)
     .order('id', { ascending: false })
-    .limit(limit + 1);
+    .limit(limit);
 
-  if (error) {
-    grid.innerHTML = `<div class="related__empty error">Erro ao carregar.</div>`;
-    more.classList.add('hidden');
-    return;
-  }
-
-  if (!data || data.length === 0) {
+  if (error || !data || data.length === 0) {
     grid.innerHTML = '';
-    empty.classList.remove('hidden');
-    more.classList.add('hidden');
     return;
   }
 
-  empty.classList.add('hidden');
-
-  const hasMore = data.length > limit;
-  const show = data.slice(0, limit);
-  grid.innerHTML = show.map(p => renderRelatedCard(p, STORAGE_PUBLIC)).join('');
-
-  if (hasMore) {
-    more.href = `/categoria/${encodeURIComponent(category)}`;
-    more.classList.remove('hidden');
-  } else {
-    more.classList.add('hidden');
-  }
+  grid.innerHTML = data.map(p => renderRelatedCard(p, STORAGE_PUBLIC)).join('');
 }
 
 function dispatchReady() {
