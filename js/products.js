@@ -136,7 +136,7 @@ function buildRelatedSection(){
 function renderRelatedCard(p){
   const img = p.cover_image_url || 'https://placehold.co/600x400?text=Produto';
   const name = p.name || 'Produto';
-  const price = Number.isFinite(p.price_cents) ? (p.price_cents/100).toLocaleString('pt-PT',{style:'currency',currency:'EUR'}) : '';
+  const price = Number.isFinite(p.price_cents) ? (p.price_cents/100).toLocaleString('pt-PT',{style:'currency','currency':'EUR'}) : '';
   return `
     <a class="related__card" href="/produto/${encodeURIComponent(p.slug)}" aria-label="${name}">
       <div class="related__thumbwrap">
@@ -150,29 +150,48 @@ function renderRelatedCard(p){
   `;
 }
 
-async function loadRelatedProducts({ category, currentSlug, limit=4 }){
+async function loadRelatedProducts({ category, currentSlug, limit = 4 }){
   const grid  = document.getElementById('related-grid');
   const empty = document.getElementById('related-empty');
   const more  = document.getElementById('related-more');
 
-  if(!category){
+  if (!category){
     empty.classList.remove('hidden');
     return;
   }
 
   grid.innerHTML = `<div class="related__empty">A carregar…</div>`;
 
-  const { data, error } = await supabase
+  // 1ª tentativa: ordenar por id desc (coluna quase garantida)
+  let { data, error } = await supabase
     .from('products')
-    .select('id,slug,name,price_cents,cover_image_url,category,status,updated_at')
+    .select('id,slug,name,price_cents,cover_image_url,category,status') // sem updated_at
     .eq('category', category)
     .eq('status', 'published')
     .neq('slug', currentSlug)
-    .order('updated_at', { ascending: false })
+    .order('id', { ascending: false }) // sem updated_at
     .limit(limit + 1);
 
+  // Se ainda assim der erro, faz uma tentativa sem order (alguns esquemas usam uuid sem ordem natural)
   if (error) {
-    console.error('Erro a carregar relacionados:', error);
+    console.warn('loadRelatedProducts: fallback sem ORDER. Detalhes:', error);
+    ({ data, error } = await supabase
+      .from('products')
+      .select('id,slug,name,price_cents,cover_image_url,category,status')
+      .eq('category', category)
+      .eq('status', 'published')
+      .neq('slug', currentSlug)
+      .limit(limit + 1)
+    );
+  }
+
+  if (error) {
+    console.error('Erro a carregar relacionados:', {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code
+    });
     grid.innerHTML = `<div class="related__empty error">Erro ao carregar.</div>`;
     more.classList.add('hidden');
     return;
