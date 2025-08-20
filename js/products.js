@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   updateCanonicalAndOG({
     url: `${location.origin}/produto/${encodeURIComponent(slug)}`,
-    image: (produto.images && produto.images[0]) ? `${STORAGE_PUBLIC}${slug}/${produto.images[0]}` : undefined
+    image: primaryImageUrl(produto, STORAGE_PUBLIC)
   });
 
   await waitForImages(carouselImageElements, 5000);
@@ -118,12 +118,39 @@ function buildRelatedSection(){
   return section;
 }
 
+function joinPublicPath(prefix, path) {
+  const parts = String(path).split('/').filter(Boolean).map(encodeURIComponent);
+  return prefix + parts.join('/');
+}
+
+function resolveImagePath(slug, raw, STORAGE_PUBLIC) {
+  if (!raw || typeof raw !== 'string') return undefined;
+  const s = raw.trim();
+  if (!s) return undefined;
+  if (/^https?:\/\//i.test(s)) return s;
+  if (s.includes('/')) return joinPublicPath(STORAGE_PUBLIC, s);
+  return joinPublicPath(STORAGE_PUBLIC, `${slug}/${s}`);
+}
+
+function primaryImageUrl(prod, STORAGE_PUBLIC) {
+  const cands = [];
+  if (Array.isArray(prod.images) && prod.images[0]) cands.push(prod.images[0]);
+  if (prod.banner) cands.push(prod.banner);
+  for (const c of cands) {
+    const u = resolveImagePath(prod.slug, c, STORAGE_PUBLIC);
+    if (u) return u;
+  }
+  return undefined;
+}
+
 function relatedImageUrl(p, STORAGE_PUBLIC) {
-  if (Array.isArray(p.images) && p.images.length > 0 && p.images[0]) {
-    return `${STORAGE_PUBLIC}${encodeURIComponent(p.slug)}/${encodeURIComponent(p.images[0])}`;
+  if (Array.isArray(p.images) && p.images[0]) {
+    const u = resolveImagePath(p.slug, p.images[0], STORAGE_PUBLIC);
+    if (u) return u;
   }
   if (p.banner) {
-    return `${STORAGE_PUBLIC}${encodeURIComponent(p.slug)}/${encodeURIComponent(p.banner)}`;
+    const u = resolveImagePath(p.slug, p.banner, STORAGE_PUBLIC);
+    if (u) return u;
   }
   return 'https://placehold.co/800x600?text=Produto';
 }
