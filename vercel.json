@@ -17,7 +17,7 @@
     },
     {
       "source": "/encomendas",
-      "destination": "/encomendas/encomendas.htm"
+      "destination": "/encomendas.htm"
     },
     {
       "source": "/manager",
