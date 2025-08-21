@@ -14,6 +14,14 @@
     {
       "source": "/produto/:slug",
       "destination": "/product.html?slug=:slug"
+    },
+    {
+      "source": "/encomendas",
+      "destination": "/encomendas/encomendas.htm"
+    },
+    {
+      "source": "/manager",
+      "destination": "/manager.html"
     }
   ]
 }
