@@ -32,43 +32,54 @@ const stripHead = (html) => html
 
 const injectHead = (html, head) => html.replace(/<\/head>/i, `${head}\n</head>`);
 
-// --- EXACTAMENTE como o teu JS antigo espera ---
+// === Carrossel com TODAS as imagens dentro do wrapper ===
 function criarCarrosselHTML(imagens) {
   const imgs = (Array.isArray(imagens) ? imagens : [imagens]).filter(Boolean);
-  const first = imgs[0] || '';
-  const mk = (x) => /^https?:\/\//.test(String(x||'')) ? String(x) : `${STORAGE_PUBLIC}${String(x||'').replace(/^\//,'')}`;
+  const mk = (x) =>
+    /^https?:\/\//.test(String(x || ''))
+      ? String(x)
+      : `${STORAGE_PUBLIC}${String(x || '').replace(/^\//, '')}`;
 
-  // 1) Um ÚNICO <img id="imagem-principal"> (o antigo JS troca o src aqui)
-  const main = `
+  // faixa com TODAS as imagens (id="carrossel") dentro do wrapper
+  const faixa = `
 <div class="carrossel-container">
   <button class="carrossel-btn prev" onclick="window.mudarImagem && window.mudarImagem(-1)" aria-label="Anterior">&#10094;</button>
   <div class="carrossel-imagens-wrapper">
-    <img id="imagem-principal" class="carrossel-img"
-         src="${mk(first)}"
-         alt="Imagem 1"
-         onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">
+    <div class="carrossel-imagens" id="carrossel">
+      ${imgs
+        .map(
+          (img, i) => `
+      <img class="carrossel-img"
+           src="${mk(img)}"
+           alt="Imagem ${i + 1}"
+           onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">`
+        )
+        .join('')}
+    </div>
   </div>
   <button class="carrossel-btn next" onclick="window.mudarImagem && window.mudarImagem(1)" aria-label="Próximo">&#10095;</button>
 </div>`;
 
-  // 2) Indicadores (o JS antigo preenche/usa este ID)
+  // indicadores (se o teu JS usar)
   const dots = `<div class="carrossel-indicadores" id="indicadores"></div>`;
 
-  // 3) Miniaturas EXACTAS (o antigo JS lê #miniaturas e usa onclick irParaImagem)
+  // miniaturas (como antes)
   const thumbs = `
 <div class="miniaturas" id="miniaturas">
-  ${imgs.map((img, i) =>
-    `<img class="miniatura"
-          src="${mk(img)}"
-          alt="Imagem ${i+1}"
-          data-index="${i}"
-          onclick="window.irParaImagem && window.irParaImagem(${i})">`
-  ).join('')}
+  ${imgs
+    .map(
+      (img, i) => `
+  <img class="miniatura"
+       src="${mk(img)}"
+       alt="Imagem ${i + 1}"
+       data-index="${i}"
+       onclick="window.irParaImagem && window.irParaImagem(${i})">`
+    )
+    .join('')}
 </div>`;
 
-  return `${main}\n${dots}\n${thumbs}`;
+  return `${faixa}\n${dots}\n${thumbs}`;
 }
-
 
 function renderOptionSSR(opt, index){
   const tipo = String(opt?.tipo || '').toLowerCase();
