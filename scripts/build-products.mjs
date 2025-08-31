@@ -3,7 +3,10 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * build-products.mjs — FULL STATIC BUILD (injects /js/env.js for formSender)
+ * build-products.mjs — FULL STATIC
+ * - Generates /produto/<slug>/index.html (product pages)
+ * - Generates /index.html (homepage) with product cards (no loader)
+ * - Injects /js/env.js before any front scripts
  */
 
 const log = (...a) => console.log('[build-products]', ...a);
@@ -51,7 +54,7 @@ function extractTopbarFooter() {
   return { topbarHTML: mTop[1], footerHTML: mFoot[1] };
 }
 
-// HEAD builder
+// HEAD builders
 function buildHead(slug, p) {
   const title = p.name || p.nome || slug;
   const descr = p.shortdesc || p.descricao || `Compra ${title} personalizada na GráficaPT.`;
@@ -83,8 +86,27 @@ ${og ? `<meta property="og:image" content="${esc(og)}">` : ''}
 <link rel="stylesheet" href="/css/product.css">`.trim();
 }
 
-// Components (EXACT classes)
+function buildHeadHome() {
+  return `
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GráficaPT — Produtos Personalizáveis</title>
+<link rel="canonical" href="${BASE_URL}/">
+<meta name="description" content="Impressão e personalização: bandeiras, sacos, rígidos, vestuário e muito mais. Pede orçamento grátis!">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="GráficaPT — Produtos Personalizáveis">
+<meta property="og:description" content="Impressão e personalização: bandeiras, sacos, rígidos, vestuário e muito mais.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${BASE_URL}/">
+<link rel="icon" href="/imagens/logo.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/index.css">`.trim();
+}
 
+// PRODUCT PAGE (same as before)
 function criarCarrosselHTML(slug, imagens) {
   const imgs = (imagens || []).map(mkUrl).filter(Boolean);
   if (!imgs.length) return '';
@@ -270,7 +292,6 @@ function inlineFormGuardScript() {
       const f = document.getElementById('orcamentoForm');
       if (f) {
         f.addEventListener('submit', function(e){
-          // Só bloqueia se o formSender não estiver carregado (evita página em branco)
           if (!window.formSenderInitialized) {
             e.preventDefault();
             alert('Não foi possível enviar agora. Verifica a ligação e tenta novamente.');
@@ -282,18 +303,131 @@ function inlineFormGuardScript() {
   </script>`;
 }
 
-function renderPage(slug, p, topbarHTML, footerHTML) {
-  const head = buildHead(slug, p);
+// HOMEPAGE
+function renderCard(p){
+  const slug = p.slug || p.Slug || p.name || p.nome;
   const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
-  let opcoes = [];
-  if (Array.isArray(p.opcoes)) opcoes = p.opcoes;
-  else if (p.opcoes && typeof p.opcoes === 'object') opcoes = Object.entries(p.opcoes).map(([label,op])=>({label, ...(op||{})}));
+  const img = mkUrl(images[0] || '');
+  const nome = p.name || p.nome || slug;
+  const cat = (p.category || p.categoria || '').toLowerCase();
+  return `<a class="cell" href="/produto/${esc(slug)}" data-categoria="${esc(cat)}" data-nome="${esc(nome)}">
+    ${img ? `<img src="${esc(img)}" alt="${esc(nome)}">` : ''}
+    <div class="cellText">${esc(nome)}</div>
+  </a>`;
+}
 
-  const carouselHTML = images && images.length ? `<div class="product-image">${criarCarrosselHTML(slug, images)}</div>` : '';
-  const optionsHTML = (opcoes||[]).map((opt,i)=>renderOption(opt,i)).join('');
-  const staticFields = createStaticFields();
+function renderHome(topbarHTML, footerHTML, products) {
+  const head = buildHeadHome();
+  const cards = [...products].sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome))).map(renderCard).join('');
 
   const body = `
+<div class="topbar" id="topbar">
+${topbarHTML}
+</div>
+
+<section class="hero">
+  <!-- Mantém o teu herói atual via CSS/imagens existentes -->
+</section>
+
+<h1 class="titulo-home">Produtos Personalizáveis</h1>
+
+<div class="produtos-toolbar">
+  <div class="ordenar">
+    <label>Ordenar por</label>
+    <select id="ordenar">
+      <option value="az">A-Z</option>
+      <option value="za">Z-A</option>
+    </select>
+  </div>
+</div>
+
+<section class="products-grid" id="products-grid">
+  ${cards}
+</section>
+
+<section class="orcamento-rapido">
+  <h2>Não encontras o que precisas?</h2>
+  <form id="orcamentoForm" method="POST">
+    <div class="options-row">
+      <div class="form-group"><input type="text" name="Empresa" placeholder="Empresa ou Nome" required></div>
+      <div class="form-group"><input type="email" name="Email" placeholder="o.teu@email.com" required></div>
+    </div>
+    <div class="options-row">
+      <div class="form-group"><input type="tel" name="Telemóvel" placeholder="+351 ..." required></div>
+      <div class="form-group"><input type="text" name="Produto" placeholder="Outro produto / Serviço"></div>
+    </div>
+    <div class="options-row">
+      <div class="form-group">
+        <textarea name="Detalhes" placeholder="Descreve que produto procuras assim como qualquer outro detalhe relevante!" required></textarea>
+      </div>
+    </div>
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="https://graficapt.com">
+    <button id="submit" type="submit">ENVIAR</button>
+  </form>
+</section>
+
+<footer class="footer" id="footer">
+${footerHTML}
+</footer>
+
+<script src="/js/env.js"></script>
+<script src="/js/filter.js" defer></script>
+<script src="/js/formSender.js" defer></script>
+<script>
+// ordenar simples
+document.getElementById('ordenar')?.addEventListener('change', function(){
+  const grid = document.getElementById('products-grid');
+  if (!grid) return;
+  const items = Array.from(grid.querySelectorAll('.cell'));
+  const dir = this.value === 'za' ? -1 : 1;
+  items.sort((a,b)=> a.dataset.nome.localeCompare(b.dataset.nome) * dir);
+  items.forEach(it => grid.appendChild(it));
+});
+</script>
+`;
+
+  return `<!DOCTYPE html>
+<html lang="pt">
+<head>
+${head}
+</head>
+<body>
+${body}
+</body>
+</html>`;
+}
+
+// MAIN
+async function main() {
+  log('start', new Date().toISOString());
+  const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const tFetch = Date.now();
+  const { data: products, error } = await supa.from('products').select('*');
+  if (error) { console.error(error); process.exit(1); }
+  log('fetched products:', products?.length ?? 0, 'in', (Date.now()-tFetch)+'ms');
+
+  const { topbarHTML, footerHTML } = extractTopbarFooter();
+
+  // Product pages
+  ensureDir(OUT_ROOT);
+  let count = 0;
+  const tGen = Date.now();
+  for (const p of products) {
+    const t1 = Date.now();
+    const slug = p.slug || p.Slug || p.name || p.nome;
+    if (!slug) continue;
+    const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
+    const head = buildHead(slug, p);
+    let opcoes = [];
+    if (Array.isArray(p.opcoes)) opcoes = p.opcoes;
+    else if (p.opcoes && typeof p.opcoes === 'object') opcoes = Object.entries(p.opcoes).map(([label,op])=>({label, ...(op||{})}));
+    const carouselHTML = images && images.length ? `<div class="product-image">${criarCarrosselHTML(slug, images)}</div>` : '';
+    const optionsHTML = (opcoes||[]).map((opt,i)=>renderOption(opt,i)).join('');
+    const staticFields = createStaticFields();
+
+    const body = `
 <div class="topbar" id="topbar">
 ${topbarHTML}
 </div>
@@ -321,7 +455,7 @@ ${inlineCarouselScript()}
 ${inlineFormGuardScript()}
 `;
 
-  return `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="pt">
 <head>
 ${head}
@@ -330,36 +464,21 @@ ${head}
 ${body}
 </body>
 </html>`;
-}
 
-// MAIN
-async function main() {
-  log('start', new Date().toISOString());
-  const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const tFetch = Date.now();
-  const { data: products, error } = await supa.from('products').select('*');
-  if (error) { console.error(error); process.exit(1); }
-  log('fetched products:', products?.length ?? 0, 'in', (Date.now()-tFetch)+'ms');
-
-  const { topbarHTML, footerHTML } = extractTopbarFooter();
-
-  ensureDir(OUT_ROOT);
-  let count = 0;
-  const tGen = Date.now();
-  for (const p of products) {
-    const t1 = Date.now();
-    const slug = p.slug || p.Slug || p.name || p.nome;
-    if (!slug) continue;
-    const html = renderPage(slug, p, topbarHTML, footerHTML);
     const dir = path.join(OUT_ROOT, slug);
     ensureDir(dir);
     writeFileAtomic(path.join(dir, 'index.html'), html);
     count++;
     log('wrote', `/produto/${slug}/index.html`, 'in', (Date.now()-t1)+'ms');
   }
+
+  // Homepage (static)
+  const homeHTML = renderHome(topbarHTML, footerHTML, products || []);
+  writeFileAtomic(path.join(ROOT, 'index.html'), homeHTML);
+  log('wrote /index.html');
+
   log('generated all pages in', (Date.now()-tGen)+'ms');
-  console.log(`✅ Built ${count} product pages (FULL STATIC)`);
+  console.log(`✅ Built ${count} product pages + homepage (FULL STATIC)`);
 }
 
 main().catch((e)=>{ console.error(e); process.exit(1); });
