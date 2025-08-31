@@ -8,7 +8,5 @@
     "@supabase/supabase-js": "^2.42.3",
     "@vercel/analytics": "^1.5.0"
   },
-  "devDependencies": {
-    "jsdom": "^24.1.0"
-  }
+  "devDependencies": {}
 }
