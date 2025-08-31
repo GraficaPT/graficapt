@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { JSDOM } from 'jsdom';
+import { JSDOM, VirtualConsole } from 'jsdom';
 import { createClient } from '@supabase/supabase-js';
 
 const ROOT = process.cwd();
@@ -26,29 +26,51 @@ async function fetchSlugs(client) {
   return (data || []).map(r => r.slug).filter(Boolean);
 }
 
-function baseHtml() {
-  return loadFile('product.html');
+function sanitizeBaseHtml(html) {
+  html = html
+    .replace(/<link\b[^>]*rel=["']stylesheet["'][^>]*>/gi, '')
+    .replace(/<link\b[^>]*loader\.css[^>]*>/gi, '');
+  html = html
+    .replace(/<script\b[^>]*@supabase\/supabase-js[^>]*><\/script>/i, '')
+    .replace(/<script\b[^>]*\/js\/core\/supabase\.js[^>]*><\/script>/i, '')
+    .replace(/<script\b[^>]*\/js\/env\.js[^>]*><\/script>/i, '')
+    .replace(/<script\b[^>]*\/js\/app\.bundle\.js[^>]*><\/script>/i, '');
+  return html;
 }
 
 async function renderOne(client, slug) {
-  const html = baseHtml()
-    .replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js[^"]*"><\/script>/i, '')
-    .replace(/<script src="\/js\/core\/supabase\.js"><\/script>/i, '')
-    .replace(/<script src="\/js\/env\.js"><\/script>/i, '');
+  const base = sanitizeBaseHtml(loadFile('product.html'));
 
-  const dom = new JSDOM(html, {
+  const vc = new VirtualConsole();
+  vc.on('jsdomError', () => {}); // silence resource errors
+
+  const dom = new JSDOM(base, {
     url: `https://graficapt.com/produto/${encodeURIComponent(slug)}`,
     runScripts: "outside-only",
     resources: "usable",
     pretendToBeVisual: true,
     contentType: "text/html",
+    virtualConsole: vc,
   });
 
   const { window } = dom;
   window.Supa = { client };
-  if (!('fetch' in window)) {
-    window.fetch = globalThis.fetch.bind(globalThis);
-  }
+  if (!('fetch' in window)) window.fetch = globalThis.fetch.bind(globalThis);
+
+  Object.defineProperty(window, 'prerenderReady', {
+    get() { return this.__ready || false; },
+    set(v) { this.__ready = v; },
+    configurable: true
+  });
+  window.__ready = false;
+
+  const observer = new window.MutationObserver(() => {
+    const el = window.document.getElementById('produto-dinamico');
+    if (el && el.children && el.children.length > 0) {
+      window.__ready = true;
+    }
+  });
+  observer.observe(window.document.documentElement, { childList: true, subtree: true });
 
   const appJs = loadFile('js/app.bundle.js');
   dom.getInternalVMContext();
@@ -56,7 +78,7 @@ async function renderOne(client, slug) {
 
   window.document.dispatchEvent(new window.Event('DOMContentLoaded', { bubbles: true }));
 
-  const waitFor = (cond, timeout=25000, step=50) => new Promise((resolve, reject) => {
+  const waitFor = (cond, timeout=6000, step=40) => new Promise((resolve, reject) => {
     const start = Date.now();
     const tick = () => {
       try { if (cond()) return resolve(); } catch {}
@@ -67,22 +89,20 @@ async function renderOne(client, slug) {
   });
 
   try {
-    await waitFor(() => {
-      const el = window.document.getElementById('produto-dinamico');
-      return el && el.children && el.children.length > 0;
-    }, 25000, 50);
-  } catch (e) {
-    console.warn('Timeout waiting for produto-dinamico on slug', slug);
+    await waitFor(() => window.prerenderReady === true, 6000, 40);
+  } catch {
+    try {
+      await waitFor(() => {
+        const el = window.document.getElementById('produto-dinamico');
+        return el && el.children && el.children.length > 0;
+      }, 4000, 40);
+    } catch {}
   }
 
-  // canonical
   const linkCanon = window.document.createElement('link');
   linkCanon.setAttribute('rel','canonical');
   linkCanon.setAttribute('href', `https://graficapt.com/produto/${slug}`);
   window.document.head.appendChild(linkCanon);
-
-  // strip loader
-  Array.from(window.document.querySelectorAll('link[href*="loader.css"]')).forEach(n=>n.remove());
 
   const final = "<!DOCTYPE html>\n" + window.document.documentElement.outerHTML;
   return final;
@@ -103,7 +123,7 @@ async function main() {
     fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf-8');
     console.log('✓ prerendered /produto/%s', slug);
   }
-  console.log('✅ All products prerendered (jsdom).');
+  console.log('✅ All products prerendered (fast jsdom).');
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
