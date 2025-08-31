@@ -223,15 +223,6 @@ function createStaticFields() {
     </div>
   </div>
 
-  <div class="options-row">
-    <div class="form-group">
-      <div class="overcell">
-        <label for="quantidade">Quantidade:</label>
-        <input type="number" name="Quantidade" min="1" value="1" required>
-      </div>
-    </div>
-  </div>
-
   <input type="hidden" name="_captcha" value="false">
   <input type="hidden" name="_next" value="https://graficapt.com">
 
