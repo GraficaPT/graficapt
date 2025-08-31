@@ -12,10 +12,6 @@
       "destination": "/api/prerender?path=$1"
     },
     {
-      "source": "/produto/:slug",
-      "destination": "/product.html?slug=:slug"
-    },
-    {
       "source": "/encomendas",
       "destination": "/encomendas.html"
     },

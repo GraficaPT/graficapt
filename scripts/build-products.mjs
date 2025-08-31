@@ -3,21 +3,17 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * build-static-products.mjs
- * --------------------------------------
- * Fast, deterministic pre-render for /produto/<slug>/index.html
- * - No headless browser, no JSDOM
- * - Single batched fetch to Supabase (O(N) render, O(1) network)
- * - Extracts topbar/footer HTML from your bundle (keeps exact classes/markup)
- * - Preserves CSS links from product.html; removes loader.css
- * - Writes canonical/OG/Twitter meta per product
- * - Zero dynamic data generation at runtime (only tiny JS for UI like carousel/sidebar)
- *
- * Usage (package.json):
- *  "build": "node scripts/generate-env.mjs && node scripts/build-static-products.mjs"
+ * Deterministic static generator for /produto/<slug>/index.html
+ * - No browser/JSDOM; single batched fetch to Supabase
+ * - Extracts topbar/footer from js/app.bundle.js to keep exact markup/classes
+ * - Preserves CSS links from product.html (minus loader.css)
+ * - Adds detailed timings to find bottlenecks in CI
  */
 
-// ----------------------- ENV -----------------------
+const t0 = Date.now();
+const log = (...a) => console.log('[build-products]', ...a);
+
+// ---------- ENV ----------
 const SUPABASE_URL       = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY  = process.env.SUPABASE_ANON_KEY || '';
 const BASE_URL           = process.env.BASE_URL || 'https://graficapt.com';
@@ -25,39 +21,39 @@ const STORAGE_PUBLIC     = process.env.STORAGE_PUBLIC ||
   (SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/products/` : `${BASE_URL}/imagens/produtos/`);
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('[build] Missing SUPABASE_URL or SUPABASE_ANON_KEY');
+  console.error('[build-products] Missing SUPABASE_URL or SUPABASE_ANON_KEY');
   process.exit(1);
 }
 
 const ROOT     = process.cwd();
 const OUT_ROOT = path.join(ROOT, 'produto');
 
-// ----------------------- IO Utils -----------------------
-function read(rel) {
-  return fs.readFileSync(path.join(ROOT, rel), 'utf-8');
-}
-
-function writeFileAtomic(filePath, content) {
+// ---------- IO ----------
+const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf-8');
+const ensureDir = (p) => fs.mkdirSync(p, { recursive: true });
+const writeFileAtomic = (filePath, content) => {
   const tmp = filePath + '.tmp';
   fs.writeFileSync(tmp, content, 'utf-8');
   fs.renameSync(tmp, filePath);
-}
+};
 
-function ensureDir(p) {
-  fs.mkdirSync(p, { recursive: true });
-}
+// ---------- Helpers ----------
+const esc = (s='') => String(s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-// ----------------------- Extract head + CSS from product.html -----------------------
+const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
+
 function loadBaseHead() {
+  const t = Date.now();
   const html = read('product.html');
-  // capture <head>...</head>
   const m = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
   const headInner = m ? m[1] : '';
   // collect stylesheet links (except loader.css)
   const links = [...headInner.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*>/gi)]
     .map(x => x[0])
     .filter(tag => !/loader\.css/i.test(tag));
-  // collect other safe head tags (meta charset/viewport, favicon, fonts etc.)
+  // common metas to keep
   const metas = [];
   const metaCharset = headInner.match(/<meta[^>]*charset[^>]*>/i);
   if (metaCharset) metas.push(metaCharset[0]);
@@ -66,26 +62,21 @@ function loadBaseHead() {
   const favicon = headInner.match(/<link[^>]*rel=["']icon["'][^>]*>/i);
   if (favicon) metas.push(favicon[0]);
   const fonts   = [...headInner.matchAll(/<link\b[^>]*fonts\.googleapis[^>]*>/gi)].map(x=>x[0]);
+  log('loadBaseHead ok in', (Date.now()-t)+'ms');
   return { cssLinks: links.join('\n'), baseMetas: metas.join('\n') + '\n' + fonts.join('\n') };
 }
 
-// ----------------------- Extract topbar/footer from bundle -----------------------
 function extractTopbarFooter() {
+  const t = Date.now();
   const bundle = read('js/app.bundle.js');
   const mTop = bundle.match(/const\s+topbarHTML\s*=\s*`([\s\S]*?)`;/);
   const mFoot= bundle.match(/const\s+footerHTML\s*=\s*`([\s\S]*?)`;/);
   if (!mTop || !mFoot) {
     throw new Error('Could not extract topbarHTML/footerHTML from js/app.bundle.js');
   }
+  log('extractTopbarFooter ok in', (Date.now()-t)+'ms');
   return { topbarHTML: mTop[1], footerHTML: mFoot[1] };
 }
-
-// ----------------------- Data helpers -----------------------
-const esc = (s='') => String(s)
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-
-const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
 
 function buildImages(product) {
   const slug = product.slug || product.Slug || product.name || product.nome || '';
@@ -95,14 +86,12 @@ function buildImages(product) {
       arr.push(STORAGE_PUBLIC + String(f).replace(/^\/+/, ''));
     }
   } else {
-    // fallback common patterns
     const files = ['banner.webp','1.webp','2.webp','3.webp','4.webp','5.webp'];
     for (const f of files) arr.push(`${STORAGE_PUBLIC}${slug}/${f}`);
   }
   return [...new Set(arr)];
 }
 
-// ----------------------- HTML generators -----------------------
 function buildMetaHead(baseMetas, cssLinks, slug, p) {
   const title = p.title || p.name || p.nome || `${slug} | GraficaPT`;
   const descr = p.shortdesc || p.descricao || p.description || 'Produto personalizado GraficaPT.';
@@ -197,7 +186,7 @@ ${footerHTML}
   </footer>
 
   <script>
-  // Sidebar toggle (UI only, no data)
+  // Sidebar toggle (UI only)
   function toggleSidebar() {
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
@@ -238,16 +227,18 @@ ${bodyInner}
 </html>`;
 }
 
-// ----------------------- MAIN -----------------------
+// ---------- MAIN ----------
 async function main() {
-  const t0 = Date.now();
+  log('start', new Date().toISOString());
   const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Fetch all products in a single round-trip
+  const tFetch = Date.now();
   const { data: products, error } = await supa.from('products').select('*');
   if (error) throw error;
+  log('fetched products:', products?.length ?? 0, 'in', (Date.now()-tFetch)+'ms');
+
   if (!products || !products.length) {
-    console.warn('[build] No products found.');
+    console.warn('[build-products] No products found.');
     return;
   }
 
@@ -257,7 +248,9 @@ async function main() {
   const { topbarHTML, footerHTML } = extractTopbarFooter();
 
   let count = 0;
+  const tGen = Date.now();
   for (const p of products) {
+    const t1 = Date.now();
     const slug = p.slug || p.Slug || p.name || p.nome;
     if (!slug) continue;
 
@@ -269,11 +262,11 @@ async function main() {
     ensureDir(dir);
     writeFileAtomic(path.join(dir, 'index.html'), html);
     count++;
-    process.stdout.write(`✓ ${slug}\n`);
+    log('wrote', `/produto/${slug}/index.html`, 'in', (Date.now()-t1)+'ms');
   }
+  log('generated all pages in', (Date.now()-tGen)+'ms');
 
-  const ms = Date.now() - t0;
-  console.log(`✅ Built ${count} product pages in ${ms}ms (no browser, single query).`);
+  console.log(`✅ Built ${count} product pages in ${Date.now()-t0}ms (no browser, single query).`);
 }
 
 main().catch((e)=>{ console.error(e); process.exit(1); });

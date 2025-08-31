@@ -1,7 +1,7 @@
 {
   "name": "graficapt",
   "scripts": {
-    "build": "node scripts/generate-env.mjs && node scripts/prerender-products.mjs",
+    "build": "node scripts/generate-env.mjs && node scripts/build-products.mjs",
     "prebuild": "node scripts/generate-env.mjs"
   },
   "dependencies": {
