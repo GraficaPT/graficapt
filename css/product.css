@@ -476,3 +476,9 @@ button:hover {
   transform: scale(1.08);
 }
 
+.carrossel-indicadores { display:flex; gap:8px; justify-content:center; margin-top:8px; }
+.carrossel-indicadores .dot {
+  width:10px; height:10px; border-radius:50%; border:0;
+  background:#d0d0d0; cursor:pointer;
+}
+.carrossel-indicadores .dot.active { background:#333; }

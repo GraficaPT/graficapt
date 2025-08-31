@@ -32,7 +32,7 @@ const stripHead = (html) => html
 
 const injectHead = (html, head) => html.replace(/<\/head>/i, `${head}\n</head>`);
 
-// === Carrossel com TODAS as imagens dentro do wrapper ===
+// === Carrossel com TODAS as imagens no wrapper + bolinhas; sem miniaturas ===
 function criarCarrosselHTML(imagens) {
   const imgs = (Array.isArray(imagens) ? imagens : [imagens]).filter(Boolean);
   const mk = (x) =>
@@ -40,46 +40,77 @@ function criarCarrosselHTML(imagens) {
       ? String(x)
       : `${STORAGE_PUBLIC}${String(x || '').replace(/^\//, '')}`;
 
-  // faixa com TODAS as imagens (id="carrossel") dentro do wrapper
+  // faixa com todas as imagens
   const faixa = `
 <div class="carrossel-container">
   <button class="carrossel-btn prev" onclick="window.mudarImagem && window.mudarImagem(-1)" aria-label="Anterior">&#10094;</button>
   <div class="carrossel-imagens-wrapper">
     <div class="carrossel-imagens" id="carrossel">
-      ${imgs
-        .map(
-          (img, i) => `
-      <img class="carrossel-img"
-           src="${mk(img)}"
-           alt="Imagem ${i + 1}"
-           onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">`
-        )
-        .join('')}
+      ${imgs.map((img, i) => `
+        <img class="carrossel-img"
+             src="${mk(img)}"
+             alt="Imagem ${i + 1}"
+             data-index="${i}"
+             style="display:${i === 0 ? 'block' : 'none'}"
+             onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">`
+      ).join('')}
     </div>
   </div>
   <button class="carrossel-btn next" onclick="window.mudarImagem && window.mudarImagem(1)" aria-label="Próximo">&#10095;</button>
 </div>`;
 
-  // indicadores (se o teu JS usar)
-  const dots = `<div class="carrossel-indicadores" id="indicadores"></div>`;
-
-  // miniaturas (como antes)
-  const thumbs = `
-<div class="miniaturas" id="miniaturas">
-  ${imgs
-    .map(
-      (img, i) => `
-  <img class="miniatura"
-       src="${mk(img)}"
-       alt="Imagem ${i + 1}"
-       data-index="${i}"
-       onclick="window.irParaImagem && window.irParaImagem(${i})">`
-    )
-    .join('')}
+  // bolinhas (indicadores)
+  const dots = `
+<div class="carrossel-indicadores" id="indicadores">
+  ${imgs.map((_, i) => `
+    <button class="dot${i===0?' active':''}" type="button"
+            aria-label="Ir para imagem ${i + 1}"
+            onclick="window.irParaImagem && window.irParaImagem(${i})"></button>`
+  ).join('')}
 </div>`;
 
-  return `${faixa}\n${dots}\n${thumbs}`;
+  // bootstrap mínimo para o carrossel (só se ainda não existir no window)
+  const boot = `
+<script>
+(function(){
+  if (window.__CAROUSEL_BOOTED__) return; // evita duplicar
+  window.__CAROUSEL_BOOTED__ = true;
+
+  var strip = document.getElementById('carrossel');
+  if (!strip) return;
+  var imgs = Array.from(strip.querySelectorAll('.carrossel-img'));
+  var dots = document.getElementById('indicadores');
+  var current = 0;
+
+  function update(){
+    if (!imgs.length) return;
+    for (var i=0;i<imgs.length;i++){
+      imgs[i].style.display = (i === current) ? 'block' : 'none';
+    }
+    if (dots){
+      var ds = Array.from(dots.querySelectorAll('.dot'));
+      ds.forEach(function(d,j){ d.classList.toggle('active', j===current); });
+    }
+  }
+
+  window.irParaImagem = function(i){
+    if (!imgs.length) return;
+    var n = imgs.length;
+    current = ((i % n) + n) % n;
+    update();
+  };
+
+  window.mudarImagem = function(delta){
+    window.irParaImagem(current + (delta || 1));
+  };
+
+  update();
+})();
+</script>`;
+
+  return `${faixa}\n${dots}\n${boot}`;
 }
+
 
 function renderOptionSSR(opt, index){
   const tipo = String(opt?.tipo || '').toLowerCase();
