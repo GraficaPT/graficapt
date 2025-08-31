@@ -1,15 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://nbcmqkcztuogflejswau.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_co9n_L7O6rCcc9mb570Uhw_Bg8eqWIL';
 const BASE_URL = process.env.BASE_URL || 'https://graficapt.com';
-const OUTPUT_PATH = path.join(__dirname, 'public', 'sitemap.xml');
+const OUTPUT_PATH = path.join(process.cwd(), 'public', 'sitemap.xml');
 
 const staticPages = [
   '/',
@@ -19,7 +15,6 @@ const staticPages = [
 ];
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const iso = (d) => new Date(d || Date.now()).toISOString();
 
 function urlTag(loc, lastmod) {
@@ -33,7 +28,7 @@ function urlTag(loc, lastmod) {
 async function main() {
   const { data: products, error } = await supabase
     .from('products')
-    .select('slug')
+    .select('slug');
 
   if (error) {
     console.error('Erro Supabase:', error);
@@ -41,13 +36,14 @@ async function main() {
   }
 
   const entries = [];
+
   for (const p of staticPages) {
     entries.push(urlTag(`${BASE_URL}${p}`, iso()));
   }
+
   for (const p of (products || [])) {
     const loc = `${BASE_URL}/produto/${encodeURIComponent(p.slug)}`;
-    const lastmod = iso();
-    entries.push(urlTag(loc, lastmod));
+    entries.push(urlTag(loc, iso()));
   }
 
   const xml =
