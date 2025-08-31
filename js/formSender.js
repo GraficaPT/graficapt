@@ -132,6 +132,9 @@
         // Apps Script normalmente requer no-cors para não bloquear
         await fetch(actionUrl, { method: 'POST', body: fd, mode: 'no-cors' });
 
+        // ✅ ALERT antes de redirecionar (como tinhas antes)
+        alert('Pedido de orçamento enviado com sucesso!\\nIremos contactá-lo em breve.');
+
         const next =
           (form.querySelector('input[name=\"_next\"]')?.value) ||
           ENV.FORM_NEXT_URL ||
