@@ -1,16 +1,28 @@
 import fs from 'fs';
 import path from 'path';
 import { JSDOM, VirtualConsole } from 'jsdom';
+import { createClient } from '@supabase/supabase-js';
 
 /**
- * Fast pre-render for product pages using JSDOM.
- * Key fix: we execute env.js and js/core/supabase.js BEFORE app.bundle.js,
- * exactly como no browser, para que o bundle encontre o cliente Supabase
- * e helpers globais que usa hoje.
+ * Pre-render com JSDOM sem depender do UMD da Supabase nem de js/core/supabase.js.
+ * - Avalia js/env.js para manter as mesmas variáveis globais do site.
+ * - Injeta o cliente Supabase nativo do pacote (@supabase/supabase-js) como:
+ *     window.Supa = { client }
+ *     window.supabase = client     (compatibilidade com UMD)
+ * - Avalia js/app.bundle.js e espera pelo conteúdo do produto.
+ * - Remove CSS durante a execução para acelerar, mas re-injeta no HTML final.
  */
 
 const ROOT = process.cwd();
 const OUT_ROOT = path.join(ROOT, 'produto');
+
+const SUPABASE_URL      = process.env.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Faltam SUPABASE_URL / SUPABASE_ANON_KEY no ambiente.');
+  process.exit(1);
+}
 
 function loadFile(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf-8');
@@ -22,21 +34,21 @@ function extractStyles(html) {
   let m;
   while ((m = re.exec(html))) {
     const tag = m[0];
-    if (/loader\.css/i.test(tag)) continue; // drop loader
+    if (/loader\.css/i.test(tag)) continue; // não precisamos
     links.push(tag);
   }
   return links.join('\n');
 }
 
 function sanitizeBaseHtml(html) {
-  // Remove all external styles/scripts from the HTML we will execute (we'll eval scripts manually and re-inject CSS later)
-  html = html
+  // tira folhas de estilo e scripts externos do HTML de execução
+  return html
     .replace(/<link\b[^>]*rel=["']stylesheet["'][^>]*>/gi, '')
     .replace(/<link\b[^>]*loader\.css[^>]*>/gi, '')
-    .replace(/<script\b[^>]*\/js\/env\.js[^>]*><\/script>/ig, '')
+    .replace(/<script\b[^>]*@supabase\/supabase-js[^>]*><\/script>/ig, '')
     .replace(/<script\b[^>]*\/js\/core\/supabase\.js[^>]*><\/script>/ig, '')
+    .replace(/<script\b[^>]*\/js\/env\.js[^>]*><\/script>/ig, '')
     .replace(/<script\b[^>]*\/js\/app\.bundle\.js[^>]*><\/script>/ig, '');
-  return html;
 }
 
 async function renderOne(slug) {
@@ -57,46 +69,51 @@ async function renderOne(slug) {
   });
 
   const { window } = dom;
-
-  // Polyfills comuns
+  // polyfills
   window.IntersectionObserver = window.IntersectionObserver || function(){ return { observe(){}, unobserve(){}, disconnect(){} }; };
   window.ResizeObserver = window.ResizeObserver || function(){ return { observe(){}, unobserve(){}, disconnect(){} }; };
   window.requestAnimationFrame = window.requestAnimationFrame || ((cb)=>setTimeout(cb,16));
   if (!('fetch' in window)) window.fetch = globalThis.fetch.bind(globalThis);
 
-  // Sinal de pronto
+  // sinal de pronto
   Object.defineProperty(window, 'prerenderReady', {
     get() { return this.__ready || false; },
     set(v) { this.__ready = v; },
     configurable: true
   });
   window.__ready = false;
-  const ob = new window.MutationObserver(() => {
+  const mo = new window.MutationObserver(() => {
     const el = window.document.getElementById('produto-dinamico');
     if (el && el.children && el.children.length > 0) window.__ready = true;
   });
-  ob.observe(window.document.documentElement, { childList: true, subtree: true });
+  mo.observe(window.document.documentElement, { childList: true, subtree: true });
 
-  // Executar os MESMOS scripts e na MESMA ordem do site
-  const envJs = loadFile('js/env.js');                  // define window.__ENV (ou similar)
-  const supaCore = loadFile('js/core/supabase.js');     // cria window.Supa, etc.
-  const appJs = loadFile('js/app.bundle.js');           // monta a página
+  // Avaliar env.js para popular variáveis globais que o bundle usa
+  try {
+    const envJs = loadFile('js/env.js');
+    dom.getInternalVMContext();
+    window.eval(envJs);
+  } catch {}
 
-  dom.getInternalVMContext();
-  window.eval(envJs);
-  window.eval(supaCore);
+  // Injetar cliente Supabase nativo (sem UMD)
+  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.Supa = { client };
+  window.supabase = client; // compatibilidade UMD
+
+  // Executar o bundle real
+  const appJs = loadFile('js/app.bundle.js');
   window.eval(appJs);
 
   // Disparar eventos de carregamento
   window.document.dispatchEvent(new window.Event('DOMContentLoaded', { bubbles: true }));
   window.dispatchEvent(new window.Event('load'));
 
-  // Esperar pronto (teto curto)
+  // espera curta
   const waitFor = (cond, timeout=8000, step=40) => new Promise((resolve, reject) => {
-    const start = Date.now();
+    const t0 = Date.now();
     (function tick(){
       try { if (cond()) return resolve(); } catch {}
-      if (Date.now() - start > timeout) return reject(new Error('timeout'));
+      if (Date.now() - t0 > timeout) return reject(new Error('timeout'));
       setTimeout(tick, step);
     })();
   });
@@ -111,7 +128,7 @@ async function renderOne(slug) {
     } catch {}
   }
 
-  // Injetar canonical + CSS (para o HTML final)
+  // re-injetar CSS + canonical
   const head = window.document.head;
   const linkCanon = window.document.createElement('link');
   linkCanon.setAttribute('rel','canonical');
@@ -123,37 +140,16 @@ async function renderOne(slug) {
     head.appendChild(frag);
   }
 
-  // HTML final
   const final = "<!DOCTYPE html>\n" + window.document.documentElement.outerHTML;
   return final;
 }
 
 async function main() {
-  // Obter slugs diretamente do ficheiro de sitemap de produtos (se existir) ou da pasta /produto criada previamente
-  // Como fallback, vamos ler da BD via o teu supabase core (que já usa env.js)
-  let slugs = [];
-  try {
-    const data = JSON.parse(loadFile('scripts/product-slugs.json'));
-    if (Array.isArray(data)) slugs = data;
-  } catch {}
-
-  if (!slugs.length) {
-    // Usa o supabase já configurado pelo core
-    const envJs = loadFile('js/env.js');
-    const supaCore = loadFile('js/core/supabase.js');
-    const dom = new JSDOM(`<!doctype html><html><head></head><body></body></html>`, { runScripts: 'outside-only' });
-    dom.getInternalVMContext();
-    dom.window.eval(envJs);
-    dom.window.eval(supaCore);
-    const client = dom.window.Supa?.client;
-    if (!client) {
-      console.error('Supabase client not initialized by core/supabase.js');
-      process.exit(1);
-    }
-    const { data, error } = await client.from('products').select('slug');
-    if (error) throw error;
-    slugs = (data || []).map(r => r.slug).filter(Boolean);
-  }
+  // Obter slugs diretamente da BD usando o cliente nativo
+  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data, error } = await client.from('products').select('slug');
+  if (error) throw error;
+  const slugs = (data || []).map(r => r.slug).filter(Boolean);
 
   if (!slugs.length) {
     console.warn('No products found');
@@ -169,7 +165,7 @@ async function main() {
     fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf-8');
     console.log('✓ prerendered /produto/%s', slug);
   }
-  console.log('✅ All products prerendered (fast jsdom, css preserved, env/core executed).');
+  console.log('✅ All products prerendered (fast jsdom, client injected).');
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
