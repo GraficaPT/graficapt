@@ -182,47 +182,6 @@ function renderOption(opt={}, index=0) {
 
 function createStaticFields() {
   return `
-  <div class="options-row">
-    <div class="form-group">
-      <div class="overcell">
-        <label for="detalhes">Detalhes:</label>
-        <textarea name="Detalhes" placeholder="Descreve todas as informações sobre como queres o design e atenções extras!" required></textarea>
-      </div>
-    </div>
-  </div>
-
-  <div class="options-row">
-    <div class="form-group">
-      <div class="overcell">
-        <label for="empresa">Empresa / Nome:</label>
-        <input type="text" name="Empresa" placeholder="Empresa ou Nome" required>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="overcell">
-        <label for="ficheiro">(Opcional) Logotipo:</label>
-        <input type="file" id="ficheiro" name="Ficheiro">
-        <input type="hidden" name="Logotipo" id="link_ficheiro">
-        <p id="uploadStatus" style="display:none"></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="options-row">
-    <div class="form-group">
-      <div class="overcell">
-        <label for="email">Email:</label>
-        <input type="email" name="Email" placeholder="o.teu@email.com" required>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="overcell">
-        <label for="telemovel">Telemóvel:</label>
-        <input type="tel" name="Telemóvel" placeholder="+351 ..." required>
-      </div>
-    </div>
-  </div>
-
   <input type="hidden" name="_captcha" value="false">
   <input type="hidden" name="_next" value="https://graficapt.com">
 
@@ -312,6 +271,22 @@ ${head}
 </head>
 <body>
 ${body}
+<script>
+(function(){
+  if (!window.__FORMSENDER_GUARD__) {
+    window.__FORMSENDER_GUARD__ = true;
+    const f = document.getElementById('orcamentoForm');
+    if (f) {
+      f.addEventListener('submit', function(e){
+        if (!window.formSenderInitialized) {
+          e.preventDefault();
+          alert('Não foi possível enviar agora. Verifica a ligação e tenta novamente.');
+        }
+      }, { capture: true });
+    }
+  }
+})();
+</script>
 </body>
 </html>`;
 }
