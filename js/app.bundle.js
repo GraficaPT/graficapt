@@ -790,307 +790,6 @@ renderProdutos();
 
 
 
-/* ===== js/filter.js ===== */
-let shouldScrollToProducts = false;
-
-function applyFilters(scroll = false) {
-    const hash = window.location.hash;
-    const filter = hash.startsWith("#filter=") ? hash.replace("#filter=", "") : "all";
-    const sort = document.getElementById("sortBy")?.value || "default";
-
-    const dropdown = document.getElementById("filterCategory");
-    if (dropdown) dropdown.value = filter;
-
-    const grid = document.querySelector(".products-grid");
-    const cells = Array.from(grid.querySelectorAll(".cell"));
-
-    // Filter
-    cells.forEach(cell => {
-        const categoria = cell.dataset.categoria;
-        const show = (filter === "all" || categoria === filter);
-        cell.style.display = show ? "flex" : "none";
-    });
-
-    // Sort
-    if (sort !== "default") {
-        const visibleCells = cells.filter(cell => cell.style.display !== "none");
-        visibleCells.sort((a, b) => {
-            const aName = a.dataset.nome.toLowerCase();
-            const bName = b.dataset.nome.toLowerCase();
-            return sort === "az" ? aName.localeCompare(bName) : bName.localeCompare(aName);
-        });
-        visibleCells.forEach(cell => grid.appendChild(cell));
-    }
-
-    // Scroll
-    if (scroll) {
-        const gridSection = document.getElementById("products");
-        if (gridSection) {
-            setTimeout(() => {
-                gridSection.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 100);
-        }
-    }
-
-    // Reset scroll flag
-    shouldScrollToProducts = false;
-}
-
-// Triggered when hash changes (even first time)
-window.addEventListener("hashchange", () => {
-    applyFilters(shouldScrollToProducts); // now uses correct flag
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-    // Detect if coming in with a filter in URL
-    if (window.location.hash.startsWith("#filter=")) {
-        shouldScrollToProducts = true;
-    }
-
-    applyFilters(shouldScrollToProducts);
-
-    // Dropdown
-    const filterDropdown = document.getElementById("filterCategory");
-    if (filterDropdown) {
-        filterDropdown.addEventListener("change", function () {
-            shouldScrollToProducts = true;
-            const newHash = "#filter=" + this.value;
-            if (window.location.hash !== newHash) {
-                location.hash = newHash;
-            } else {
-                applyFilters(true);
-            }
-        });
-    }
-
-    // Topbar filter links
-    document.querySelectorAll('a[href*="#filter="]').forEach(link => {
-        link.addEventListener("click", (e) => {
-            const href = link.getAttribute("href");
-            const url = new URL(href, window.location.href);
-            const hash = url.hash;
-
-            if (hash.startsWith("#filter=")) {
-                e.preventDefault();
-                shouldScrollToProducts = true;
-
-                if (window.location.hash !== hash) {
-                    window.location.hash = hash;
-                } else {
-                    applyFilters(true);
-                }
-            }
-        });
-    });
-});
-
-
-
-/* ===== js/products.js ===== */
-
-
-
-
-
-
-
-document.addEventListener("DOMContentLoaded", async function () {
-  const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
-  let slug = getSlugFromUrl();
-
-  if (!slug) {
-    document.getElementById("produto-dinamico").innerHTML = "<p>Produto não especificado.</p>";
-    dispatchReady();
-    return;
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  const isOnProductHtml = window.location.pathname.endsWith('product.html');
-  const prettyPath = `/produto/${encodeURIComponent(slug)}`;
-
-  if (isOnProductHtml && params.get('slug') && window.location.pathname + window.location.search !== prettyPath) {
-    window.location.replace(prettyPath);
-    return;
-  }
-
-  let produto;
-  try {
-    produto = await fetchProductBySlug(slug);
-  } catch (e) {
-    document.getElementById("produto-dinamico").innerHTML = "<p>Produto não encontrado.</p>";
-    dispatchReady();
-    return;
-  }
-
-  let opcoes = [];
-  if (Array.isArray(produto.opcoes)) opcoes = produto.opcoes;
-  else if (typeof produto.opcoes === 'object' && produto.opcoes !== null) {
-    opcoes = Object.entries(produto.opcoes).map(([label, op]) => ({ label, ...op }));
-  }
-
-  const container = document.getElementById("produto-dinamico");
-  container.innerHTML = '';
-
-  let carouselImageElements = [];
-  if (produto.images && produto.images.length > 0) {
-    const imageSection = document.createElement('div');
-    imageSection.className = 'product-image';
-    imageSection.innerHTML = criarCarrosselHTML(slug, produto.images, STORAGE_PUBLIC);
-    container.appendChild(imageSection);
-    initCarouselState();
-    carouselImageElements = Array.from(imageSection.querySelectorAll('img'));
-  }
-
-  const form = document.createElement('form');
-  form.className = 'product';
-  form.id = 'orcamentoForm';
-  form.method = 'POST';
-  form.enctype = 'multipart/form-data';
-
-  const productNameInput = document.createElement('input');
-  productNameInput.type = 'text';
-  productNameInput.value = produto.name || produto.nome;
-  productNameInput.className = 'productname';
-  productNameInput.id = 'productname';
-  productNameInput.name = 'Produto';
-  form.appendChild(productNameInput);
-
-  const detailsDiv = document.createElement('div');
-  detailsDiv.className = 'product-details';
-
-  const h1 = document.createElement('h1');
-  h1.textContent = produto.name || produto.nome;
-  detailsDiv.appendChild(h1);
-
-  (opcoes || []).forEach((opt, idx) => {
-    const optGroup = document.createElement('div');
-    optGroup.className = 'option-group';
-    const rendered = renderOption(opt, idx);
-    optGroup.appendChild(rendered);
-    detailsDiv.appendChild(optGroup);
-  });
-
-  detailsDiv.appendChild(createStaticFields());
-  form.appendChild(detailsDiv);
-  container.appendChild(form);
-
-  const relatedSection = buildRelatedSection();
-  container.appendChild(relatedSection);
-  try { await loadRelatedProducts({ category: produto.category, currentSlug: slug, STORAGE_PUBLIC }); } catch(e) {}
-
-  updateSEO(produto);
-  updateCanonicalAndOG(slug);
-
-  setTimeout(() => {
-    const script = document.createElement('script');
-    script.src = 'https://graficapt.com/js/formSender.js';
-    document.body.appendChild(script);
-  }, 100);
-
-  await waitForImages(carouselImageElements, 5000);
-  dispatchReady();
-});
-
-function buildRelatedSection(){
-  const section = document.createElement('section');
-  section.id = 'related-products';
-  section.className = 'related';
-  section.innerHTML = `
-    <div class="related__head">
-      <h2>Produtos relacionados</h2>
-    </div>
-    <div id="related-grid" class="related__grid"></div>
-  `;
-  return section;
-}
-
-function joinPublicPath(prefix, path) {
-  const parts = String(path).split('/').filter(Boolean).map(encodeURIComponent);
-  return prefix + parts.join('/');
-}
-
-function resolveImagePath(slug, raw, STORAGE_PUBLIC) {
-  if (!raw || typeof raw !== 'string') return undefined;
-  const s = raw.trim();
-  if (!s) return undefined;
-  if (/^https?:\/\//i.test(s)) return s;
-  if (s.includes('/')) return joinPublicPath(STORAGE_PUBLIC, s);
-  return joinPublicPath(STORAGE_PUBLIC, `${slug}/${s}`);
-}
-
-function relatedImageUrl(p, STORAGE_PUBLIC) {
-  if (Array.isArray(p.images) && p.images[0]) {
-    const u = resolveImagePath(p.slug, p.images[0], STORAGE_PUBLIC);
-    if (u) return u;
-  }
-  if (p.banner) {
-    const u = resolveImagePath(p.slug, p.banner, STORAGE_PUBLIC);
-    if (u) return u;
-  }
-  return 'https://placehold.co/800x600?text=Produto';
-}
-
-function renderRelatedCard(p, STORAGE_PUBLIC){
-  const img = relatedImageUrl(p, STORAGE_PUBLIC);
-  const name = p.name || 'Produto';
-  return `
-    <a class="related__card" href="/produto/${encodeURIComponent(p.slug)}" aria-label="${name}">
-      <div class="related__thumbwrap">
-        <img class="related__thumb" src="${img}" alt="${name}" loading="lazy">
-      </div>
-      <div class="related__body">
-        <h3 class="related__title">${name}</h3>
-      </div>
-    </a>
-  `;
-}
-
-async function loadRelatedProducts({ category, currentSlug, limit = 4, STORAGE_PUBLIC }){
-  const grid  = document.getElementById('related-grid');
-  if (!category){
-    grid.innerHTML = '';
-    return;
-  }
-  let { data, error } = await supabase
-    .from('products')
-    .select('id, slug, name, images, banner, category')
-    .eq('category', category)
-    .neq('slug', currentSlug)
-    .order('id', { ascending: false })
-    .limit(limit);
-  if (error || !data || data.length === 0) {
-    grid.innerHTML = '';
-    return;
-  }
-  grid.innerHTML = data.map(p => renderRelatedCard(p, STORAGE_PUBLIC)).join('');
-}
-
-function dispatchReady() {
-  document.dispatchEvent(new Event('product:ready'));
-  console.log("Loaded");
-  window.prerenderReady = true;
-}
-
-function waitForImages(imgs, timeoutMs = 5000) {
-  if (!imgs || imgs.length === 0) return Promise.resolve();
-  const promises = imgs.map(img => {
-    if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
-    return new Promise(res => {
-      const onLoadOrError = () => {
-        img.removeEventListener('load', onLoadOrError);
-        img.removeEventListener('error', onLoadOrError);
-        res();
-      };
-      img.addEventListener('load', onLoadOrError);
-      img.addEventListener('error', onLoadOrError);
-    });
-  });
-  const timeout = new Promise(res => setTimeout(res, timeoutMs));
-  return Promise.race([Promise.all(promises), timeout]).then(() => {});
-}
-
-
-
 /* ===== js/formSender.js ===== */
 // Garante que só corre uma vez
 if (!window.formSenderInitialized) {
@@ -1204,51 +903,41 @@ window.dataLayer = window.dataLayer || [];
   gtag('config', 'G-V28GHLM5ZE');
 
 
-/* ===== Guards to avoid null DOM errors and duplicate product rendering ===== */
-(function(){
-  function wrapGuard(fnName, guard){
-    try{
-      if (typeof window[fnName] === 'function'){
-        const _orig = window[fnName];
-        window[fnName] = function(){
-          if (guard()) return; // skip when guard says so
-          return _orig.apply(this, arguments);
-        };
-        console.debug('[guard] wrapped', fnName);
-        return;
-      }
-    }catch(e){}
-    try{
-      // also try local scope function (not on window)
-      // eslint-disable-next-line no-undef
-      if (typeof eval(fnName) === 'function'){
-        const _orig = eval(fnName);
-        // re-define in local scope by attaching to window
-        window[fnName] = function(){
-          if (guard()) return;
-          return _orig.apply(this, arguments);
-        };
-        console.debug('[guard] hoisted+wrapped', fnName);
-      }
-    }catch(e){}
+/* ===== Safe implementations to avoid null DOM errors ===== */
+function renderProdutos(){
+  const host = document.getElementById('produto-dinamico');
+  if (window.__PRODUCT__ || !host || !supabase) {
+    // pre-rendered or not applicable
+    return;
   }
+  // If in future you want client-side render, implement here.
+}
 
-  // Guard for renderProdutos: skip if pre-rendered or missing host or no supabase
-  wrapGuard('renderProdutos', function(){
-    var host = document.getElementById('produto-dinamico');
-    return !!(window.__PRODUCT__ || !host || !supabase);
-  });
+function applyFilters(){
+  const root = document.querySelector('.filters');
+  const grid = document.querySelector('[data-products-grid]');
+  if (!root || !grid) return;
 
-  // Guard for applyFilters: skip if filters/grid DOM is missing
-  wrapGuard('applyFilters', function(){
-    var root = document.querySelector('.filters');
-    var grid = document.querySelector('[data-products-grid]');
-    return !(root && grid);
+  // Minimal, generic filter: show/hide items by data-* attributes matching checked checkboxes
+  const checks = Array.from(root.querySelectorAll('input[type="checkbox"]'));
+  const active = checks.filter(c=>c.checked).map(c=>c.value.toLowerCase());
+  const items = Array.from(grid.querySelectorAll('[data-item]'));
+
+  if (!active.length){
+    items.forEach(el=>{ el.style.display = ''; });
+    return;
+  }
+  items.forEach(el=>{
+    const tags = (el.getAttribute('data-tags')||'').toLowerCase().split(/\s*,\s*/);
+    const ok = active.some(a=>tags.includes(a));
+    el.style.display = ok ? '' : 'none';
   });
-})();
+}
 
 document.addEventListener('DOMContentLoaded', function(){
-  try{ console.log('Loaded'); }catch(e){}
+  try { renderProdutos(); } catch(e){ console.error(e); }
+  try { applyFilters(); } catch(e){ console.error(e); }
+  try { console.log('Loaded'); } catch(e){}
 });
 
 })(window,document);
