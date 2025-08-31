@@ -2,81 +2,37 @@ import fs from 'fs';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
-const BASE_URL = process.env.BASE_URL || 'https://graficapt.com';
-const STORAGE_PUBLIC = process.env.STORAGE_PUBLIC || (SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/products/` : `${BASE_URL}/imagens/produtos/`);
-const OUT_ROOT = path.join(process.cwd(), 'produto');
-
+const { SUPABASE_URL='', SUPABASE_ANON_KEY='', BASE_URL='https://graficapt.com', STORAGE_PUBLIC='' } = process.env;
+const OUT = path.join(process.cwd(),'produto');
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-const escapeHtml = (s='') => String(s)
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-
-const mkUrl = x => /^https?:\/\//.test(String(x||'')) ? String(x) : `${STORAGE_PUBLIC}${String(x||'').replace(/^\//,'')}`;
-
-const stripHead = html => html
-  .replace(/<title>[\s\S]*?<\/title>/i,'')
-  .replace(/<meta[^>]+name=["']description["'][^>]*>/gi,'')
-  .replace(/<meta[^>]+name=["']keywords["'][^>]*>/gi,'')
-  .replace(/<meta[^>]+name=["']twitter:card["'][^>]*>/gi,'')
-  .replace(/<link[^>]+rel=["']canonical["'][^>]*>/gi,'')
-  .replace(/<meta[^>]+property=["']og:[^"']+["'][^>]*>/gi,'')
-  .replace(/<script>\s*window\.prerenderReady\s*=\s*false;?\s*<\/script>/i, '');
-
-const injectHead = (html, head) => html.replace(/<\/head>/i, `${head}\n</head>`);
+const mkUrl = x => /^https?:\/\//.test(String(x||'')) ? String(x) : `${(STORAGE_PUBLIC||BASE_URL+'/imagens/produtos/')}${String(x||'').replace(/^\//,'')}`;
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 async function main(){
-  const tpl = fs.readFileSync(path.join(process.cwd(), 'product.html'),'utf-8');
-  const { data: products, error } = await supabase
-    .from('products')
-    .select('slug, name, metawords, images, banner, category');
-  if (error) { console.error('Supabase error:', error); process.exit(1); }
-
-  for (const p of products || []){
-    const slug = p.slug;
-    const name = p.name || 'Produto';
-    const desc = `Compra ${name} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`;
-    const url = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
-
-    let imagesArr = [];
-    try { imagesArr = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]'); } catch {}
-    const hero = mkUrl(imagesArr[0] || p.banner || 'logo_minimal.png');
-    const thumbs = imagesArr.slice(1).map(mkUrl);
-    const keywords = Array.isArray(p.metawords) ? p.metawords.filter(Boolean).join(', ') : String(p.metawords || '');
-
+  const tpl = fs.readFileSync(path.join(process.cwd(),'product.html'),'utf-8');
+  const { data } = await supabase.from('products').select('slug,name,images,banner,metawords');
+  for (const p of (data||[])) {
+    const url = `${BASE_URL}/produto/${encodeURIComponent(p.slug)}`;
+    let imgs = []; try{ imgs = Array.isArray(p.images)?p.images:JSON.parse(p.images||'[]'); }catch{}
+    const hero = mkUrl(imgs[0] || p.banner || 'logo_minimal.png');
+    const thumbs = imgs.slice(1).map(mkUrl);
     const head = `
-<title>${escapeHtml(name)} | GráficaPT</title>
+<title>${esc(p.name)} | GráficaPT</title>
 <link rel="canonical" href="${url}">
-<meta name="description" content="${escapeHtml(desc)}">
-<meta name="keywords" content="${escapeHtml(keywords)}">
+<meta name="description" content="Compra ${esc(p.name)} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.">
 <meta property="og:type" content="product">
-<meta property="og:title" content="${escapeHtml(name)} | GráficaPT">
-<meta property="og:description" content="${escapeHtml(desc)}">
+<meta property="og:title" content="${esc(p.name)} | GráficaPT">
 <meta property="og:image" content="${hero}">
-<meta property="og:url" content="${url}">
-<meta name="twitter:card" content="summary_large_image">
-`;
-
+<meta property="og:url" content="${url}">`;
     const body = `
-<article class="product">
-  <header class="product-header"><h1>${escapeHtml(name)}</h1></header>
-  <figure class="product-hero"><img src="${hero}" alt="${escapeHtml(name)}" loading="eager"></figure>
-  ${thumbs.length ? `<div class="product-thumbs">${thumbs.map((t,i)=>`<img src="${t}" alt="${escapeHtml(name)} — imagem ${i+2}" loading="lazy">`).join('')}</div>` : ''}
-  <section class="product-cta"><a class="btn btn-primary" href="/encomendas">Pedir orçamento</a></section>
+<article class="product"><header class="product-header"><h1>${esc(p.name)}</h1></header>
+<figure class="product-hero"><img src="${hero}" alt="${esc(p.name)}"></figure>
+${thumbs.length?`<div class="product-thumbs">${thumbs.map((t,i)=>`<img src="${t}" alt="${esc(p.name)} — imagem ${i+2}">`).join('')}</div>`:''}
 </article>`;
-
-    let html = stripHead(tpl);
-    html = injectHead(html, head);
+    let html = tpl.replace(/<\/head>/i, `${head}\n</head>`);
     html = html.replace(/<div\s+id=["']produto-dinamico["']><\/div>/i, `<div id="produto-dinamico">${body}</div>`);
-    const bootstrap = `<script>window.__PRODUCT__=${JSON.stringify({slug, name, desc, url, img: hero, keywords})};</script>`;
-    html = html.replace(/<\/body>/i, `${bootstrap}\n</body>`);
-
-    const outDir = path.join(OUT_ROOT, slug);
-    fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(path.join(outDir,'index.html'), html, 'utf-8');
+    const dir = path.join(OUT, p.slug); fs.mkdirSync(dir,{recursive:true});
+    fs.writeFileSync(path.join(dir,'index.html'), html, 'utf-8');
   }
-  console.log('ok produtos');
 }
 main().catch(e=>{console.error(e);process.exit(1)});

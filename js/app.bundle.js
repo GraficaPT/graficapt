@@ -2,8 +2,7 @@
 const supabase = (window.Supa && window.Supa.client) || null;
 
 /* ===== js/utils/slug.js ===== */
-
-export function getSlugFromUrl() {
+function getSlugFromUrl() {
   const params = new URLSearchParams(window.location.search);
   let slug = params.get("slug");
   if (slug) return slug;
@@ -12,9 +11,9 @@ export function getSlugFromUrl() {
 }
 
 
-/* ===== js/components/carousel.js ===== */
 
-export function criarCarrosselHTML(slug, imagens, storagePublic) {
+/* ===== js/components/carousel.js ===== */
+function criarCarrosselHTML(slug, imagens, storagePublic) {
   function getImageUrl(imagem) {
     if (!imagem) return '';
     if (imagem.startsWith('http')) return imagem;
@@ -37,7 +36,7 @@ export function criarCarrosselHTML(slug, imagens, storagePublic) {
   `;
 }
 
-export function initCarouselState() {
+function initCarouselState() {
   // estado global
   window.imagemAtual = window.imagemAtual ?? 0;
 
@@ -167,9 +166,9 @@ export function initCarouselState() {
 }
 
 
-/* ===== js/components/formFields.js ===== */
 
-export function createStaticFields() {
+/* ===== js/components/formFields.js ===== */
+function createStaticFields() {
   const fragment = document.createDocumentFragment();
 
   // detalhes
@@ -287,9 +286,9 @@ export function createStaticFields() {
 }
 
 
-/* ===== js/components/optionsRenderer.js ===== */
 
-export function renderOption(opt, index) {
+/* ===== js/components/optionsRenderer.js ===== */
+function renderOption(opt, index) {
   const wrapper = document.createElement('div');
   wrapper.className = 'option-group';
 
@@ -432,9 +431,9 @@ export function renderOption(opt, index) {
 }
 
 
-/* ===== js/components/seo.js ===== */
 
-export function updateSEO(produto) {
+/* ===== js/components/seo.js ===== */
+function updateSEO(produto) {
   document.title = `${produto.name || produto.nome} | GráficaPT`;
 
   let metaDesc = document.querySelector('meta[name="description"]') 
@@ -459,7 +458,7 @@ function createMeta(name) {
   return m;
 }
 
-export function updateCanonicalAndOG(slug) {
+function updateCanonicalAndOG(slug) {
   const href = `https://graficapt.com/produto/${encodeURIComponent(slug)}`;
   setLink('canonical', href);
   setMetaProperty('og:url', href);
@@ -486,8 +485,8 @@ function setMetaProperty(prop, content) {
 }
 
 
-/* ===== js/footerheader.js ===== */
 
+/* ===== js/footerheader.js ===== */
 const topbarHTML = `
     <div class="bar">
         <img src="../imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
@@ -568,8 +567,8 @@ function toggleSidebar() {
 document.addEventListener('DOMContentLoaded', insertComponents);
 
 
-/* ===== js/loader.js ===== */
 
+/* ===== js/loader.js ===== */
 // loader.js
 (function () {
   const OVERLAY_ID = 'loader-overlay';
@@ -719,8 +718,8 @@ document.addEventListener('DOMContentLoaded', insertComponents);
 })();
 
 
-/* ===== js/filter.js ===== */
 
+/* ===== js/filter.js ===== */
 let shouldScrollToProducts = false;
 
 function applyFilters(scroll = false) {
@@ -815,8 +814,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* ===== js/productsgrid.js ===== */
 
+/* ===== js/productsgrid.js ===== */
 
 const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
 
@@ -886,8 +885,8 @@ renderProdutos();
 
 
 
-/* ===== js/products.js ===== */
 
+/* ===== js/products.js ===== */
 
 
 
@@ -1091,8 +1090,8 @@ function waitForImages(imgs, timeoutMs = 5000) {
 }
 
 
-/* ===== js/formSender.js ===== */
 
+/* ===== js/formSender.js ===== */
 // Garante que só corre uma vez
 if (!window.formSenderInitialized) {
   window.formSenderInitialized = true;
@@ -1196,11 +1195,12 @@ if (!window.formSenderInitialized) {
 }
 
 
-/* ===== js/analytics.js ===== */
 
+/* ===== js/analytics.js ===== */
 window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-V28GHLM5ZE');
+
 })(window,document);

@@ -5,7 +5,6 @@ const supabase = (window.Supa && window.Supa.client) || null;
 
 
 
-
 const { data: session } = await supabase.auth.getSession();
 if (!session.session) {
   alert('Sessão expirada ou não autenticado. A redirecionar...');
@@ -152,11 +151,11 @@ document.getElementById('produtoForm').onsubmit = async function (e) {
 loadProdutos();
 
 
+
 /* ===== js/supamanager/opcoes-ui.js ===== */
 
-
 // ---- Mini Carrossel de Imagens para associação à cor ----
-export function renderImageSelector(urls, selectedUrl = null, container = null) {
+function renderImageSelector(urls, selectedUrl = null, container = null) {
     container = container || document.querySelector('.seletor-imagens');
     container.innerHTML = '';
     // Adiciona sempre uma opção "sem imagem" no início
@@ -183,7 +182,7 @@ export function renderImageSelector(urls, selectedUrl = null, container = null) 
     });
 }
 
-export function renderOpcoesList(opcoesArray, imagensProduto = []) {
+function renderOpcoesList(opcoesArray, imagensProduto = []) {
     const list = document.getElementById('opcoesList');
     list.innerHTML = '';
     (opcoesArray || []).forEach((op, idx, arr) => {
@@ -191,7 +190,7 @@ export function renderOpcoesList(opcoesArray, imagensProduto = []) {
     });
 }
 
-export function createValoresInputs(tipo, valores = [], slug = "", imagensProduto = []) {
+function createValoresInputs(tipo, valores = [], slug = "", imagensProduto = []) {
     const wrapper = document.createElement('div');
     wrapper.className = 'valores-list';
 
@@ -415,7 +414,7 @@ export function createValoresInputs(tipo, valores = [], slug = "", imagensProdut
     return { wrapper, addInput };
 }
 
-export function showImagePreview(images, slug = '') {
+function showImagePreview(images, slug = '') {
     const container = document.getElementById('imagePreview');
     container.innerHTML = '';
 
@@ -462,7 +461,7 @@ export function showImagePreview(images, slug = '') {
     }
 }
 
-export function createOpcaoRow(label = '', tipo = 'number', valores = [], idx = 0, total = 1, imagensProduto = []) {
+function createOpcaoRow(label = '', tipo = 'number', valores = [], idx = 0, total = 1, imagensProduto = []) {
     const row = document.createElement('div');
     row.className = 'opcao-row';
 
@@ -561,8 +560,10 @@ export function createOpcaoRow(label = '', tipo = 'number', valores = [], idx = 
 }
 
 
+
 /* ===== js/supamanager/produtos-ui.js ===== */
 
+let produtos = [];
 
 export async function loadProdutos() {
     const { data, error } = await supabase.from('products').select('*');
@@ -574,7 +575,7 @@ export async function loadProdutos() {
     renderProdutosList(produtos);
 }
 
-export function renderProdutosList(produtosArr) {
+function renderProdutosList(produtosArr) {
     const list = document.getElementById('produtosList');
     list.innerHTML = '';
     produtosArr.forEach(prod => {
@@ -594,11 +595,13 @@ export function renderProdutosList(produtosArr) {
 }
 
 
+
 /* ===== js/supamanager/supabase.js ===== */
 
-
-
-
+const SUPABASE_URL = 'https://nbcmqkcztuogflejswau.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_co9n_L7O6rCcc9mb570Uhw_Bg8eqWIL';
+const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export async function uploadImageToSupabase(file, slug) {
   const fileExt = file.name.split('.').pop();
@@ -608,5 +611,6 @@ export async function uploadImageToSupabase(file, slug) {
   if (error) throw error;
   return filePath;
 }
+
 
 })(window,document);
