@@ -37,7 +37,7 @@ const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf-8');
 
 // ---------- UTILS ----------
 const esc = (s='') => String(s)
-  .replace(/&/g,'&amp;').replace(/<//g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
 const mkUrl = (p) => (!p ? '' : (/^https?:\/\//i.test(p) ? p : (STORAGE_PUBLIC + String(p).replace(/^\/+/, ''))));
