@@ -33,7 +33,7 @@ function urlTag(loc, lastmod) {
 async function main() {
   const { data: products, error } = await supabase
     .from('products')
-    .select('slug, updated_at')
+    .select('slug')
     .eq('active', true);
 
   if (error) {
@@ -47,7 +47,7 @@ async function main() {
   }
   for (const p of (products || [])) {
     const loc = `${BASE_URL}/produto/${encodeURIComponent(p.slug)}`;
-    const lastmod = p.updated_at ? iso(p.updated_at) : iso();
+    const lastmod = iso();
     entries.push(urlTag(loc, lastmod));
   }
 
