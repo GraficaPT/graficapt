@@ -1,15 +1,12 @@
-// Merged bundle: auto-generated
-;(function(){
+;(function(window, document){'use strict';
 
-/* ===== File: js/products.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
-import { fetchProductBySlug } from './services/productService.js';
-import { supabase } from './supamanager/supabase.js';
-import { getSlugFromUrl } from './utils/slug.js';
-import { updateSEO, updateCanonicalAndOG } from './components/seo.js';
-import { criarCarrosselHTML, initCarouselState } from './components/carousel.js';
-import { renderOption } from './components/optionsRenderer.js';
-import { createStaticFields } from './components/formFields.js';
+/* ===== js/products.js ===== */
+
+
+
+
+
+
 
 document.addEventListener("DOMContentLoaded", async function () {
   const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
@@ -207,9 +204,9 @@ function waitForImages(imgs, timeoutMs = 5000) {
 }
 
 
-/* ===== File: js/productsgrid.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
-import { supabase } from './supamanager/supabase.js';
+
+/* ===== js/productsgrid.js ===== */
+
 const STORAGE_PUBLIC = 'https://nbcmqkcztuogflejswau.supabase.co/storage/v1/object/public/products/';
 
 function getBannerUrl(prod) {
@@ -278,8 +275,8 @@ renderProdutos();
 
 
 
-/* ===== File: js/filter.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/filter.js ===== */
 let shouldScrollToProducts = false;
 
 function applyFilters(scroll = false) {
@@ -374,8 +371,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* ===== File: js/footerheader.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/footerheader.js ===== */
 const topbarHTML = `
     <div class="bar">
         <img src="../imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
@@ -456,8 +453,8 @@ function toggleSidebar() {
 document.addEventListener('DOMContentLoaded', insertComponents);
 
 
-/* ===== File: js/formSender.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/formSender.js ===== */
 // Garante que só corre uma vez
 if (!window.formSenderInitialized) {
   window.formSenderInitialized = true;
@@ -561,8 +558,8 @@ if (!window.formSenderInitialized) {
 }
 
 
-/* ===== File: js/loader.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/loader.js ===== */
 // loader.js
 (function () {
   const OVERLAY_ID = 'loader-overlay';
@@ -712,11 +709,12 @@ const supabase = (window.Supa && window.Supa.client) || null;
 })();
 
 
-/* ===== File: js/analytics.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/analytics.js ===== */
 window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-V28GHLM5ZE');
-})();
+
+})(window, document);

@@ -6,7 +6,6 @@ fs.mkdirSync(outDir, { recursive: true });
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
-// Prefer an explicit STORAGE_PUBLIC; else derive from SUPABASE_URL
 const STORAGE_PUBLIC = process.env.STORAGE_PUBLIC || (SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/products/` : '');
 
 const content = `window.__ENV = {
@@ -16,4 +15,4 @@ const content = `window.__ENV = {
 };`;
 
 fs.writeFileSync(path.join(outDir, 'env.js'), content, 'utf-8');
-console.log('✅ public/js/env.js gerado com STORAGE_PUBLIC:', STORAGE_PUBLIC);
+console.log('✅ public/js/env.js gerado');

@@ -1,8 +1,6 @@
-// Merged bundle: auto-generated
-;(function(){
+;(function(window, document){'use strict';
 
-/* ===== File: encomendas/js/main.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+/* ===== encomendas/js/main.js ===== */
 import { fetchColunas, fetchEncomendas, verifyPassword } from './supabase.js'
 import { renderTabela, setColunas } from './tabela.js'
 
@@ -85,7 +83,8 @@ async function carregarTudo() {
 carregarTudo()
 
 
-/* ===== File: encomendas/js/script.js ===== */
+
+/* ===== encomendas/js/script.js ===== */
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 // --------------------------------------------------
@@ -383,8 +382,8 @@ async function carregarTudo () {
 
 carregarTudo()
 
-/* ===== File: encomendas/js/tabela.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== encomendas/js/tabela.js ===== */
 import { uploadFileToSupabase, updateEncomendas, insertEncomendas, deleteEncomendas } from './supabase.js'
 
 let selectedIds = new Set()
@@ -611,8 +610,8 @@ async function removerSelecionadas() {
 }
 
 
-/* ===== File: encomendas/js/supabase.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== encomendas/js/supabase.js ===== */
 import { supabase } from './config.js'
 
 function getPwd() {
@@ -687,7 +686,8 @@ export async function deleteEncomendas(ids) {
 }
 
 
-/* ===== File: encomendas/js/config.js ===== */
+
+/* ===== encomendas/js/config.js ===== */
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 export const SUPABASE_URL  = 'https://nbcmqkcztuogflejswau.supabase.co'
@@ -695,4 +695,5 @@ export const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON)
 
-})();
+
+})(window, document);

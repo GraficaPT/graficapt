@@ -5,10 +5,9 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 const BASE_URL = process.env.BASE_URL || 'https://graficapt.com';
-// Usa o caminho público do storage se existir; senão cai para /imagens/produtos/
 const STORAGE_PUBLIC = process.env.STORAGE_PUBLIC || (SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/products/` : `${BASE_URL}/imagens/produtos/`);
-
 const OUT_ROOT = path.join(process.cwd(), 'produto');
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const escapeHtml = (s='') => String(s)
@@ -42,7 +41,7 @@ async function main(){
     const desc = `Compra ${name} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`;
     const url = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
 
-    // images (hero + thumbs)
+    // images
     let imagesArr = [];
     try { imagesArr = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]'); } catch {}
     const hero = mkUrl(imagesArr[0] || p.banner || 'logo_minimal.png');

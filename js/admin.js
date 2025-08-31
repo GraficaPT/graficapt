@@ -1,11 +1,8 @@
-// Merged bundle: auto-generated
-;(function(){
+;(function(window, document){'use strict';
 
-/* ===== File: js/supamanager/manager.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
-import { supabase, uploadImageToSupabase } from './supabase.js';
-import { loadProdutos, renderProdutosList, produtos } from './produtos-ui.js';
-import { renderOpcoesList, showImagePreview, createValoresInputs, createOpcaoRow } from './opcoes-ui.js';
+/* ===== js/supamanager/manager.js ===== */
+
+
 
 const { data: session } = await supabase.auth.getSession();
 if (!session.session) {
@@ -153,9 +150,8 @@ document.getElementById('produtoForm').onsubmit = async function (e) {
 loadProdutos();
 
 
-/* ===== File: js/supamanager/opcoes-ui.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
-import { supabase } from './supabase.js';
+
+/* ===== js/supamanager/opcoes-ui.js ===== */
 
 // ---- Mini Carrossel de Imagens para associação à cor ----
 export function renderImageSelector(urls, selectedUrl = null, container = null) {
@@ -563,11 +559,8 @@ export function createOpcaoRow(label = '', tipo = 'number', valores = [], idx = 
 }
 
 
-/* ===== File: js/supamanager/produtos-ui.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
-import { supabase } from './supabase.js';
 
-export let produtos = [];
+/* ===== js/supamanager/produtos-ui.js ===== */
 
 export async function loadProdutos() {
     const { data, error } = await supabase.from('products').select('*');
@@ -598,4 +591,5 @@ export function renderProdutosList(produtosArr) {
     });
 }
 
-})();
+
+})(window, document);

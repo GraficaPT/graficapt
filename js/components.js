@@ -1,8 +1,6 @@
-// Merged bundle: auto-generated
-;(function(){
+;(function(window, document){'use strict';
 
-/* ===== File: js/components/carousel.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+/* ===== js/components/carousel.js ===== */
 export function criarCarrosselHTML(slug, imagens, storagePublic) {
   function getImageUrl(imagem) {
     if (!imagem) return '';
@@ -156,8 +154,8 @@ export function initCarouselState() {
 }
 
 
-/* ===== File: js/components/formFields.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/components/formFields.js ===== */
 export function createStaticFields() {
   const fragment = document.createDocumentFragment();
 
@@ -276,8 +274,8 @@ export function createStaticFields() {
 }
 
 
-/* ===== File: js/components/optionsRenderer.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/components/optionsRenderer.js ===== */
 export function renderOption(opt, index) {
   const wrapper = document.createElement('div');
   wrapper.className = 'option-group';
@@ -421,8 +419,8 @@ export function renderOption(opt, index) {
 }
 
 
-/* ===== File: js/components/seo.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/components/seo.js ===== */
 export function updateSEO(produto) {
   document.title = `${produto.name || produto.nome} | GráficaPT`;
 
@@ -475,8 +473,8 @@ function setMetaProperty(prop, content) {
 }
 
 
-/* ===== File: js/utils/slug.js ===== */
-const supabase = (window.Supa && window.Supa.client) || null;
+
+/* ===== js/utils/slug.js ===== */
 export function getSlugFromUrl() {
   const params = new URLSearchParams(window.location.search);
   let slug = params.get("slug");
@@ -485,4 +483,5 @@ export function getSlugFromUrl() {
   return pathParts[pathParts.length - 1] || null;
 }
 
-})();
+
+})(window, document);
