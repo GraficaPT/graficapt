@@ -24,7 +24,6 @@ async function main() {
   const { data: products, error } = await supabase
     .from('products')
     .select('slug, name, nome, description, descricao, metawords, images, banner, category')
-    .eq('active', true);
 
   if (error) { console.error('Supabase error:', error); process.exit(1); }
 

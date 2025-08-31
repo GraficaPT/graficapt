@@ -34,7 +34,6 @@ async function main() {
   const { data: products, error } = await supabase
     .from('products')
     .select('slug')
-    .eq('active', true);
 
   if (error) {
     console.error('Erro Supabase:', error);
