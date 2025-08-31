@@ -3,10 +3,10 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * build-products.mjs — FULL STATIC GENERATOR (stable)
- * - Generates /produto/<slug>/index.html (static)
- * - Generates /index.html (static) with banner + cards
- * - No loader, no dynamic fetch on client
+ * build-products.mjs — FULL STATIC w/ VARIANT PAGES
+ * - /produto/<slug>/index.html (base product)
+ * - /produto/<slug>/<variantSlug>/index.html (size variants; title/meta/canonical unique, option preselected)
+ * - /index.html (homepage static)
  */
 
 const log = (...a) => console.log('[build-products]', ...a);
@@ -37,11 +37,19 @@ const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf-8');
 
 // ---------- UTILS ----------
 const esc = (s='') => String(s)
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/&/g,'&amp;').replace(/<//g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
 const mkUrl = (p) => (!p ? '' : (/^https?:\/\//i.test(p) ? p : (STORAGE_PUBLIC + String(p).replace(/^\/+/, ''))));
 const safeJson = (v) => { try { return JSON.parse(v || '[]'); } catch { return []; } };
+
+const slugify = (s='') => {
+  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'') // remove diacritics
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'')
+    .replace(/--+/g,'-');
+};
 
 // ---------- NAV/FOOTER FROM BUNDLE ----------
 function extractTopbarFooter() {
@@ -55,28 +63,21 @@ function extractTopbarFooter() {
 }
 
 // ---------- HEAD BUILDERS ----------
-function buildHead(slug, p) {
-  const title = p.name || p.nome || slug;
-  const descr = p.shortdesc || p.descricao || `Compra ${title} personalizada na GráficaPT.`;
-  const keywords = asArray(p.metawords).join(', ');
-  const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
-  const og = mkUrl((images && images[0]) || p.og_image || '');
-  const canonical = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
-
+function buildHead(baseUrl, title, descr, keywords, og) {
   return [
     '<meta charset="utf-8">',
     '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    `<title>${esc(title)} | GráficaPT</title>`,
-    `<link rel="canonical" href="${canonical}">`,
+    `<title>${esc(title)}</title>`,
+    `<link rel="canonical" href="${baseUrl}">`,
     `<meta name="description" content="${esc(descr)}">`,
     keywords ? `<meta name="keywords" content="${esc(keywords)}">` : '',
     '<meta name="robots" content="index, follow">',
-    `<meta property="og:title" content="${esc(title)} | GráficaPT">`,
+    `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:description" content="${esc(descr)}">`,
     og ? `<meta property="og:image" content="${esc(og)}">` : '',
     '<meta property="og:type" content="product">',
-    `<meta property="og:url" content="${canonical}">`,
+    `<meta property="og:url" content="${baseUrl}">`,
     '<meta name="twitter:card" content="summary_large_image">',
     '<link rel="icon" href="/imagens/logo.ico">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
@@ -88,24 +89,43 @@ function buildHead(slug, p) {
 }
 
 function buildHeadHome() {
+  const url = `${BASE_URL}/`;
   return [
     '<meta charset="utf-8">',
     '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<title>GráficaPT — Produtos Personalizáveis</title>',
-    `<link rel="canonical" href="${BASE_URL}/">`,
+    `<link rel="canonical" href="${url}">`,
     '<meta name="description" content="Impressão e personalização: bandeiras, sacos, rígidos, vestuário e muito mais. Pede orçamento grátis!">',
     '<meta name="robots" content="index, follow">',
     '<meta property="og:title" content="GráficaPT — Produtos Personalizáveis">',
     '<meta property="og:description" content="Impressão e personalização: bandeiras, sacos, rígidos, vestuário e muito mais.">',
     '<meta property="og:type" content="website">',
-    `<meta property="og:url" content="${BASE_URL}/">`,
+    `<meta property="og:url" content="${url}">`,
     '<link rel="icon" href="/imagens/logo.ico">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
     '<link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">',
     '<link rel="stylesheet" href="/css/index.css">'
   ].join('\n');
+}
+
+// ---------- OPTION HELPERS ----------
+function getSizeGroups(opcoes){
+  let opts = [];
+  if (!opcoes) return [];
+  if (Array.isArray(opcoes)) opts = opcoes;
+  else if (typeof opcoes === 'object') opts = Object.entries(opcoes).map(([label, op]) => ({ label, ...(op || {}) }));
+  const groups = [];
+  for (const op of opts) {
+    const label = String(op?.label || '').trim();
+    const norm  = label.toLowerCase();
+    if (!/^(tamanho|tam|size)\b/.test(norm)) continue;
+    const valores = Array.isArray(op?.valores) ? op.valores : [];
+    const names = valores.map(v => (v && typeof v === 'object') ? (v.nome || v.name || v.label || '') : String(v || '')).filter(Boolean);
+    if (names.length) groups.push({ label, values: names });
+  }
+  return groups;
 }
 
 // ---------- PRODUCT PAGE PARTS ----------
@@ -117,25 +137,32 @@ function criarCarrosselHTML(slug, imagens) {
     '  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>',
     '  <div class="carrossel-imagens-wrapper">',
     '    <div class="carrossel-imagens" id="carrossel">',
-         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem ${i+1}" class="carrossel-img">`).join('\n'),
+         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem ${i+1}" class="carrossel-img">`).join('\\n'),
     '    </div>',
     '  </div>',
     '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
     '</div>',
     '<div class="indicadores" id="indicadores"></div>'
-  ].join('\n');
+  ].join('\\n');
 }
 
-function renderOption(opt={}, index=0) {
-  const tipo = String(opt?.tipo || '').toLowerCase();
-  const label = esc(opt?.label || `${index+1}:`);
+function renderOption(opt={}, index=0, preselect={}) {
+  const tipoRaw = opt?.tipo || '';
+  const tipo = String(tipoRaw).toLowerCase();
+  const labelRaw = opt?.label || `${index+1}:`;
+  const label = esc(labelRaw);
   const valores = Array.isArray(opt?.valores) ? opt.valores : [];
+  const wanted = (preselect[labelRaw?.toLowerCase?.() || ''] || '').toLowerCase();
 
   const labelRow = `<div class="overcell"><label>${label}:</label></div>`;
 
   if (tipo === 'select') {
     const inputHTML = `<select name="${label}" required>
-${valores.map((v,i)=>`        <option value="${esc(v)}"${i===0?' selected':''}>${esc(v)}</option>`).join('\n')}
+${valores.map((v,i)=>{
+  const val = typeof v === 'object' ? (v.nome || v.name || v.label || '') : String(v||'');
+  const sel = (val.toLowerCase() === wanted) ? ' selected' : (i===0 ? ' selected' : '');
+  return `        <option value="${esc(val)}"${sel}>${esc(val)}</option>`;
+}).join('\\n')}
       </select>`;
     return `<div class="option-group">${labelRow}<div class="overcell">${inputHTML}</div></div>`;
   }
@@ -156,24 +183,26 @@ ${valores.map((v,i)=>`        <option value="${esc(v)}"${i===0?' selected':''}>$
         colorStyle = 'linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)';
         title = 'Multicor';
       }
-      const id = `${label.replace(/\s+/g,'-').toLowerCase()}-color-${idx}`;
+      const id = `${label.replace(/\\s+/g,'-').toLowerCase()}-color-${idx}`;
+      const checked = (title.toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
       return [
         '        <div class="overcell">',
-        `          <input type="radio" id="${esc(id)}" name="${label}" value="${esc(title)}"${idx===0?' checked':''} required>`,
+        `          <input type="radio" id="${esc(id)}" name="${label}" value="${esc(title)}"${checked} required>`,
         `          <label class="color-circle" for="${esc(id)}" title="${esc(title)}" style="background:${esc(colorStyle)}"${imgAssoc ? ` onclick="selecionarCorEImagem('${esc(imgAssoc)}')"` : ''}></label>`,
         '        </div>'
-      ].join('\n');
-    }).join('\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">\n${cores}\n</div></div></div>`;
+      ].join('\\n');
+    }).join('\\n');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">\\n${cores}\\n</div></div></div>`;
   }
   if (tipo === 'imagem-radio') {
     const blocks = valores.map((item, idx) => {
-      const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
+      const posID = `${label.replace(/\\s+/g,'-').toLowerCase()}-pos-${idx}`;
       const nome = esc(item?.nome || '');
       const imgSrc = item?.imagem ? mkUrl(item.imagem) : '';
+      const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
       return [
         '        <div class="overcell">',
-        `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${idx===0?' checked':''} required>`,
+        `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
         `          <label class="posicionamento-label" for="${esc(posID)}">`,
         '            <div class="posicionamento-img-wrapper">',
         `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
@@ -181,9 +210,9 @@ ${valores.map((v,i)=>`        <option value="${esc(v)}"${i===0?' selected':''}>$
         '            </div>',
         '          </label>',
         '        </div>'
-      ].join('\n');
-    }).join('\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">\n${blocks}\n</div></div></div>`;
+      ].join('\\n');
+    }).join('\\n');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">\\n${blocks}\\n</div></div></div>`;
   }
   if (tipo === 'quantidade-por-tamanho') {
     const grid = valores.map((t) => {
@@ -193,9 +222,9 @@ ${valores.map((v,i)=>`        <option value="${esc(v)}"${i===0?' selected':''}>$
         `          <label for="${esc(id)}">${esc(t)}:</label>`,
         `          <input type="number" id="${esc(id)}" name="Tamanho - ${esc(t)}" min="0" value="0">`,
         '        </div>'
-      ].join('\n');
-    }).join('\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">\n${grid}\n</div></div></div>`;
+      ].join('\\n');
+    }).join('\\n');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">\\n${grid}\\n</div></div></div>`;
   }
   return `<div class="option-group">${labelRow}<div class="overcell"></div></div>`;
 }
@@ -247,7 +276,7 @@ function createStaticFields() {
     '  <input type="hidden" name="_next" value="https://graficapt.com">',
     '',
     '  <button id="submit" type="submit">Pedir Orçamento</button>'
-  ].join('\n');
+  ].join('\\n');
 }
 
 function inlineCarouselScript() {
@@ -288,7 +317,7 @@ function inlineCarouselScript() {
     '  window.irParaImagem(window.imagemAtual||0);',
     '})();',
     '</script>'
-  ].join('\n');
+  ].join('\\n');
 }
 
 function inlineFormGuardScript() {
@@ -309,7 +338,7 @@ function inlineFormGuardScript() {
     '  }',
     '})();',
     '</script>'
-  ].join('\n');
+  ].join('\\n');
 }
 
 // ---------- HOMEPAGE ----------
@@ -327,7 +356,7 @@ function renderCard(p){
     '  <div class="cellText">'+esc(nome)+'</div>',
     '  <div class="cellBtn">Ver Opções</div>',
     '</div>'
-  ].filter(Boolean).join('\n');
+  ].filter(Boolean).join('\\n');
 }
 
 const bannerHTML = `
@@ -343,7 +372,7 @@ function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();
   const cards = [...products]
     .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
-    .map(renderCard).join('\n');
+    .map(renderCard).join('\\n');
 
   const cats = Array.from(new Set((products||[]).map(p => String(p.category || p.categoria || '').toLowerCase()).filter(Boolean))).sort();
   const catOptions = ['<option value="all">Todas</option>'].concat(cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`)).join('');
@@ -358,7 +387,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     '<div id="products">',
     '  <a class="subtitle hcenter">Produtos Personalizáveis</a>',
     '  <div class="filter-sort">',
-    '    <select id="filterCategory" onchange="location.hash = \'filter=\' + this.value">',
+    '    select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
          catOptions,
     '    </select>',
     '    <select id="sortBy" onchange="applyFilters()">',
@@ -424,7 +453,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     '})();',
     '</script>',
     '<script src="/js/formSender.js" defer></script>'
-  ].join('\n');
+  ].join('\\n');
 
   return [
     '<!DOCTYPE html>',
@@ -436,21 +465,56 @@ function renderHome(topbarHTML, footerHTML, products) {
     body,
     '</body>',
     '</html>'
-  ].join('\n');
+  ].join('\\n');
 }
 
 // ---------- PRODUCT PAGE RENDER ----------
-function renderProductPage(p, topbarHTML, footerHTML) {
-  const slug = p.slug || p.Slug || p.name || p.nome;
-  const head = buildHead(slug, p);
-  const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
-  let opcoes = [];
-  if (Array.isArray(p.opcoes)) opcoes = p.opcoes;
-  else if (p.opcoes && typeof p.opcoes === 'object') opcoes = Object.entries(p.opcoes).map(([label,op])=>({label, ...(op||{})}));
+function variantLinksHTML(slug, name, sizeGroups){
+  if (!sizeGroups || !sizeGroups.length) return '';
+  const links = [];
+  for (const grp of sizeGroups) {
+    for (const val of grp.values) {
+      const vs = slugify(val);
+      links.push(`<a class="variant-link" href="/produto/${esc(slug)}/${esc(vs)}">${esc(name)} — ${esc(val)}</a>`);
+    }
+  }
+  return `<nav class="variant-links">${links.join('')}</nav>`;
+}
 
-  const carouselHTML = images && images.length ? `<div class="product-image">\n${criarCarrosselHTML(slug, images)}\n</div>` : '';
-  const optionsHTML = (opcoes||[]).map((opt,i)=>renderOption(opt,i)).join('\n');
+function renderProductPage(p, topbarHTML, footerHTML, variant=null) {
+  const slug = p.slug || p.Slug || p.name || p.nome;
+  const baseName = p.name || p.nome || slug;
+  const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
+  const og = mkUrl((images && images[0]) || p.og_image || '');
+  const keywords = asArray(p.metawords).join(', ');
+  const sizeGroups = getSizeGroups(p.opcoes);
+
+  // variant handling
+  let titleName = baseName;
+  let descr = p.shortdesc || p.descricao || `Compra ${baseName} personalizada na GráficaPT.`;
+  let url = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
+  let preselect = {};
+  if (variant && variant.value) {
+    titleName = `${baseName} — ${variant.value}`;
+    descr = `${baseName} no tamanho ${variant.value}. Personaliza e pede orçamento em segundos.`;
+    url = `${BASE_URL}/produto/${encodeURIComponent(slug)}/${slugify(variant.value)}`;
+    preselect = { [String(variant.label || '').toLowerCase()]: String(variant.value || '') };
+  }
+
+  const head = buildHead(url, `${titleName} | GráficaPT`, descr, keywords, og);
+
+  const carouselHTML = images && images.length ? `<div class="product-image">
+${criarCarrosselHTML(slug, images)}
+</div>` : '';
+
+  const optionsArr = [];
+  if (Array.isArray(p.opcoes)) optionsArr.push(...p.opcoes);
+  else if (p.opcoes && typeof p.opcoes === 'object') optionsArr.push(...Object.entries(p.opcoes).map(([label,op])=>({label, ...(op||{})})));
+
+  const optionsHTML = (optionsArr||[]).map((opt,i)=>renderOption(opt,i,preselect)).join('\\n');
   const staticFields = createStaticFields();
+
+  const variantsNav = (!variant && sizeGroups.length) ? variantLinksHTML(slug, baseName, sizeGroups) : '';
 
   const body = [
     '<div class="topbar" id="topbar">',
@@ -460,13 +524,14 @@ function renderProductPage(p, topbarHTML, footerHTML) {
     '<div class="productcontainer" id="produto-dinamico">',
     `  ${carouselHTML}`,
     '  <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">',
-    `    <input type="text" class="productname" id="productname" name="Produto" value="${esc(p.name || p.nome || slug)}">`,
+    `    <input type="text" class="productname" id="productname" name="Produto" value="${esc(titleName)}">`,
     '    <div class="product-details">',
-    `      <h1>${esc(p.name || p.nome || slug)}</h1>`,
+    `      <h1>${esc(titleName)}</h1>`,
     `      ${optionsHTML}`,
     `      ${staticFields}`,
     '    </div>',
     '  </form>',
+    variantsNav,
     '</div>',
     '',
     '<footer class="footer" id="footer">',
@@ -477,7 +542,7 @@ function renderProductPage(p, topbarHTML, footerHTML) {
     inlineCarouselScript(),
     '<script src="/js/formSender.js" defer></script>',
     inlineFormGuardScript()
-  ].join('\n');
+  ].join('\\n');
 
   return [
     '<!DOCTYPE html>',
@@ -489,7 +554,7 @@ function renderProductPage(p, topbarHTML, footerHTML) {
     body,
     '</body>',
     '</html>'
-  ].join('\n');
+  ].join('\\n');
 }
 
 // ---------- MAIN ----------
@@ -504,19 +569,37 @@ async function main() {
 
   const { topbarHTML, footerHTML } = extractTopbarFooter();
 
-  // Build product pages
+  // Build product pages + variants
   ensureDir(OUT_ROOT);
-  let count = 0;
+  let count = 0, vcount = 0;
   const tGen = Date.now();
   for (const p of products) {
     const slug = p.slug || p.Slug || p.name || p.nome;
     if (!slug) continue;
-    const html = renderProductPage(p, topbarHTML, footerHTML);
-    const dir = path.join(OUT_ROOT, slug);
-    ensureDir(dir);
-    writeFileAtomic(path.join(dir, 'index.html'), html);
-    count++;
-    log('wrote', `/produto/${slug}/index.html`);
+
+    // base page
+    {
+      const html = renderProductPage(p, topbarHTML, footerHTML, null);
+      const dir = path.join(OUT_ROOT, slug);
+      ensureDir(dir);
+      writeFileAtomic(path.join(dir, 'index.html'), html);
+      count++;
+      log('wrote', `/produto/${slug}/index.html`);
+    }
+
+    // variants by size
+    const groups = getSizeGroups(p.opcoes);
+    for (const grp of groups) {
+      for (const val of grp.values) {
+        const vs = slugify(val);
+        const html = renderProductPage(p, topbarHTML, footerHTML, { label: grp.label, value: val });
+        const dir = path.join(OUT_ROOT, slug, vs);
+        ensureDir(dir);
+        writeFileAtomic(path.join(dir, 'index.html'), html);
+        vcount++;
+        log('wrote', `/produto/${slug}/${vs}/index.html`);
+      }
+    }
   }
 
   // Build homepage
@@ -525,7 +608,7 @@ async function main() {
   log('wrote /index.html');
 
   log('generated all pages in', (Date.now()-tGen)+'ms');
-  console.log(`✅ Built ${count} product pages + homepage (FULL STATIC)`);
+  console.log(`✅ Built ${count} base product pages + ${vcount} variant pages + homepage (FULL STATIC)`);
 }
 
 main().catch((e)=>{ console.error(e); process.exit(1); });
