@@ -2,337 +2,278 @@ import fs from 'fs';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
-/* ---------------- ENV ---------------- */
-const SUPABASE_URL     = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY= process.env.SUPABASE_ANON_KEY || '';
-const BASE_URL         = process.env.BASE_URL || 'https://graficapt.com';
-const STORAGE_PUBLIC   = process.env.STORAGE_PUBLIC ||
+/**
+ * build-static-products.mjs
+ * --------------------------------------
+ * Fast, deterministic pre-render for /produto/<slug>/index.html
+ * - No headless browser, no JSDOM
+ * - Single batched fetch to Supabase (O(N) render, O(1) network)
+ * - Extracts topbar/footer HTML from your bundle (keeps exact classes/markup)
+ * - Preserves CSS links from product.html; removes loader.css
+ * - Writes canonical/OG/Twitter meta per product
+ * - Zero dynamic data generation at runtime (only tiny JS for UI like carousel/sidebar)
+ *
+ * Usage (package.json):
+ *  "build": "node scripts/generate-env.mjs && node scripts/build-static-products.mjs"
+ */
+
+// ----------------------- ENV -----------------------
+const SUPABASE_URL       = process.env.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY  = process.env.SUPABASE_ANON_KEY || '';
+const BASE_URL           = process.env.BASE_URL || 'https://graficapt.com';
+const STORAGE_PUBLIC     = process.env.STORAGE_PUBLIC ||
   (SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/products/` : `${BASE_URL}/imagens/produtos/`);
 
-const OUT_ROOT = path.join(process.cwd(), 'produto');
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('[build] Missing SUPABASE_URL or SUPABASE_ANON_KEY');
+  process.exit(1);
+}
 
-/* -------------- HELPERS -------------- */
+const ROOT     = process.cwd();
+const OUT_ROOT = path.join(ROOT, 'produto');
+
+// ----------------------- IO Utils -----------------------
+function read(rel) {
+  return fs.readFileSync(path.join(ROOT, rel), 'utf-8');
+}
+
+function writeFileAtomic(filePath, content) {
+  const tmp = filePath + '.tmp';
+  fs.writeFileSync(tmp, content, 'utf-8');
+  fs.renameSync(tmp, filePath);
+}
+
+function ensureDir(p) {
+  fs.mkdirSync(p, { recursive: true });
+}
+
+// ----------------------- Extract head + CSS from product.html -----------------------
+function loadBaseHead() {
+  const html = read('product.html');
+  // capture <head>...</head>
+  const m = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+  const headInner = m ? m[1] : '';
+  // collect stylesheet links (except loader.css)
+  const links = [...headInner.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*>/gi)]
+    .map(x => x[0])
+    .filter(tag => !/loader\.css/i.test(tag));
+  // collect other safe head tags (meta charset/viewport, favicon, fonts etc.)
+  const metas = [];
+  const metaCharset = headInner.match(/<meta[^>]*charset[^>]*>/i);
+  if (metaCharset) metas.push(metaCharset[0]);
+  const viewport = headInner.match(/<meta[^>]*name=["']viewport["'][^>]*>/i);
+  if (viewport) metas.push(viewport[0]);
+  const favicon = headInner.match(/<link[^>]*rel=["']icon["'][^>]*>/i);
+  if (favicon) metas.push(favicon[0]);
+  const fonts   = [...headInner.matchAll(/<link\b[^>]*fonts\.googleapis[^>]*>/gi)].map(x=>x[0]);
+  return { cssLinks: links.join('\n'), baseMetas: metas.join('\n') + '\n' + fonts.join('\n') };
+}
+
+// ----------------------- Extract topbar/footer from bundle -----------------------
+function extractTopbarFooter() {
+  const bundle = read('js/app.bundle.js');
+  const mTop = bundle.match(/const\s+topbarHTML\s*=\s*`([\s\S]*?)`;/);
+  const mFoot= bundle.match(/const\s+footerHTML\s*=\s*`([\s\S]*?)`;/);
+  if (!mTop || !mFoot) {
+    throw new Error('Could not extract topbarHTML/footerHTML from js/app.bundle.js');
+  }
+  return { topbarHTML: mTop[1], footerHTML: mFoot[1] };
+}
+
+// ----------------------- Data helpers -----------------------
 const esc = (s='') => String(s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-const asArray = (x) => Array.isArray(x) ? x : (x ? [x] : []);
+const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
 
-const mkUrl = (x) => /^https?:\/\//.test(String(x||''))
-  ? String(x)
-  : `${STORAGE_PUBLIC}${String(x||'').replace(/^\//,'')}`;
-
-const stripHead = (html) => html
-  .replace(/<title>[\s\S]*?<\/title>/i,'')
-  .replace(/<meta[^>]+name=["']description["'][^>]*>/gi,'')
-  .replace(/<meta[^>]+name=["']keywords["'][^>]*>/gi,'')
-  .replace(/<meta[^>]+name=["']twitter:card["'][^>]*>/gi,'')
-  .replace(/<link[^>]+rel=["']canonical["'][^>]*>/gi,'')
-  .replace(/<meta[^>]+property=["']og:[^"']+["'][^>]*>/gi,'');
-
-const injectHead = (html, head) => html.replace(/<\/head>/i, `${head}\n</head>`);
-
-// === Carrossel com faixa deslizante + bolinhas; controlos neutros (sem <button>) ===
-function criarCarrosselHTML(imagens) {
-  const imgs = (Array.isArray(imagens) ? imagens : [imagens]).filter(Boolean);
-  const mk = (x) =>
-    /^https?:\/\//.test(String(x || ''))
-      ? String(x)
-      : `${STORAGE_PUBLIC}${String(x || '').replace(/^\//, '')}`;
-
-  // 1) Faixa com TODOS os slides (animação via CSS: flex + transition: transform)
-  const faixa = `
-<div class="carrossel-container" style="position:relative">
-  <span class="carrossel-seta prev"
-        role="button" tabindex="0"
-        onclick="window.mudarImagem && window.mudarImagem(-1)"
-        aria-label="Anterior"
-        style="position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:2;line-height:1;font-size:28px;cursor:pointer;user-select:none;">&#10094;</span>
-
-  <div class="carrossel-imagens-wrapper" style="overflow:hidden">
-    <div class="carrossel-imagens" id="carrossel" style="display:flex;transition:transform .3s ease;">
-      ${imgs.map((img, i) => `
-      <div class="carrossel-slide" data-index="${i}" style="min-width:100%">
-        <img class="carrossel-img"
-             src="${mk(img)}"
-             alt="Imagem ${i + 1}"
-             style="display:block;max-width:100%;height:auto;margin:0 auto"
-             onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">
-      </div>`).join('')}
-    </div>
-  </div>
-
-  <span class="carrossel-seta next"
-        role="button" tabindex="0"
-        onclick="window.mudarImagem && window.mudarImagem(1)"
-        aria-label="Próximo"
-        style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:2;line-height:1;font-size:28px;cursor:pointer;user-select:none;">&#10095;</span>
-</div>`;
-
-  // 2) Bolinhas (mantém as tuas classes/estilos existentes)
-  const dots = `
-<div class="carrossel-indicadores" id="indicadores">
-  ${imgs.map((_, i) => `
-    <span class="dot${i===0?' active':''}"
-          role="button" tabindex="0"
-          aria-label="Ir para imagem ${i + 1}"
-          onclick="window.irParaImagem && window.irParaImagem(${i})"></span>`).join('')}
-</div>`;
-
-  // 3) Bootstrap mínimo: controla translateX e .active das bolinhas (animação vem do teu CSS)
-  const boot = `
-<script>
-(function(){
-  if (window.__CAROUSEL_BOOTED__) return;
-  window.__CAROUSEL_BOOTED__ = true;
-
-  var strip = document.getElementById('carrossel');
-  var dotsWrap = document.getElementById('indicadores');
-  if (!strip) return;
-
-  var slides = Array.from(strip.querySelectorAll('.carrossel-slide'));
-  var dots   = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.dot')) : [];
-  var current = 0;
-
-  function goto(i){
-    var n = slides.length;
-    if (!n) return;
-    current = ((i % n) + n) % n;
-    strip.style.transform = 'translateX(-' + (current * 100) + '%)';
-    if (dots.length){
-      dots.forEach(function(d, idx){
-        d.classList.toggle('active', idx === current);
-      });
+function buildImages(product) {
+  const slug = product.slug || product.Slug || product.name || product.nome || '';
+  const arr = [];
+  if (Array.isArray(product.images) && product.images.length) {
+    for (const f of product.images) {
+      arr.push(STORAGE_PUBLIC + String(f).replace(/^\/+/, ''));
     }
+  } else {
+    // fallback common patterns
+    const files = ['banner.webp','1.webp','2.webp','3.webp','4.webp','5.webp'];
+    for (const f of files) arr.push(`${STORAGE_PUBLIC}${slug}/${f}`);
   }
-
-  window.irParaImagem = function(i){ goto(i); };
-  window.mudarImagem  = function(delta){ goto(current + (delta || 1)); };
-
-  goto(0);
-})();
-</script>`;
-
-  return `${faixa}\n${dots}\n${boot}`;
+  return [...new Set(arr)];
 }
 
+// ----------------------- HTML generators -----------------------
+function buildMetaHead(baseMetas, cssLinks, slug, p) {
+  const title = p.title || p.name || p.nome || `${slug} | GraficaPT`;
+  const descr = p.shortdesc || p.descricao || p.description || 'Produto personalizado GraficaPT.';
+  const keywords = asArray(p.metawords).join(', ');
+  const ogImg = p.og_image || p.hero || `${STORAGE_PUBLIC}${slug}/og/index.png`;
+  return [
+    baseMetas,
+    `<title>${esc(title)}</title>`,
+    `<link rel="canonical" href="${BASE_URL}/produto/${esc(slug)}">`,
+    `<meta name="description" content="${esc(descr)}">`,
+    `<meta name="keywords" content="${esc(keywords)}">`,
+    `<meta name="robots" content="index, follow">`,
+    `<meta property="og:title" content="${esc(title)}">`,
+    `<meta property="og:description" content="${esc(descr)}">`,
+    `<meta property="og:image" content="${esc(ogImg)}">`,
+    `<meta property="og:type" content="product">`,
+    `<meta property="og:url" content="${BASE_URL}/produto/${esc(slug)}">`,
+    `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="twitter:title" content="${esc(title)}">`,
+    `<meta name="twitter:description" content="${esc(descr)}">`,
+    `<meta name="twitter:image" content="${esc(ogImg)}">`,
+    cssLinks
+  ].join('\n');
+}
 
-function renderOptionSSR(opt, index){
-  const tipo = String(opt?.tipo || '').toLowerCase();
-  const label = esc(opt?.label || `${index+1}:`);
-  const valores = Array.isArray(opt?.valores) ? opt.valores : [];
+function buildCarousel(slug, images) {
+  if (!images.length) return '';
+  const indicators = images.map((_,i)=>`<span class="indicador ${i===0?'ativo':''}" data-index="${i}"></span>`).join('');
+  const imgs = images.map((src,i)=>`<img class="carrossel-img ${i===0?'visivel':''}" src="${src}" alt="${esc(slug)} imagem ${i+1}" loading="lazy">`).join('');
+  return `
+  <div class="carrossel">
+    <button class="nav prev" aria-label="Imagem anterior">&#10094;</button>
+    <div class="carrossel-imagens">
+      ${imgs}
+    </div>
+    <button class="nav next" aria-label="Próxima imagem">&#10095;</button>
+    <div class="indicadores">${indicators}</div>
+  </div>`;
+}
 
-  // common wrappers (como no teu JS original)
-  let inputHTML = '';
+function buildPriceOrOptions(p) {
+  const pt = Array.isArray(p.price_table) ? p.price_table : null;
+  const opts = Array.isArray(p.options) ? p.options : null;
+  if (pt && pt.length) {
+    const rows = pt.map(r => `
+      <tr>
+        <td>${esc(r.label || r.nome || '')}</td>
+        <td>${esc(r.spec || r.descricao || '')}</td>
+        <td>${esc(r.price || r.preco || '')}</td>
+      </tr>`).join('');
+    return `
+      <div class="price-table">
+        <h3>Tabela de preços</h3>
+        <table>
+          <thead><tr><th>Opção</th><th>Descrição</th><th>Preço</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+  if (opts && opts.length) {
+    const lis = opts.map(o => `<li>${esc(o.label || o)}</li>`).join('');
+    return `<div class="options"><h3>Opções</h3><ul>${lis}</ul></div>`;
+  }
+  return '';
+}
 
-  if (tipo === 'select'){
-    inputHTML = `<select name="${label}" required>
-      ${valores.map((v,i)=>`<option value="${esc(v)}"${i===0?' selected':''}>${esc(v)}</option>`).join('')}
-    </select>`;
-  }
-  else if (tipo === 'number'){
-    inputHTML = `<input type="number" name="${label}" min="1" value="1" required>`;
-  }
-  else if (tipo === 'cores'){
-    inputHTML = `<div class="color-options">
-      ${valores.map((item,idx)=>{
-        let title='', colorStyle='', imgAssoc='';
-        if (typeof item === 'object'){
-          title = item.nome || '';
-          colorStyle = item.cor || '';
-          imgAssoc = item.imagem || '';
-        } else {
-          title = item;
-          colorStyle = item;
-        }
-        if (String(title).toLowerCase()==='multicolor' || String(title).toLowerCase()==='multicor'){
-          colorStyle = 'linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)';
-          title = 'Multicor';
-        }
-        const id = `${label.replace(/\s+/g,'-').toLowerCase()}-color-${idx}`;
-        return `<div class="overcell">
-          <input type="radio" id="${id}" name="${label}" value="${esc(title)}"${idx===0?' checked':''} required>
-          <label class="color-circle" for="${id}" title="${esc(title)}" style="background:${esc(colorStyle)}"></label>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }
-  else if (tipo === 'imagem-radio'){
-    inputHTML = `<div class="posicionamento-options">
-      ${valores.map((item,idx)=>{
-        const nome   = esc(item?.nome || '');
-        const imgSrc = item?.imagem ? mkUrl(item.imagem) : '';
-        const posID  = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
-        return `<div class="overcell">
-          <input type="radio" id="${posID}" name="${label}" value="${nome}"${idx===0?' checked':''} required>
-          <label class="posicionamento-label" for="${posID}">
-            <div class="posicionamento-img-wrapper">
-              ${imgSrc ? `<img class="posicionamento-img" src="${imgSrc}" alt="${nome}" title="${nome}">` : ''}
-              <span class="posicionamento-nome">${nome}</span>
-            </div>
-          </label>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }
-  else if (tipo === 'quantidade-por-tamanho'){
-    inputHTML = `<div class="quantidades-tamanhos">
-      ${(valores||[]).map(t=>`
-        <div class="tamanho-input">
-          <label for="tamanho-${esc(t)}">${esc(t)}:</label>
-          <input type="number" id="tamanho-${esc(t)}" name="Tamanho - ${esc(t)}" min="0" value="0">
-        </div>
-      `).join('')}
-    </div>`;
-  }
-  else {
-    inputHTML = '';
-  }
+function buildBody(topbarHTML, footerHTML, slug, p) {
+  const nome = p.title || p.name || p.nome || slug;
+  const descr = p.descricao || p.shortdesc || '';
+  const images = buildImages(p);
+  const price = buildPriceOrOptions(p);
+  const carousel = buildCarousel(slug, images);
 
   return `
-<div class="option-group">
-  <div class="overcell"><label>${label}</label></div>
-  <div class="overcell">${inputHTML}</div>
-</div>`;
-}
+  <div class="topbar" id="topbar">
+${topbarHTML}
+  </div>
 
-function staticFieldsSSR(){
-  // fiel à estrutura: options-row, form-group, overcell, labels etc.
-  return `
-<div class="options-row">
-  <div class="form-group">
-    <div class="overcell">
-      <label for="detalhes">Detalhes:</label>
-      <textarea name="Detalhes" placeholder="Descreve todas as informações sobre como queres o design e atenções extras!" required></textarea>
+  <div class="productcontainer">
+    <div class="produto">
+      <h1 class="produto-titulo">${esc(nome)}</h1>
+      ${carousel}
+    </div>
+    <div class="produto-descricao">
+      <p>${esc(descr)}</p>
+      ${price}
     </div>
   </div>
-  <div class="form-group">
-    <div class="overcell">
-      <label for="empresa">Empresa / Nome:</label>
-      <input type="text" name="Empresa" placeholder="Empresa ou nome pessoal" required>
-    </div>
-  </div>
-</div>
 
-<div class="options-row">
-  <div class="form-group">
-    <div class="overcell">
-      <label for="ficheiro">(Opcional) Logotipo:</label>
-      <input type="file" id="ficheiro">
-      <input type="hidden" name="Logotipo" id="link_ficheiro">
-      <p id="uploadStatus" style="display:none"></p>
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="overcell">
-      <label for="email">Email:</label>
-      <input type="email" name="Email" placeholder="seu@email.com" required>
-    </div>
-  </div>
-</div>
+  <footer class="footer" id="footer">
+${footerHTML}
+  </footer>
 
-<div class="options-row">
-  <div class="form-group">
-    <div class="overcell">
-      <label for="telemovel">Telemóvel:</label>
-      <input type="tel" name="Telemovel" placeholder="Ex: 912 345 678" required>
-    </div>
-  </div>
-</div>
-
-<input type="hidden" name="_captcha" value="false">
-<input type="hidden" name="_next" value="${BASE_URL}">
-
-<div class="form-actions">
-  <button id="submit" type="submit">Pedir Orçamento</button>
-</div>`;
-}
-
-/* ----------------- MAIN ----------------- */
-async function main(){
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY){
-    console.error('Missing SUPABASE_URL or SUPABASE_ANON_KEY');
-    process.exit(1);
+  <script>
+  // Sidebar toggle (UI only, no data)
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const isOpen = sidebar && sidebar.style.left === "0%";
+    if (!sidebar || !overlay) return;
+    sidebar.style.left = isOpen ? "-100%" : "0%";
+    overlay.style.display = isOpen ? "none" : "block";
   }
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const tplPath = path.join(process.cwd(),'product.html');
-  if (!fs.existsSync(tplPath)){
-    console.error('product.html not found');
-    process.exit(1);
-  }
-  const tpl = fs.readFileSync(tplPath,'utf-8');
-
-  const { data: products, error } = await supabase
-    .from('products')
-    .select('*');
-  if (error){ console.error(error); process.exit(1); }
-
-  for (const p of (products||[])){
-    const slug = p.slug;
-    const name = p.name || p.nome || 'Produto';
-    const url  = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
-    const desc = `Compra ${name} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`;
-
-    let images = [];
-    try { images = Array.isArray(p.images) ? p.images : JSON.parse(p.images||'[]'); } catch {}
-    const hero = mkUrl(images[0] || p.banner || 'logo_minimal.png');
-
-    // opcoes em vários formatos
-    let opcoes = [];
-    if (Array.isArray(p.opcoes)) opcoes = p.opcoes;
-    else if (p.opcoes && typeof p.opcoes === 'object') {
-      opcoes = Object.entries(p.opcoes).map(([label,op])=>({label, ...op}));
+  // Carousel minimal JS (UI only)
+  (function() {
+    const wrap = document.querySelector('.carrossel-imagens');
+    if (!wrap) return;
+    const imgs = Array.from(wrap.querySelectorAll('.carrossel-img'));
+    const indicators = Array.from(document.querySelectorAll('.indicador'));
+    let idx = 0;
+    function show(i){
+      idx = (i + imgs.length) % imgs.length;
+      imgs.forEach((img,k)=>img.classList.toggle('visivel', k===idx));
+      indicators.forEach((el,k)=>el.classList.toggle('ativo', k===idx));
     }
-
-    // HEAD igual à lógica antiga
-    const head = `
-<title>${esc(name)} | GráficaPT</title>
-<link rel="canonical" href="${url}">
-<meta name="description" content="${esc(desc)}">
-<meta name="keywords" content="${esc(asArray(p.metawords).join(', '))}">
-<meta property="og:type" content="product">
-<meta property="og:title" content="${esc(name)} | GráficaPT">
-<meta property="og:description" content="${esc(desc)}">
-<meta property="og:image" content="${hero}">
-<meta property="og:url" content="${url}">
-<meta name="twitter:card" content="summary_large_image">
-`;
-
-    // body igual estrutura antiga
-    const imagensHTML = criarCarrosselHTML(images.length ? images : [hero]);
-    const optionsHTML = opcoes.map((opt,i)=>renderOptionSSR(opt,i)).join('\n');
-    const staticHTML  = staticFieldsSSR();
-
-    const body = `
-<div class="product-image">
-  ${imagensHTML}
-</div>
-
-<form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
-  <input type="text" class="productname" id="productname" name="Produto" value="${esc(name)}">
-  <div class="product-details">
-    <h1>${esc(name)}</h1>
-    ${optionsHTML}
-    ${staticHTML}
-  </div>
-</form>`;
-
-    let html = stripHead(tpl);
-    html = injectHead(html, head);
-    html = html.replace(/<div\s+id=["']produto-dinamico["']><\/div>/i, `<div id="produto-dinamico">${body}</div>`);
-
-    // bootstrap window.__PRODUCT__ (para JS antigo e analytics)
-    const bootstrap = `<script>window.__PRODUCT__=${JSON.stringify({slug, name, desc, url, img: hero, keywords: asArray(p.metawords).join(', ')})};</script>`;
-    html = html.replace(/<\/body>/i, `${bootstrap}\n</body>`);
-
-    const outDir = path.join(OUT_ROOT, slug);
-    fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(path.join(outDir,'index.html'), html, 'utf-8');
-    console.log('✓ /produto/%s', slug);
-  }
-
-  console.log('✅ Static product pages built to match old layout.');
+    document.querySelector('.nav.prev')?.addEventListener('click',()=>show(idx-1));
+    document.querySelector('.nav.next')?.addEventListener('click',()=>show(idx+1));
+    indicators.forEach((el,i)=>el.addEventListener('click',()=>show(i)));
+  })();
+  </script>
+  `;
 }
 
-main().catch(e=>{ console.error(e); process.exit(1); });
+function renderFullHTML(headInner, bodyInner) {
+  return `<!DOCTYPE html>
+<html lang="pt">
+<head>
+${headInner}
+</head>
+<body>
+${bodyInner}
+</body>
+</html>`;
+}
+
+// ----------------------- MAIN -----------------------
+async function main() {
+  const t0 = Date.now();
+  const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Fetch all products in a single round-trip
+  const { data: products, error } = await supa.from('products').select('*');
+  if (error) throw error;
+  if (!products || !products.length) {
+    console.warn('[build] No products found.');
+    return;
+  }
+
+  ensureDir(OUT_ROOT);
+
+  const { cssLinks, baseMetas } = loadBaseHead();
+  const { topbarHTML, footerHTML } = extractTopbarFooter();
+
+  let count = 0;
+  for (const p of products) {
+    const slug = p.slug || p.Slug || p.name || p.nome;
+    if (!slug) continue;
+
+    const head = buildMetaHead(baseMetas, cssLinks, slug, p);
+    const body = buildBody(topbarHTML, footerHTML, slug, p);
+    const html = renderFullHTML(head, body);
+
+    const dir = path.join(OUT_ROOT, slug);
+    ensureDir(dir);
+    writeFileAtomic(path.join(dir, 'index.html'), html);
+    count++;
+    process.stdout.write(`✓ ${slug}\n`);
+  }
+
+  const ms = Date.now() - t0;
+  console.log(`✅ Built ${count} product pages in ${ms}ms (no browser, single query).`);
+}
+
+main().catch((e)=>{ console.error(e); process.exit(1); });
