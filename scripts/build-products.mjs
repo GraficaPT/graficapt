@@ -2,276 +2,337 @@ import fs from 'fs';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
-/* =========================
-   ENV & CONSTANTES
-========================= */
-const SUPABASE_URL       = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY  = process.env.SUPABASE_ANON_KEY || '';
-const BASE_URL           = process.env.BASE_URL || 'https://graficapt.com';
-const STORAGE_PUBLIC     = process.env.STORAGE_PUBLIC ||
+/* ---------------- ENV ---------------- */
+const SUPABASE_URL     = process.env.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY= process.env.SUPABASE_ANON_KEY || '';
+const BASE_URL         = process.env.BASE_URL || 'https://graficapt.com';
+const STORAGE_PUBLIC   = process.env.STORAGE_PUBLIC ||
   (SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/products/` : `${BASE_URL}/imagens/produtos/`);
 
 const OUT_ROOT = path.join(process.cwd(), 'produto');
 
-const supa = (SUPABASE_URL && SUPABASE_ANON_KEY)
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
-/* =========================
-   HELPERS
-========================= */
+/* -------------- HELPERS -------------- */
 const esc = (s='') => String(s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
+const asArray = (x) => Array.isArray(x) ? x : (x ? [x] : []);
 
-function buildImageCandidates(slug, produto) {
-  const imgs = [];
-  const fromField = produto?.images;
-  if (Array.isArray(fromField)) {
-    for (const f of fromField) {
-      imgs.push(STORAGE_PUBLIC + String(f).replace(/^\/+/, ''));
-    }
-  } else {
-    const candidates = ['banner.webp','1.webp','2.webp','3.webp','4.webp','5.webp'];
-    for (const name of candidates) {
-      imgs.push(`${STORAGE_PUBLIC}${slug}/${name}`);
+const mkUrl = (x) => /^https?:\/\//.test(String(x||''))
+  ? String(x)
+  : `${STORAGE_PUBLIC}${String(x||'').replace(/^\//,'')}`;
+
+const stripHead = (html) => html
+  .replace(/<title>[\s\S]*?<\/title>/i,'')
+  .replace(/<meta[^>]+name=["']description["'][^>]*>/gi,'')
+  .replace(/<meta[^>]+name=["']keywords["'][^>]*>/gi,'')
+  .replace(/<meta[^>]+name=["']twitter:card["'][^>]*>/gi,'')
+  .replace(/<link[^>]+rel=["']canonical["'][^>]*>/gi,'')
+  .replace(/<meta[^>]+property=["']og:[^"']+["'][^>]*>/gi,'');
+
+const injectHead = (html, head) => html.replace(/<\/head>/i, `${head}\n</head>`);
+
+// === Carrossel com faixa deslizante + bolinhas; controlos neutros (sem <button>) ===
+function criarCarrosselHTML(imagens) {
+  const imgs = (Array.isArray(imagens) ? imagens : [imagens]).filter(Boolean);
+  const mk = (x) =>
+    /^https?:\/\//.test(String(x || ''))
+      ? String(x)
+      : `${STORAGE_PUBLIC}${String(x || '').replace(/^\//, '')}`;
+
+  // 1) Faixa com TODOS os slides (animação via CSS: flex + transition: transform)
+  const faixa = `
+<div class="carrossel-container" style="position:relative">
+  <span class="carrossel-seta prev"
+        role="button" tabindex="0"
+        onclick="window.mudarImagem && window.mudarImagem(-1)"
+        aria-label="Anterior"
+        style="position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:2;line-height:1;font-size:28px;cursor:pointer;user-select:none;">&#10094;</span>
+
+  <div class="carrossel-imagens-wrapper" style="overflow:hidden">
+    <div class="carrossel-imagens" id="carrossel" style="display:flex;transition:transform .3s ease;">
+      ${imgs.map((img, i) => `
+      <div class="carrossel-slide" data-index="${i}" style="min-width:100%">
+        <img class="carrossel-img"
+             src="${mk(img)}"
+             alt="Imagem ${i + 1}"
+             style="display:block;max-width:100%;height:auto;margin:0 auto"
+             onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <span class="carrossel-seta next"
+        role="button" tabindex="0"
+        onclick="window.mudarImagem && window.mudarImagem(1)"
+        aria-label="Próximo"
+        style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:2;line-height:1;font-size:28px;cursor:pointer;user-select:none;">&#10095;</span>
+</div>`;
+
+  // 2) Bolinhas (mantém as tuas classes/estilos existentes)
+  const dots = `
+<div class="carrossel-indicadores" id="indicadores">
+  ${imgs.map((_, i) => `
+    <span class="dot${i===0?' active':''}"
+          role="button" tabindex="0"
+          aria-label="Ir para imagem ${i + 1}"
+          onclick="window.irParaImagem && window.irParaImagem(${i})"></span>`).join('')}
+</div>`;
+
+  // 3) Bootstrap mínimo: controla translateX e .active das bolinhas (animação vem do teu CSS)
+  const boot = `
+<script>
+(function(){
+  if (window.__CAROUSEL_BOOTED__) return;
+  window.__CAROUSEL_BOOTED__ = true;
+
+  var strip = document.getElementById('carrossel');
+  var dotsWrap = document.getElementById('indicadores');
+  if (!strip) return;
+
+  var slides = Array.from(strip.querySelectorAll('.carrossel-slide'));
+  var dots   = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.dot')) : [];
+  var current = 0;
+
+  function goto(i){
+    var n = slides.length;
+    if (!n) return;
+    current = ((i % n) + n) % n;
+    strip.style.transform = 'translateX(-' + (current * 100) + '%)';
+    if (dots.length){
+      dots.forEach(function(d, idx){
+        d.classList.toggle('active', idx === current);
+      });
     }
   }
-  return [...new Set(imgs)];
+
+  window.irParaImagem = function(i){ goto(i); };
+  window.mudarImagem  = function(delta){ goto(current + (delta || 1)); };
+
+  goto(0);
+})();
+</script>`;
+
+  return `${faixa}\n${dots}\n${boot}`;
 }
 
-function buildPriceBlock(produto) {
-  const pt = Array.isArray(produto?.price_table) ? produto.price_table : null;
-  const opts = Array.isArray(produto?.options) ? produto.options : null;
 
-  if (pt && pt.length) {
-    const rows = pt.map(r => `
-      <tr>
-        <td>${esc(r.label || r.nome || '')}</td>
-        <td>${esc(r.spec || r.descricao || '')}</td>
-        <td>${esc(r.price || r.preco || '')}</td>
-      </tr>`).join('');
-    return `
-      <div class="price-table">
-        <h3>Tabela de preços</h3>
-        <table>
-          <thead><tr><th>Opção</th><th>Descrição</th><th>Preço</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
-  }
-  if (opts && opts.length) {
-    const li = opts.map(o => `<li>${esc(o.label || o)}</li>`).join('');
-    return `<div class="options"><h3>Opções</h3><ul>${li}</ul></div>`;
-  }
-  return '';
-}
+function renderOptionSSR(opt, index){
+  const tipo = String(opt?.tipo || '').toLowerCase();
+  const label = esc(opt?.label || `${index+1}:`);
+  const valores = Array.isArray(opt?.valores) ? opt.valores : [];
 
-function buildHead(slug, produto) {
-  const title = produto?.title || produto?.name || produto?.nome || (slug + ' | GraficaPT');
-  const descr = produto?.shortdesc || produto?.descricao || 'Produto personalizado GraficaPT.';
-  const keywords = asArray(produto?.metawords).join(', ');
-  const ogImg = produto?.og_image || produto?.hero || `${STORAGE_PUBLIC}${slug}/og/index.png`;
+  // common wrappers (como no teu JS original)
+  let inputHTML = '';
+
+  if (tipo === 'select'){
+    inputHTML = `<select name="${label}" required>
+      ${valores.map((v,i)=>`<option value="${esc(v)}"${i===0?' selected':''}>${esc(v)}</option>`).join('')}
+    </select>`;
+  }
+  else if (tipo === 'number'){
+    inputHTML = `<input type="number" name="${label}" min="1" value="1" required>`;
+  }
+  else if (tipo === 'cores'){
+    inputHTML = `<div class="color-options">
+      ${valores.map((item,idx)=>{
+        let title='', colorStyle='', imgAssoc='';
+        if (typeof item === 'object'){
+          title = item.nome || '';
+          colorStyle = item.cor || '';
+          imgAssoc = item.imagem || '';
+        } else {
+          title = item;
+          colorStyle = item;
+        }
+        if (String(title).toLowerCase()==='multicolor' || String(title).toLowerCase()==='multicor'){
+          colorStyle = 'linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)';
+          title = 'Multicor';
+        }
+        const id = `${label.replace(/\s+/g,'-').toLowerCase()}-color-${idx}`;
+        return `<div class="overcell">
+          <input type="radio" id="${id}" name="${label}" value="${esc(title)}"${idx===0?' checked':''} required>
+          <label class="color-circle" for="${id}" title="${esc(title)}" style="background:${esc(colorStyle)}"></label>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+  else if (tipo === 'imagem-radio'){
+    inputHTML = `<div class="posicionamento-options">
+      ${valores.map((item,idx)=>{
+        const nome   = esc(item?.nome || '');
+        const imgSrc = item?.imagem ? mkUrl(item.imagem) : '';
+        const posID  = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
+        return `<div class="overcell">
+          <input type="radio" id="${posID}" name="${label}" value="${nome}"${idx===0?' checked':''} required>
+          <label class="posicionamento-label" for="${posID}">
+            <div class="posicionamento-img-wrapper">
+              ${imgSrc ? `<img class="posicionamento-img" src="${imgSrc}" alt="${nome}" title="${nome}">` : ''}
+              <span class="posicionamento-nome">${nome}</span>
+            </div>
+          </label>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+  else if (tipo === 'quantidade-por-tamanho'){
+    inputHTML = `<div class="quantidades-tamanhos">
+      ${(valores||[]).map(t=>`
+        <div class="tamanho-input">
+          <label for="tamanho-${esc(t)}">${esc(t)}:</label>
+          <input type="number" id="tamanho-${esc(t)}" name="Tamanho - ${esc(t)}" min="0" value="0">
+        </div>
+      `).join('')}
+    </div>`;
+  }
+  else {
+    inputHTML = '';
+  }
 
   return `
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${esc(title)}</title>
-  <link rel="canonical" href="${BASE_URL}/produto/${slug}" />
-  <meta name="description" content="${esc(descr)}">
-  <meta name="keywords" content="${esc(keywords)}">
-  <meta name="robots" content="index, follow">
-
-  <meta property="og:title" content="${esc(title)}">
-  <meta property="og:description" content="${esc(descr)}">
-  <meta property="og:image" content="${esc(ogImg)}">
-  <meta property="og:type" content="product">
-  <meta property="og:url" content="${BASE_URL}/produto/${slug}">
-
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${esc(title)}">
-  <meta name="twitter:description" content="${esc(descr)}">
-  <meta name="twitter:image" content="${esc(ogImg)}">
-
-  <link rel="icon" href="/imagens/logo.ico">
-  <link rel="stylesheet" href="/css/index.css">
-  <link rel="stylesheet" href="/css/product.css">
-  <link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
-  `;
+<div class="option-group">
+  <div class="overcell"><label>${label}</label></div>
+  <div class="overcell">${inputHTML}</div>
+</div>`;
 }
 
-const TOPBAR_HTML = `
-  <div class="bar">
-    <img src="/imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
-    <div class="tabs desktop-only">
-      <a href="/index.html#filter=rigidos">Suportes Rigídos</a>
-      <a href="/index.html#filter=bandeiras">Bandeiras Publicitárias</a>
-      <a href="/index.html#filter=sacos">Sacos</a>
-      <a href="/index.html#filter=vestuario">Vestuário</a>
-      <a href="/index.html#filter=all">Ver Tudo</a>
+function staticFieldsSSR(){
+  // fiel à estrutura: options-row, form-group, overcell, labels etc.
+  return `
+<div class="options-row">
+  <div class="form-group">
+    <div class="overcell">
+      <label for="detalhes">Detalhes:</label>
+      <textarea name="Detalhes" placeholder="Descreve todas as informações sobre como queres o design e atenções extras!" required></textarea>
     </div>
-    <div class="hamburger mobile-only" onclick="toggleSidebar()">☰</div>
   </div>
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <img src="/imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = '/index.html'">
+  <div class="form-group">
+    <div class="overcell">
+      <label for="empresa">Empresa / Nome:</label>
+      <input type="text" name="Empresa" placeholder="Empresa ou nome pessoal" required>
     </div>
-    <a href="/index.html#filter=Rigidos">Suportes Rigídos</a>
-    <a href="/index.html#filter=Bandeiras">Bandeiras Publicitárias</a>
-    <a href="/index.html#filter=Sacos">Sacos</a>
-    <a href="/index.html#filter=Vestuario">Vestuário</a>
-    <a href="/index.html#filter=all">Ver Tudo</a>
   </div>
-  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+</div>
+
+<div class="options-row">
+  <div class="form-group">
+    <div class="overcell">
+      <label for="ficheiro">(Opcional) Logotipo:</label>
+      <input type="file" id="ficheiro">
+      <input type="hidden" name="Logotipo" id="link_ficheiro">
+      <p id="uploadStatus" style="display:none"></p>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="overcell">
+      <label for="email">Email:</label>
+      <input type="email" name="Email" placeholder="seu@email.com" required>
+    </div>
+  </div>
+</div>
+
+<div class="options-row">
+  <div class="form-group">
+    <div class="overcell">
+      <label for="telemovel">Telemóvel:</label>
+      <input type="tel" name="Telemovel" placeholder="Ex: 912 345 678" required>
+    </div>
+  </div>
+</div>
+
+<input type="hidden" name="_captcha" value="false">
+<input type="hidden" name="_next" value="${BASE_URL}">
+
+<div class="form-actions">
+  <button id="submit" type="submit">Pedir Orçamento</button>
+</div>`;
+}
+
+/* ----------------- MAIN ----------------- */
+async function main(){
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY){
+    console.error('Missing SUPABASE_URL or SUPABASE_ANON_KEY');
+    process.exit(1);
+  }
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const tplPath = path.join(process.cwd(),'product.html');
+  if (!fs.existsSync(tplPath)){
+    console.error('product.html not found');
+    process.exit(1);
+  }
+  const tpl = fs.readFileSync(tplPath,'utf-8');
+
+  const { data: products, error } = await supabase
+    .from('products')
+    .select('*');
+  if (error){ console.error(error); process.exit(1); }
+
+  for (const p of (products||[])){
+    const slug = p.slug;
+    const name = p.name || p.nome || 'Produto';
+    const url  = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
+    const desc = `Compra ${name} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`;
+
+    let images = [];
+    try { images = Array.isArray(p.images) ? p.images : JSON.parse(p.images||'[]'); } catch {}
+    const hero = mkUrl(images[0] || p.banner || 'logo_minimal.png');
+
+    // opcoes em vários formatos
+    let opcoes = [];
+    if (Array.isArray(p.opcoes)) opcoes = p.opcoes;
+    else if (p.opcoes && typeof p.opcoes === 'object') {
+      opcoes = Object.entries(p.opcoes).map(([label,op])=>({label, ...op}));
+    }
+
+    // HEAD igual à lógica antiga
+    const head = `
+<title>${esc(name)} | GráficaPT</title>
+<link rel="canonical" href="${url}">
+<meta name="description" content="${esc(desc)}">
+<meta name="keywords" content="${esc(asArray(p.metawords).join(', '))}">
+<meta property="og:type" content="product">
+<meta property="og:title" content="${esc(name)} | GráficaPT">
+<meta property="og:description" content="${esc(desc)}">
+<meta property="og:image" content="${hero}">
+<meta property="og:url" content="${url}">
+<meta name="twitter:card" content="summary_large_image">
 `;
 
-const FOOTER_HTML = `
-  <div class="footer-columns">
-    <div class="footer-column">
-      <h4>Ajuda</h4>
-      <a href="mailto:comercial@graficapt.com">comercial@graficapt.com</a>
-      <a href="https://www.instagram.com/graficapt/">@graficapt</a>
-    </div>
-    <div class="footer-column">
-      <h4>Empresa</h4>
-      <a href="/aboutus.html">Sobre nós</a>
-      <a href="#">Trabalha connosco</a>
-      <a href="https://www.instagram.com/graficapt/">Segue-nos</a>
-    </div>
-    <div class="footer-column">
-      <h4>Produtos</h4>
-      <a href="/index.html#filter=all">Todos os produtos</a>
-      <a href="/index.html#filter=Bandeiras">Bandeiras</a>
-      <a href="/index.html#filter=Sacos">Sacos</a>
-    </div>
-    <div class="footer-column">
-      <h4>Contactos</h4>
-      <div class="payment-methods">
-        <img src="/imagens/payments/visa.svg" alt="VISA">
-        <img src="/imagens/payments/mbway.svg" alt="MB Way">
-        <img src="/imagens/payments/paypal.svg" alt="PayPal">
-      </div>
-      <div class="social-icons">
-        <img src="/imagens/social/facebook.svg" alt="Facebook">
-        <img src="/imagens/social/instagram.svg" alt="Instagram">
-        <img src="/imagens/social/whatsapp.svg" alt="WhatsApp">
-      </div>
-    </div>
+    // body igual estrutura antiga
+    const imagensHTML = criarCarrosselHTML(images.length ? images : [hero]);
+    const optionsHTML = opcoes.map((opt,i)=>renderOptionSSR(opt,i)).join('\n');
+    const staticHTML  = staticFieldsSSR();
+
+    const body = `
+<div class="product-image">
+  ${imagensHTML}
+</div>
+
+<form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
+  <input type="text" class="productname" id="productname" name="Produto" value="${esc(name)}">
+  <div class="product-details">
+    <h1>${esc(name)}</h1>
+    ${optionsHTML}
+    ${staticHTML}
   </div>
-  <div class="footer-bottom">
-    © 2025 GraficaPT. Todos os direitos reservados.
-  </div>
-`;
+</form>`;
 
-function buildCarousel(slug, imagens) {
-  if (!imagens || !imagens.length) return '';
-  const indicadores = imagens.map((_,i)=>`<span class="indicador ${i===0?'ativo':''}" data-index="${i}"></span>`).join('');
-  const imgs = imagens.map((src,i)=>`<img class="carrossel-img ${i===0?'visivel':''}" src="${src}" alt="${esc(slug)} imagem ${i+1}" loading="lazy">`).join('');
-  return `
-  <div class="carrossel">
-    <button class="nav prev" aria-label="Imagem anterior">&#10094;</button>
-    <div class="carrossel-imagens">
-      ${imgs}
-    </div>
-    <button class="nav next" aria-label="Próxima imagem">&#10095;</button>
-    <div class="indicadores">${indicadores}</div>
-  </div>`;
-}
+    let html = stripHead(tpl);
+    html = injectHead(html, head);
+    html = html.replace(/<div\s+id=["']produto-dinamico["']><\/div>/i, `<div id="produto-dinamico">${body}</div>`);
 
-function buildBody(slug, produto) {
-  const nome = produto?.title || produto?.name || produto?.nome || slug;
-  const descr = produto?.descricao || produto?.shortdesc || '';
-  const imagens = buildImageCandidates(slug, produto);
-  const price = buildPriceBlock(produto);
-  const carouselHTML = buildCarousel(slug, imagens);
+    // bootstrap window.__PRODUCT__ (para JS antigo e analytics)
+    const bootstrap = `<script>window.__PRODUCT__=${JSON.stringify({slug, name, desc, url, img: hero, keywords: asArray(p.metawords).join(', ')})};</script>`;
+    html = html.replace(/<\/body>/i, `${bootstrap}\n</body>`);
 
-  return `
-  <div class="topbar" id="topbar">${TOPBAR_HTML}</div>
-
-  <div class="productcontainer">
-    <div class="produto">
-      <h1 class="produto-titulo">${esc(nome)}</h1>
-      ${carouselHTML}
-    </div>
-    <div class="produto-descricao">
-      <p>${esc(descr)}</p>
-      ${price}
-    </div>
-  </div>
-
-  <footer class="footer" id="footer">${FOOTER_HTML}</footer>
-
-  <script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-    const isOpen = sidebar.style.left === "0%";
-    sidebar.style.left = isOpen ? "-100%" : "0%";
-    overlay.style.display = isOpen ? "none" : "block";
-  }
-
-  (function() {
-    const wrapper = document.querySelector('.carrossel-imagens');
-    if (!wrapper) return;
-    const imgs = Array.from(wrapper.querySelectorAll('.carrossel-img'));
-    const indicators = Array.from(document.querySelectorAll('.indicador'));
-    let idx = 0;
-    function show(i) {
-      idx = (i + imgs.length) % imgs.length;
-      imgs.forEach((img, k) => img.classList.toggle('visivel', k === idx));
-      indicators.forEach((el, k) => el.classList.toggle('ativo', k === idx));
-    }
-    document.querySelector('.nav.prev')?.addEventListener('click', ()=>show(idx-1));
-    document.querySelector('.nav.next')?.addEventListener('click', ()=>show(idx+1));
-    indicators.forEach((el,i)=>el.addEventListener('click',()=>show(i)));
-  })();
-  </script>
-  `;
-}
-
-/* =========================
-   TEMPLATE HTML
-========================= */
-function renderHTML(slug, produto) {
-  return `<!DOCTYPE html>
-<html lang="pt">
-<head>
-${buildHead(slug, produto)}
-</head>
-<body>
-${buildBody(slug, produto)}
-</body>
-</html>`;
-}
-
-/* =========================
-   MAIN
-========================= */
-async function getProducts() {
-  if (!supa) throw new Error('Definir SUPABASE_URL e SUPABASE_ANON_KEY para carregar produtos.');
-  const { data, error } = await supa.from('products').select('*');
-  if (error) throw error;
-  return data || [];
-}
-
-async function main() {
-  const produtos = await getProducts();
-  if (!produtos.length) throw new Error('Nenhum produto encontrado.');
-
-  fs.mkdirSync(OUT_ROOT, { recursive: true });
-
-  for (const p of produtos) {
-    const slug = p.slug || p.Slug || p.nome || p.name;
-    if (!slug) continue;
-    const html = renderHTML(slug, p);
     const outDir = path.join(OUT_ROOT, slug);
     fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf-8');
+    fs.writeFileSync(path.join(outDir,'index.html'), html, 'utf-8');
     console.log('✓ /produto/%s', slug);
   }
-  console.log('✅ Páginas de produto geradas estaticamente (sem template base / sem replaces).');
+
+  console.log('✅ Static product pages built to match old layout.');
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch(e=>{ console.error(e); process.exit(1); });

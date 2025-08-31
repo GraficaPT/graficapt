@@ -1,11 +1,15 @@
 {
   "name": "graficapt",
   "scripts": {
-    "build": "node scripts/generate-env.mjs && node scripts/build-products.mjs",
+    "build": "node scripts/generate-env.mjs && node scripts/prerender-products.mjs",
     "prebuild": "node scripts/generate-env.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.42.3",
     "@vercel/analytics": "^1.5.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^22.0.0",
+    "serve-handler": "^6.1.5"
   }
 }
