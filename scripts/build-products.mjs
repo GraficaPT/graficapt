@@ -23,7 +23,7 @@ async function main() {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const { data: products, error } = await supabase
     .from('products')
-    .select('slug, name, nome, description, descricao, metawords, images, banner, category')
+    .select('slug, name, metawords, images, banner, category')
 
   if (error) { console.error('Supabase error:', error); process.exit(1); }
 
@@ -31,8 +31,8 @@ async function main() {
 
   for (const p of products || []) {
     const slug = p.slug;
-    const name = p.name || p.nome || 'Produto';
-    const desc = p.description || p.descricao || `Compra ${name} personalizada na GráficaPT.`;
+    const name = p.name || 'Produto';
+    const desc = `Compra ${name} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`;
     const url = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
     let img = null;
     try {
