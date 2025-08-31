@@ -47,7 +47,7 @@
     if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = 'A enviar ficheiro...'; }
 
     const { data, error } = await supa.storage.from(bucket).upload(path, file, {
-      upsert: true,
+      upsert: false,
       cacheControl: '3600',
       contentType: file.type || 'application/octet-stream'
     });
