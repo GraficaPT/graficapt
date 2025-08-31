@@ -32,7 +32,7 @@ const stripHead = (html) => html
 
 const injectHead = (html, head) => html.replace(/<\/head>/i, `${head}\n</head>`);
 
-// === Carrossel com faixa deslizante + bolinhas; sem miniaturas ===
+// === Carrossel com faixa deslizante + bolinhas; controlos neutros (sem <button>) ===
 function criarCarrosselHTML(imagens) {
   const imgs = (Array.isArray(imagens) ? imagens : [imagens]).filter(Boolean);
   const mk = (x) =>
@@ -40,58 +40,55 @@ function criarCarrosselHTML(imagens) {
       ? String(x)
       : `${STORAGE_PUBLIC}${String(x || '').replace(/^\//, '')}`;
 
-  // 1) Faixa com TODOS os slides (cada slide ocupa 100% da largura)
+  // 1) Faixa com TODOS os slides (animação via CSS: flex + transition: transform)
   const faixa = `
-<div class="carrossel-container">
-  <button class="carrossel-btn prev" onclick="window.mudarImagem && window.mudarImagem(-1)" aria-label="Anterior">&#10094;</button>
-  <div class="carrossel-imagens-wrapper">
-    <div class="carrossel-imagens" id="carrossel">
-      ${imgs
-        .map(
-          (img, i) => `
-      <div class="carrossel-slide" data-index="${i}">
+<div class="carrossel-container" style="position:relative">
+  <span class="carrossel-seta prev"
+        role="button" tabindex="0"
+        onclick="window.mudarImagem && window.mudarImagem(-1)"
+        aria-label="Anterior"
+        style="position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:2;line-height:1;font-size:28px;cursor:pointer;user-select:none;">&#10094;</span>
+
+  <div class="carrossel-imagens-wrapper" style="overflow:hidden">
+    <div class="carrossel-imagens" id="carrossel" style="display:flex;transition:transform .3s ease;">
+      ${imgs.map((img, i) => `
+      <div class="carrossel-slide" data-index="${i}" style="min-width:100%">
         <img class="carrossel-img"
              src="${mk(img)}"
              alt="Imagem ${i + 1}"
+             style="display:block;max-width:100%;height:auto;margin:0 auto"
              onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">
-      </div>`
-        )
-        .join('')}
+      </div>`).join('')}
     </div>
   </div>
-  <button class="carrossel-btn next" onclick="window.mudarImagem && window.mudarImagem(1)" aria-label="Próximo">&#10095;</button>
+
+  <span class="carrossel-seta next"
+        role="button" tabindex="0"
+        onclick="window.mudarImagem && window.mudarImagem(1)"
+        aria-label="Próximo"
+        style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:2;line-height:1;font-size:28px;cursor:pointer;user-select:none;">&#10095;</span>
 </div>`;
 
-  // 2) Bolinhas (indicadores) — o teu CSS já estiliza .dot / .active
+  // 2) Bolinhas (mantém as tuas classes/estilos existentes)
   const dots = `
 <div class="carrossel-indicadores" id="indicadores">
-  ${imgs
-    .map(
-      (_img, i) => `
-  <button class="dot${i === 0 ? ' active' : ''}"
-          type="button"
-          data-index="${i}"
+  ${imgs.map((_, i) => `
+    <span class="dot${i===0?' active':''}"
+          role="button" tabindex="0"
           aria-label="Ir para imagem ${i + 1}"
-          onclick="window.irParaImagem && window.irParaImagem(${i})"></button>`
-    )
-    .join('')}
+          onclick="window.irParaImagem && window.irParaImagem(${i})"></span>`).join('')}
 </div>`;
 
-  // 3) Bootstrap mínimo: só controla translateX e a .active dos dots
+  // 3) Bootstrap mínimo: controla translateX e .active das bolinhas (animação vem do teu CSS)
   const boot = `
 <script>
 (function(){
-  if (window.__CAROUSEL_BOOTED__) return; // evita duplicar em páginas com múltiplos carrosséis
+  if (window.__CAROUSEL_BOOTED__) return;
   window.__CAROUSEL_BOOTED__ = true;
 
-  var strip = document.getElementById('carrossel');          // .carrossel-imagens
+  var strip = document.getElementById('carrossel');
   var dotsWrap = document.getElementById('indicadores');
   if (!strip) return;
-
-  // Espera-se que o teu CSS tenha:
-  // .carrossel-imagens { display:flex; transition: transform .3s ease; }
-  // .carrossel-slide   { min-width:100%; }
-  // Assim, a animação vem do CSS.
 
   var slides = Array.from(strip.querySelectorAll('.carrossel-slide'));
   var dots   = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.dot')) : [];
@@ -100,13 +97,11 @@ function criarCarrosselHTML(imagens) {
   function goto(i){
     var n = slides.length;
     if (!n) return;
-    current = ((i % n) + n) % n; // wrap
+    current = ((i % n) + n) % n;
     strip.style.transform = 'translateX(-' + (current * 100) + '%)';
-    // atualiza bolinhas
     if (dots.length){
       dots.forEach(function(d, idx){
-        if (idx === current) d.classList.add('active');
-        else d.classList.remove('active');
+        d.classList.toggle('active', idx === current);
       });
     }
   }
@@ -114,7 +109,6 @@ function criarCarrosselHTML(imagens) {
   window.irParaImagem = function(i){ goto(i); };
   window.mudarImagem  = function(delta){ goto(current + (delta || 1)); };
 
-  // Inicializa no slide 0 (CSS trata da transição)
   goto(0);
 })();
 </script>`;
