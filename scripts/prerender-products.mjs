@@ -1,15 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import http from 'http';
-import handler from 'serve-handler';
+import { JSDOM } from 'jsdom';
 import { createClient } from '@supabase/supabase-js';
-import puppeteer from 'puppeteer';
-
-/**
- * Pre-render products by loading the real client page (product.html)
- * with each slug and saving the fully rendered HTML into /produto/<slug>/index.html
- * — before deploy — so bots get static pages.
- */
 
 const ROOT = process.cwd();
 const OUT_ROOT = path.join(ROOT, 'produto');
@@ -22,92 +14,96 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   process.exit(1);
 }
 
-const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const productsTable = 'products';
 
-// Minimal static server to serve current workspace during prerender
-async function startServer(port=0) {
-  const server = http.createServer((request, response) => {
-    return handler(request, response, {
-      public: ROOT,
-      cleanUrls: false,
-      rewrites: [
-        // allow /produto/<slug> to map to /product.html?slug=<slug>
-        { source: '/produto/:slug', destination: '/product.html?slug=:slug' },
-        { source: '/produto/:slug/', destination: '/product.html?slug=:slug' },
-      ],
-    });
-  });
-  await new Promise(res => server.listen(port, res));
-  const address = server.address();
-  const actualPort = typeof address === 'object' ? address.port : port;
-  return { server, url: `http://localhost:${actualPort}` };
+function loadFile(rel) {
+  return fs.readFileSync(path.join(ROOT, rel), 'utf-8');
 }
 
-async function fetchProducts() {
-  const { data, error } = await supa.from('products').select('slug');
+async function fetchSlugs(client) {
+  const { data, error } = await client.from(productsTable).select('slug');
   if (error) throw error;
   return (data || []).map(r => r.slug).filter(Boolean);
 }
 
-// Wait for page to be fully rendered: either a sentinel on window or selector present
-async function waitReady(page) {
-  // mark prerenderReady true in app if available; fallback to selector
-  await page.waitForFunction(() => {
-    if (window.prerenderReady === true) return true;
-    const el = document.getElementById('produto-dinamico');
-    return !!(el && el.children && el.children.length > 0);
-  }, { timeout: 25000 }).catch(() => {});
-
-  // brief settle for images
-  await page.waitForTimeout(400);
+function baseHtml() {
+  return loadFile('product.html');
 }
 
-// Strip loader overlay if present
-function stripLoader(html) {
-  return html
-    .replace(/<link[^>]+loader\.css[^>]*>\s*/gi, '')
-    .replace(/<script>\s*window\.prerenderReady\s*=\s*false;\s*<\/script>/gi, '')
-    .replace(/<div[^>]+id=["']loader-overlay["'][\s\S]*?<\/div>/gi, '');
-}
+async function renderOne(client, slug) {
+  const html = baseHtml()
+    .replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js[^"]*"><\/script>/i, '')
+    .replace(/<script src="\/js\/core\/supabase\.js"><\/script>/i, '')
+    .replace(/<script src="\/js\/env\.js"><\/script>/i, '');
 
-async function prerenderOne(baseUrl, slug) {
-  const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox','--disable-setuid-sandbox'] });
-  const page = await browser.newPage();
-  const url = `${baseUrl}/produto/${encodeURIComponent(slug)}`;
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await waitReady(page);
+  const dom = new JSDOM(html, {
+    url: `https://graficapt.com/produto/${encodeURIComponent(slug)}`,
+    runScripts: "outside-only",
+    resources: "usable",
+    pretendToBeVisual: true,
+    contentType: "text/html",
+  });
 
-  // ensure meta tags up to date (some scripts set them dynamically)
-  // then get full HTML
-  const html = await page.content();
-  await browser.close();
+  const { window } = dom;
+  window.Supa = { client };
+  if (!('fetch' in window)) {
+    window.fetch = globalThis.fetch.bind(globalThis);
+  }
 
-  const finalHtml = stripLoader(html);
-  const outDir = path.join(OUT_ROOT, slug);
-  fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, 'index.html'), finalHtml, 'utf-8');
-  console.log('✓ prerendered /produto/%s', slug);
+  const appJs = loadFile('js/app.bundle.js');
+  dom.getInternalVMContext();
+  window.eval(appJs);
+
+  window.document.dispatchEvent(new window.Event('DOMContentLoaded', { bubbles: true }));
+
+  const waitFor = (cond, timeout=25000, step=50) => new Promise((resolve, reject) => {
+    const start = Date.now();
+    const tick = () => {
+      try { if (cond()) return resolve(); } catch {}
+      if (Date.now() - start > timeout) return reject(new Error('timeout'));
+      setTimeout(tick, step);
+    };
+    tick();
+  });
+
+  try {
+    await waitFor(() => {
+      const el = window.document.getElementById('produto-dinamico');
+      return el && el.children && el.children.length > 0;
+    }, 25000, 50);
+  } catch (e) {
+    console.warn('Timeout waiting for produto-dinamico on slug', slug);
+  }
+
+  // canonical
+  const linkCanon = window.document.createElement('link');
+  linkCanon.setAttribute('rel','canonical');
+  linkCanon.setAttribute('href', `https://graficapt.com/produto/${slug}`);
+  window.document.head.appendChild(linkCanon);
+
+  // strip loader
+  Array.from(window.document.querySelectorAll('link[href*="loader.css"]')).forEach(n=>n.remove());
+
+  const final = "<!DOCTYPE html>\n" + window.document.documentElement.outerHTML;
+  return final;
 }
 
 async function main() {
-  const { server, url } = await startServer(0);
-  try {
-    const slugs = await fetchProducts();
-    if (!slugs.length) {
-      console.warn('No products found');
-      return;
-    }
-    fs.mkdirSync(OUT_ROOT, { recursive: true });
-    for (const slug of slugs) {
-      await prerenderOne(url, slug);
-    }
-    console.log('✅ All products prerendered to /produto/<slug>/index.html');
-  } finally {
-    server.close();
+  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const slugs = await fetchSlugs(client);
+  if (!slugs.length) {
+    console.warn('No products found');
+    return;
   }
+  fs.mkdirSync(OUT_ROOT, { recursive: true });
+  for (const slug of slugs) {
+    const html = await renderOne(client, slug);
+    const dir = path.join(OUT_ROOT, slug);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf-8');
+    console.log('✓ prerendered /produto/%s', slug);
+  }
+  console.log('✅ All products prerendered (jsdom).');
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main().catch(e => { console.error(e); process.exit(1); });

@@ -9,7 +9,6 @@
     "@vercel/analytics": "^1.5.0"
   },
   "devDependencies": {
-    "puppeteer": "^22.0.0",
-    "serve-handler": "^6.1.5"
+    "jsdom": "^24.1.0"
   }
 }
