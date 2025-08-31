@@ -310,80 +310,88 @@ function renderCard(p){
   const img = mkUrl(images[0] || '');
   const nome = p.name || p.nome || slug;
   const cat = (p.category || p.categoria || '').toLowerCase();
-  return `<a class="cell" href="/produto/${esc(slug)}" data-categoria="${esc(cat)}" data-nome="${esc(nome)}">
+  const tags = (Array.isArray(p.tags)?p.tags:asArray(p.tags)).join(',');
+  // match old structure/classes
+  return `<div class="cell" data-categoria="${esc(cat)}" data-nome="${esc(nome)}" data-item data-tags="${esc(tags)}" onclick="location.href='/produto/${esc(slug)}'">
     ${img ? `<img src="${esc(img)}" alt="${esc(nome)}">` : ''}
     <div class="cellText">${esc(nome)}</div>
-  </a>`;
+    <div class="cellBtn">Ver Opções</div>
+  </div>`;
 }
 
 function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();
-  const cards = [...products].sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome))).map(renderCard).join('');
+  const cats = Array.from(new Set((products||[]).map(p => (p.category||p.categoria||'').toLowerCase()).filter(Boolean)));
+  const options = ['<option value="all">Todas as categorias</option>'].concat(
+    cats.map(c => `<option value="${esc(c)}">${esc(c.charAt(0).toUpperCase() + c.slice(1))}</option>`)
+  ).join('');
+  const cardsHTML = (products||[])
+    .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
+    .map(renderCard)
+    .join('');
 
   const body = `
 <div class="topbar" id="topbar">
 ${topbarHTML}
 </div>
 
-<section class="hero">
-  <!-- Mantém o teu herói atual via CSS/imagens existentes -->
-</section>
-
-<h1 class="titulo-home">Produtos Personalizáveis</h1>
-
-<div class="produtos-toolbar">
-  <div class="ordenar">
-    <label>Ordenar por</label>
-    <select id="ordenar">
-      <option value="az">A-Z</option>
-      <option value="za">Z-A</option>
-    </select>
-  </div>
+<a class="overtitle hcenter">Produtos Personalizáveis</a>
+<div class="filter-sort">
+  <select id="filterCategory">${options}</select>
+  <select id="sortBy">
+    <option value="default">Ordenar por</option>
+    <option value="az">Nome A-Z</option>
+    <option value="za">Nome Z-A</option>
+  </select>
+</div>
+<div id="products-grid" class="products-grid" data-products-grid>
+  ${cardsHTML}
 </div>
 
-<section class="products-grid" id="products-grid">
-  ${cards}
-</section>
-
-<section class="orcamento-rapido">
-  <h2>Não encontras o que precisas?</h2>
-  <form id="orcamentoForm" method="POST">
-    <div class="options-row">
-      <div class="form-group"><input type="text" name="Empresa" placeholder="Empresa ou Nome" required></div>
-      <div class="form-group"><input type="email" name="Email" placeholder="o.teu@email.com" required></div>
-    </div>
-    <div class="options-row">
-      <div class="form-group"><input type="tel" name="Telemóvel" placeholder="+351 ..." required></div>
-      <div class="form-group"><input type="text" name="Produto" placeholder="Outro produto / Serviço"></div>
-    </div>
-    <div class="options-row">
-      <div class="form-group">
-        <textarea name="Detalhes" placeholder="Descreve que produto procuras assim como qualquer outro detalhe relevante!" required></textarea>
-      </div>
-    </div>
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_next" value="https://graficapt.com">
-    <button id="submit" type="submit">ENVIAR</button>
-  </form>
-</section>
+<a class="overtitle hcenter">Não encontras o que precisas?</a>
+<form id="orcamentoForm" enctype="multipart/form-data" class="invoce hcenter">
+  <input required placeholder="Nome" type="text" name="name" class="name">
+  <input required placeholder="Email" type="email" name="email" class="email">
+  <input required placeholder="Telefone" type="text" name="phone" class="phone">
+  <input placeholder="Empresa" type="text" name="company" class="company">
+  <textarea required rows="5" placeholder="Descreve que produto ...e relevante!" name="description" class="description"></textarea>
+  <input type="hidden" name="_captcha" value="false">
+  <input type="hidden" name="_next" value="https://graficapt.com">
+  <button type="submit" id="submit">ENVIAR</button>
+</form>
 
 <footer class="footer" id="footer">
 ${footerHTML}
 </footer>
 
 <script src="/js/env.js"></script>
-<script src="/js/filter.js" defer></script>
 <script src="/js/formSender.js" defer></script>
 <script>
-// ordenar simples
-document.getElementById('ordenar')?.addEventListener('change', function(){
-  const grid = document.getElementById('products-grid');
+// Filtro por categoria e ordenação A-Z/Z-A (client-side)
+(function(){
+  const grid = document.querySelector('[data-products-grid]');
   if (!grid) return;
-  const items = Array.from(grid.querySelectorAll('.cell'));
-  const dir = this.value === 'za' ? -1 : 1;
-  items.sort((a,b)=> a.dataset.nome.localeCompare(b.dataset.nome) * dir);
-  items.forEach(it => grid.appendChild(it));
-});
+  const filterSel = document.getElementById('filterCategory');
+  const sortSel = document.getElementById('sortBy');
+
+  function apply() {
+    const cat = (filterSel && filterSel.value) || 'all';
+    const dir = (sortSel && sortSel.value) || 'default';
+    const cards = Array.from(grid.querySelectorAll('.cell'));
+    cards.forEach(card => {
+      const ok = cat === 'all' || (card.dataset.categoria||'') === cat;
+      card.style.display = ok ? '' : 'none';
+    });
+    if (dir === 'az' || dir === 'za') {
+      const mult = dir === 'az' ? 1 : -1;
+      cards.sort((a,b)=> a.dataset.nome.localeCompare(b.dataset.nome) * mult);
+      cards.forEach(c => grid.appendChild(c));
+    }
+  }
+
+  filterSel?.addEventListener('change', apply);
+  sortSel?.addEventListener('change', apply);
+})();
 </script>
 `;
 
