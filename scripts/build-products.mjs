@@ -329,8 +329,8 @@ async function main(){
     const outDir = path.join(OUT_ROOT, slug);
     fs.mkdirSync(outDir, { recursive: true });
     
-  // Inline static topbar/footer so nothing is injected at runtime
-  html = html.replace(/<div class=\"topbar\" id=\"topbar\">\\s*<\\/div>/, `
+    // Inline static topbar/footer using plain string replacement (no regex)
+    const TOPBAR = `
     <div class="bar">
         <img src="../imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
         <div class="tabs desktop-only">
@@ -354,8 +354,8 @@ async function main(){
         <a href="/index.html#filter=all">Ver Tudo</a>
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-`);
-  html = html.replace(/<footer class=\"footer\" id=\"footer\">\\s*<\\/footer>/, ` 
+`;
+    const FOOTER = ` 
         <div class="footer-columns">
             <div class="footer-column">
                 <h4>Ajuda</h4>
@@ -390,13 +390,16 @@ async function main(){
         <div class="footer-bottom">
             © 2025 GraficaPT. Todos os direitos reservados.
         </div>
-`);
-  // Remove loader and supabase/env scripts
-  html = html.replace(/<link rel=\"stylesheet\" href=\"\\/css\\/loader\.css\">\\s*/g, '');
-  html = html.replace(/<script>window\.prerenderReady = false;<\\/script>/g, '');
-  html = html.replace(/\s*<script src=\"\\/js\\/env\.js\"><\\/script>/g, '');
-  html = html.replace(/\s*<script src=\"https:\\/[^\"']*supabase-js[^\"']*\"><\\/script>/g, '');
-  html = html.replace(/\s*<script src=\"\\/js\\/core\\/supabase\.js\"><\\/script>/g, '');
+`;
+    html = html.replace('<div class="topbar" id="topbar"></div>', TOPBAR);
+    html = html.replace('<footer class="footer" id="footer"></footer>', FOOTER);
+
+    // Remove loader and dynamic scripts (exact matches used in product.html)
+    html = html.replace('<link rel="stylesheet" href="/css/loader.css">', '');
+    html = html.replace('<script>window.prerenderReady = false;</script>', '');
+    html = html.replace('<script src="/js/env.js"></script>', '');
+    html = html.replace('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>', '');
+    html = html.replace('<script src="/js/core/supabase.js"></script>', '');
 
     fs.writeFileSync(path.join(outDir,'index.html'), html, 'utf-8');
     console.log('✓ /produto/%s', slug);
