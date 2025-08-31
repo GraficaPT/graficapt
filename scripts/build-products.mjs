@@ -387,7 +387,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     '<div id="products">',
     '  <a class="subtitle hcenter">Produtos Personalizáveis</a>',
     '  <div class="filter-sort">',
-    '    select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
+    '    <select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
          catOptions,
     '    </select>',
     '    <select id="sortBy" onchange="applyFilters()">',
