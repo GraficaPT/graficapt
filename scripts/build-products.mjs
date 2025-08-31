@@ -3,12 +3,11 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * build-products.mjs — FULL STATIC BUILD (single query, no product.html)
- * - Generates /produto/<slug>/index.html with EXACT same classes/structure as old dynamic code
+ * build-products.mjs — FULL STATIC BUILD (no product.html required)
+ * - One Supabase query; renders each /produto/<slug>/index.html from scratch
+ * - Exact old classes/structure for carousel, options and form
  * - Extracts topbar/footer from js/app.bundle.js
- * - Preserves form placeholders and fields; removes only the final "Quantidade" block
- * - Adds minimal inline JS for carousel and a submit guard if formSender doesn't load
- * - Strong logging to see timings
+ * - Strong logging to pinpoint build hotspots
  */
 
 const log = (...a) => console.log('[build-products]', ...a);
@@ -29,23 +28,24 @@ const ROOT     = process.cwd();
 const OUT_ROOT = path.join(ROOT, 'produto');
 
 // IO helpers
+const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf-8');
 const ensureDir = (p) => fs.mkdirSync(p, { recursive: true });
 const writeFileAtomic = (filePath, content) => {
   const tmp = filePath + '.tmp';
   fs.writeFileSync(tmp, content, 'utf-8');
   fs.renameSync(tmp, filePath);
 };
-const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf-8');
 
 // Utils
 const esc = (s='') => String(s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
 const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
 const mkUrl = (p) => !p ? '' : (/^https?:\/\//i.test(p) ? p : (STORAGE_PUBLIC + String(p).replace(/^\/+/, '')));
 const safeJson = (v) => { try { return JSON.parse(v || '[]'); } catch { return []; } };
 
-// Extract topbar/footer from bundle
+// Extract topbar/footer from bundle (no product.html dependency)
 function extractTopbarFooter() {
   const t = Date.now();
   const bundle = read('js/app.bundle.js');
@@ -56,7 +56,7 @@ function extractTopbarFooter() {
   return { topbarHTML: mTop[1], footerHTML: mFoot[1] };
 }
 
-// HEAD builder
+// HEAD builder (fresh)
 function buildHead(slug, p) {
   const title = p.name || p.nome || slug;
   const descr = p.shortdesc || p.descricao || `Compra ${title} personalizada na GráficaPT.`;
@@ -88,7 +88,7 @@ ${og ? `<meta property="og:image" content="${esc(og)}">` : ''}
 <link rel="stylesheet" href="/css/product.css">`.trim();
 }
 
-// Components (EXACT classes)
+// Components (exact classes)
 
 function criarCarrosselHTML(slug, imagens) {
   const imgs = (imagens || []).map(mkUrl).filter(Boolean);
@@ -130,7 +130,9 @@ function renderOption(opt={}, index=0) {
         title = item.nome || '';
         colorStyle = item.cor || '';
         imgAssoc = item.imagem || '';
-      } else { title = item; colorStyle = item; }
+      } else {
+        title = item; colorStyle = item;
+      }
       const tLower = String(title).toLowerCase();
       if (tLower === 'multicolor' || tLower === 'multicor') {
         colorStyle = 'linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)';
@@ -227,7 +229,6 @@ function createStaticFields() {
   <button id="submit" type="submit">Pedir Orçamento</button>
   `;
 }
-
 function inlineCarouselScript() {
   return `<script>
   (function(){
@@ -267,25 +268,6 @@ function inlineCarouselScript() {
   </script>`;
 }
 
-function inlineFormGuardScript() {
-  return `<script>
-  (function(){
-    if (!window.__FORMSENDER_GUARD__) {
-      window.__FORMSENDER_GUARD__ = true;
-      const f = document.getElementById('orcamentoForm');
-      if (f) {
-        f.addEventListener('submit', function(e){
-          if (!window.formSenderInitialized) {
-            e.preventDefault();
-            alert('Não foi possível enviar agora. Verifica a ligação e tenta novamente.');
-          }
-        }, { capture: true });
-      }
-    }
-  })();
-  </script>`;
-}
-
 function renderPage(slug, p, topbarHTML, footerHTML) {
   const head = buildHead(slug, p);
   const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
@@ -320,7 +302,6 @@ ${footerHTML}
 
 ${inlineCarouselScript()}
 <script src="/js/formSender.js" defer></script>
-${inlineFormGuardScript()}
 `;
 
   return `<!DOCTYPE html>
@@ -330,6 +311,22 @@ ${head}
 </head>
 <body>
 ${body}
+<script>
+(function(){
+  if (!window.__FORMSENDER_GUARD__) {
+    window.__FORMSENDER_GUARD__ = true;
+    const f = document.getElementById('orcamentoForm');
+    if (f) {
+      f.addEventListener('submit', function(e){
+        if (!window.formSenderInitialized) {
+          e.preventDefault();
+          alert('Não foi possível enviar agora. Verifica a ligação e tenta novamente.');
+        }
+      }, { capture: true });
+    }
+  }
+})();
+</script>
 </body>
 </html>`;
 }
