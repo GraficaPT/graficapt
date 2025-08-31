@@ -1,14 +1,7 @@
 // js/formSender.js
-// Mantém o envio do formulário como antes (POST para form.action / Apps Script),
-// e apenas substitui o upload do logotipo por Supabase Storage.
-//
-// Requisitos:
-//  - /js/env.js define window.__ENV = { SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_UPLOAD_BUCKET?, FORM_ACTION_URL?, FORM_NEXT_URL? }
-//  - O bucket (por defeito 'uploads') existe e tem policies para INSERT/UPDATE/SELECT (ou só INSERT com upsert=false).
-//
-// Notas:
-//  - O form continua a usar os mesmos campos e ids: #orcamentoForm, #ficheiro, #link_ficheiro, #uploadStatus, #submit
-//  - Depois do upload, o input file #ficheiro fica hidden como pedido.
+// Mantém SUBMIT "como antes" (POST para FORM_ACTION_URL/action + redirect) e
+// substitui apenas o upload do logotipo por Supabase Storage.
+// Requer /js/env.js carregado antes deste ficheiro.
 
 (function(){
   if (window.formSenderInitialized) return;
@@ -110,6 +103,11 @@
   }
 
   if (form) {
+    // Se o form não tiver action e existir ENV.FORM_ACTION_URL, aplica-o
+    if (!form.getAttribute('action') && ENV.FORM_ACTION_URL) {
+      form.setAttribute('action', ENV.FORM_ACTION_URL);
+    }
+
     form.addEventListener('submit', async function(e){
       // Mantém o comportamento "como antes": POST para o action (ou ENV.FORM_ACTION_URL) e redirect.
       e.preventDefault();
