@@ -1,6 +1,17 @@
 {
   "rewrites": [
     {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(googlebot|bingbot|yandexbot|duckduckbot|baiduspider|facebookexternalhit|twitterbot|slackbot|linkedinbot|embedly|quora|pinterest|whatsapp|discordbot)"
+        }
+      ],
+      "destination": "/api/prerender?path=$1"
+    },
+    {
       "source": "/produto/:slug",
       "destination": "/product.html?slug=:slug"
     },

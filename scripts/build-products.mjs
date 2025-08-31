@@ -32,7 +32,6 @@ async function main(){
   const { data: products, error } = await supabase
     .from('products')
     .select('slug, name, metawords, images, banner, category');
-
   if (error) { console.error('Supabase error:', error); process.exit(1); }
 
   for (const p of products || []){
@@ -41,12 +40,10 @@ async function main(){
     const desc = `Compra ${name} personalizada na GráficaPT. Impressão profissional, ideal para empresas e eventos.`;
     const url = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
 
-    // images
     let imagesArr = [];
     try { imagesArr = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]'); } catch {}
     const hero = mkUrl(imagesArr[0] || p.banner || 'logo_minimal.png');
     const thumbs = imagesArr.slice(1).map(mkUrl);
-
     const keywords = Array.isArray(p.metawords) ? p.metawords.filter(Boolean).join(', ') : String(p.metawords || '');
 
     const head = `
@@ -60,24 +57,6 @@ async function main(){
 <meta property="og:image" content="${hero}">
 <meta property="og:url" content="${url}">
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json" id="product-jsonld">${JSON.stringify({
-  "@context":"https://schema.org",
-  "@type":"Product",
-  "name": name,
-  "image": [hero],
-  "description": desc,
-  "brand": {"@type":"Brand","name":"GraficaPT"},
-  "url": url
-})}</script>
-<script type="application/ld+json" id="breadcrumbs-jsonld">${JSON.stringify({
-  "@context":"https://schema.org",
-  "@type":"BreadcrumbList",
-  "itemListElement":[
-    {"@type":"ListItem","position":1,"name":"Início","item":BASE_URL+"/"},
-    {"@type":"ListItem","position":2,"name":"Produtos","item":BASE_URL+"/produtos/"},
-    {"@type":"ListItem","position":3,"name":name,"item":url}
-  ]
-}).replace(/BASE_URL/g, BASE_URL)}</script>
 `;
 
     const body = `
@@ -97,10 +76,7 @@ async function main(){
     const outDir = path.join(OUT_ROOT, slug);
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir,'index.html'), html, 'utf-8');
-    console.log('✓ /produto/%s', slug);
   }
-
-  console.log('✅ Static product pages built.');
+  console.log('ok produtos');
 }
-
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch(e=>{console.error(e);process.exit(1)});

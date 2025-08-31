@@ -1,6 +1,8 @@
-;(function(window, document){'use strict';
+;(function(window,document){'use strict';
+const supabase = (window.Supa && window.Supa.client) || null;
 
 /* ===== js/supamanager/manager.js ===== */
+
 
 
 
@@ -150,8 +152,8 @@ document.getElementById('produtoForm').onsubmit = async function (e) {
 loadProdutos();
 
 
-
 /* ===== js/supamanager/opcoes-ui.js ===== */
+
 
 // ---- Mini Carrossel de Imagens para associação à cor ----
 export function renderImageSelector(urls, selectedUrl = null, container = null) {
@@ -559,8 +561,8 @@ export function createOpcaoRow(label = '', tipo = 'number', valores = [], idx = 
 }
 
 
-
 /* ===== js/supamanager/produtos-ui.js ===== */
+
 
 export async function loadProdutos() {
     const { data, error } = await supabase.from('products').select('*');
@@ -592,4 +594,19 @@ export function renderProdutosList(produtosArr) {
 }
 
 
-})(window, document);
+/* ===== js/supamanager/supabase.js ===== */
+
+
+
+
+
+export async function uploadImageToSupabase(file, slug) {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.floor(Math.random() * 10000)}.${fileExt}`;
+  const filePath = `${slug}/${fileName}`;
+  const { error } = await supabase.storage.from('products').upload(filePath, file, { upsert: false });
+  if (error) throw error;
+  return filePath;
+}
+
+})(window,document);
