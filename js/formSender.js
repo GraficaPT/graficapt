@@ -133,7 +133,7 @@
         await fetch(actionUrl, { method: 'POST', body: fd, mode: 'no-cors' });
 
         // ✅ ALERT antes de redirecionar (como tinhas antes)
-        alert('Pedido de orçamento enviado com sucesso!\\nIremos contactá-lo em breve.');
+        alert('Pedido de orçamento enviado com sucesso! \n Iremos contactá-lo em breve.');
 
         const next =
           (form.querySelector('input[name=\"_next\"]')?.value) ||
