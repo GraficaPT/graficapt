@@ -32,32 +32,43 @@ const stripHead = (html) => html
 
 const injectHead = (html, head) => html.replace(/<\/head>/i, `${head}\n</head>`);
 
-/* ----- SSR versions of your old renderers ----- */
+// --- EXACTAMENTE como o teu JS antigo espera ---
+function criarCarrosselHTML(imagens) {
+  const imgs = (Array.isArray(imagens) ? imagens : [imagens]).filter(Boolean);
+  const first = imgs[0] || '';
+  const mk = (x) => /^https?:\/\//.test(String(x||'')) ? String(x) : `${STORAGE_PUBLIC}${String(x||'').replace(/^\//,'')}`;
 
-function criarCarrosselHTML(imagens){
-  const imgs = asArray(imagens).filter(Boolean);
-  if (!imgs.length) return '';
-  const list = imgs.map((img, idx) => {
-    const src = mkUrl(img);
-    const alt = `Imagem ${idx+1}`;
-    return `<img class="carrossel-img" src="${src}" alt="${esc(alt)}" onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">`;
-  }).join('');
-  const thumbs = imgs.map((img, idx) => {
-    const src = mkUrl(img);
-    const alt = `Imagem ${idx+1}`;
-    return `<img class="miniatura" src="${src}" alt="${esc(alt)}" onclick="window.irParaImagem && window.irParaImagem(${idx})">`;
-  }).join('');
-  return `
+  // 1) Um ÚNICO <img id="imagem-principal"> (o antigo JS troca o src aqui)
+  const main = `
 <div class="carrossel-container">
   <button class="carrossel-btn prev" onclick="window.mudarImagem && window.mudarImagem(-1)" aria-label="Anterior">&#10094;</button>
   <div class="carrossel-imagens-wrapper">
-    <div class="carrossel-imagens" id="carrossel">${list}</div>
+    <img id="imagem-principal" class="carrossel-img"
+         src="${mk(first)}"
+         alt="Imagem 1"
+         onerror="this.onerror=null; this.style.opacity='0.4'; this.alt='Erro ao carregar imagem';">
   </div>
   <button class="carrossel-btn next" onclick="window.mudarImagem && window.mudarImagem(1)" aria-label="Próximo">&#10095;</button>
-</div>
-<div class="carrossel-indicadores" id="indicadores"></div>
-<div class="miniaturas" id="miniaturas">${thumbs}</div>`;
+</div>`;
+
+  // 2) Indicadores (o JS antigo preenche/usa este ID)
+  const dots = `<div class="carrossel-indicadores" id="indicadores"></div>`;
+
+  // 3) Miniaturas EXACTAS (o antigo JS lê #miniaturas e usa onclick irParaImagem)
+  const thumbs = `
+<div class="miniaturas" id="miniaturas">
+  ${imgs.map((img, i) =>
+    `<img class="miniatura"
+          src="${mk(img)}"
+          alt="Imagem ${i+1}"
+          data-index="${i}"
+          onclick="window.irParaImagem && window.irParaImagem(${i})">`
+  ).join('')}
+</div>`;
+
+  return `${main}\n${dots}\n${thumbs}`;
 }
+
 
 function renderOptionSSR(opt, index){
   const tipo = String(opt?.tipo || '').toLowerCase();
