@@ -10,12 +10,33 @@
         <link rel="stylesheet" href="css/index.css">
         <link rel="icon" href="imagens/logo.ico">
         <link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
-      <script src="/js/env.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-  <script src="/js/core/supabase.js"></script>
 </head>
     <body>
-        <div class="topbar" id="topbar"></div>
+        
+    <div class="bar">
+        <img src="../imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
+        <div class="tabs desktop-only">
+            <a href="/index.html#filter=rigidos">Suportes Rigídos</a>
+            <a href="/index.html#filter=bandeiras">Bandeiras Publicitárias</a>
+            <a href="/index.html#filter=sacos">Sacos</a>
+            <a href="/index.html#filter=vestuario">Vestuário</a>
+            <a href="/index.html#filter=all">Ver Tudo</a>
+        </div>
+        <div class="hamburger mobile-only" onclick="toggleSidebar()">☰</div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="../imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = '/index.html'">
+        </div>
+        <a href="/index.html#filter=Rigidos">Suportes Rigídos</a>
+        <a href="/index.html#filter=Bandeiras">Bandeiras Publicitárias</a>
+        <a href="/index.html#filter=Sacos">Sacos</a>
+        <a href="/index.html#filter=Vestuario">Vestuário</a>
+        <a href="/index.html#filter=all">Ver Tudo</a>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
 
         <a class="subtitle hcenter">Sobre Nós</a>
         <div class="supdescription">

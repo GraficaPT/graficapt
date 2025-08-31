@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
@@ -27,14 +26,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="imagens/logo.ico">
   <link rel="stylesheet" href="css/index.css">
-  
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <div class="topbar" id="topbar">
+  
     <div class="bar">
-        <img src="/imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
+        <img src="../imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
         <div class="tabs desktop-only">
             <a href="/index.html#filter=rigidos">Suportes Rigídos</a>
             <a href="/index.html#filter=bandeiras">Bandeiras Publicitárias</a>
@@ -47,7 +45,7 @@
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <img src="/imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = '/index.html'">
+            <img src="../imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = '/index.html'">
         </div>
         <a href="/index.html#filter=Rigidos">Suportes Rigídos</a>
         <a href="/index.html#filter=Bandeiras">Bandeiras Publicitárias</a>
@@ -56,7 +54,7 @@
         <a href="/index.html#filter=all">Ver Tudo</a>
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-</div>
+
 
   <div class="banner hcenter">
     <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy" onclick="location.href = 'produto/bandeiravela'">
@@ -69,30 +67,14 @@
   <div id="products">
     <a class="subtitle hcenter">Produtos Personalizáveis</a>
     <div class="filter-sort">
-      <select id="filterCategory" onchange="location.hash = 'filter=' + this.value"><option value="all">Todos os Produtos</option><option value="bandeiras">Bandeiras</option><option value="vestuario">Vestuario</option><option value="sacos">Sacos</option></select>
+      <select id="filterCategory" onchange="location.hash = 'filter=' + this.value"></select>
       <select id="sortBy" onchange="applyFilters()">
         <option value="default">Ordenar por</option>
         <option value="az">Nome A-Z</option>
         <option value="za">Nome Z-A</option>
       </select>
     </div>
-    <div id="products-grid" class="products-grid" data-static="1">
-<div class="cell" data-categoria="bandeiras" data-nome="bandeiravela" onclick="location.href = '/produto/bandeiravela'">
-  <img src="/imagens/banner/bandeirasbanner.webp" alt="Bandeira Vela" loading="lazy">
-  <div class="cellText">Bandeira Vela</div>
-  <div class="cellBtn">Ver Opções</div>
-</div>
-<div class="cell" data-categoria="vestuario" data-nome="tshirtregent" onclick="location.href = '/produto/tshirtregent'">
-  <img src="/imagens/banner/tshirtbanner.webp" alt="T-shirt Regent" loading="lazy">
-  <div class="cellText">T-shirt Regent</div>
-  <div class="cellBtn">Ver Opções</div>
-</div>
-<div class="cell" data-categoria="sacos" data-nome="sacoskraft" onclick="location.href = '/produto/sacoskraft'">
-  <img src="/imagens/banner/sacoskraftbanner.webp" alt="Sacos Kraft" loading="lazy">
-  <div class="cellText">Sacos Kraft</div>
-  <div class="cellBtn">Ver Opções</div>
-</div>
-</div>
+    <div id="products-grid" class="products-grid"></div>
   </div>
 
   <a class="overtitle hcenter">Não encontras o que precisas?</a>
@@ -108,7 +90,7 @@
     <button type="submit" id="submit">ENVIAR</button>
   </form>
 
-  <footer class="footer" id="footer"> 
+   
         <div class="footer-columns">
             <div class="footer-column">
                 <h4>Ajuda</h4>
@@ -143,7 +125,7 @@
         <div class="footer-bottom">
             © 2025 GraficaPT. Todos os direitos reservados.
         </div>
-</footer>
+
   
   
   

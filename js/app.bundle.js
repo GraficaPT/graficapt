@@ -715,14 +715,7 @@ function toggleSidebar() {
     overlay.style.display = isOpen ? "none" : "block";
 }
 
-document.addEventListener('DOMContentLoaded', function(){
-  try{
-    const tb = document.getElementById('topbar');
-    const ft = document.getElementById('footer');
-    if (tb && tb.children.length>0 && ft && ft.children.length>0) return; // já está estático
-  }catch(e){}
-  insertComponents();
-});
+document.addEventListener('DOMContentLoaded', insertComponents);
 
 
 
@@ -747,11 +740,6 @@ function getBannerUrl(prod) {
 }
 
 async function renderProdutos() {
-  const gridEl = document.getElementById('products-grid');
-  if (gridEl && gridEl.dataset && gridEl.dataset.static === '1') {
-    try { window.prerenderReady = true; } catch(e){}
-    return; // grid estático: não gerar dinamicamente
-  }
 
   const { data: produtos, error } = await supabase
     .from('products')
