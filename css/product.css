@@ -476,3 +476,98 @@ button:hover {
   transform: scale(1.08);
 }
 
+
+/* --- Carousel normalization (safe defaults) --- */
+.product-image { 
+  display: grid; 
+  gap: 16px; 
+}
+
+/* Main carousel wrapper */
+.carrossel-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Viewport for images */
+.carrossel-imagens-wrapper {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f7f7f7;
+}
+
+/* Sliding strip (even if we don't animate, keeps styles consistent) */
+.carrossel-imagens {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+/* Main images */
+.carrossel-img {
+  display: block;
+  max-width: 100%;
+  max-height: 540px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+/* Prev/Next buttons */
+.carrossel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+  border: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.carrossel-btn.prev { left: 8px; }
+.carrossel-btn.next { right: 8px; }
+
+/* Dots (if used by your JS) */
+.carrossel-indicadores {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* Thumbnails row */
+.miniaturas {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(72px, 1fr);
+  gap: 8px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.miniaturas .miniatura {
+  width: 100%;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e6e6e6;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.miniaturas .miniatura:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+@media (max-width: 640px){
+  .carrossel-img { max-height: 360px; }
+  .miniaturas { grid-auto-columns: minmax(56px, 1fr); }
+  .miniaturas .miniatura { height: 56px; }
+}
