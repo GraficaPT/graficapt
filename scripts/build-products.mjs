@@ -3,21 +3,20 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * Deterministic static generator for /produto/<slug>/index.html
- * - No browser/JSDOM; single batched fetch to Supabase
- * - Extracts topbar/footer from js/app.bundle.js to keep exact markup/classes
- * - Preserves CSS links from product.html (minus loader.css)
- * - Adds detailed timings to find bottlenecks in CI
+ * build-products.mjs — FULL STATIC BUILD (no product.html required)
+ * - One Supabase query; renders each /produto/<slug>/index.html from scratch
+ * - Exact old classes/structure for carousel, options and form
+ * - Extracts topbar/footer from js/app.bundle.js
+ * - Strong logging to pinpoint build hotspots
  */
 
-const t0 = Date.now();
 const log = (...a) => console.log('[build-products]', ...a);
 
-// ---------- ENV ----------
-const SUPABASE_URL       = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY  = process.env.SUPABASE_ANON_KEY || '';
-const BASE_URL           = process.env.BASE_URL || 'https://graficapt.com';
-const STORAGE_PUBLIC     = process.env.STORAGE_PUBLIC ||
+// ENV
+const SUPABASE_URL      = process.env.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+const BASE_URL          = process.env.BASE_URL || 'https://graficapt.com';
+const STORAGE_PUBLIC    = process.env.STORAGE_PUBLIC ||
   (SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/products/` : `${BASE_URL}/imagens/produtos/`);
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -28,7 +27,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 const ROOT     = process.cwd();
 const OUT_ROOT = path.join(ROOT, 'produto');
 
-// ---------- IO ----------
+// IO helpers
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf-8');
 const ensureDir = (p) => fs.mkdirSync(p, { recursive: true });
 const writeFileAtomic = (filePath, content) => {
@@ -37,227 +36,315 @@ const writeFileAtomic = (filePath, content) => {
   fs.renameSync(tmp, filePath);
 };
 
-// ---------- Helpers ----------
+// Utils
 const esc = (s='') => String(s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
+const mkUrl = (p) => !p ? '' : (/^https?:\/\//i.test(p) ? p : (STORAGE_PUBLIC + String(p).replace(/^\/+/, '')));
+const safeJson = (v) => { try { return JSON.parse(v || '[]'); } catch { return []; } };
 
-function loadBaseHead() {
-  const t = Date.now();
-  const html = read('product.html');
-  const m = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
-  const headInner = m ? m[1] : '';
-  // collect stylesheet links (except loader.css)
-  const links = [...headInner.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*>/gi)]
-    .map(x => x[0])
-    .filter(tag => !/loader\.css/i.test(tag));
-  // common metas to keep
-  const metas = [];
-  const metaCharset = headInner.match(/<meta[^>]*charset[^>]*>/i);
-  if (metaCharset) metas.push(metaCharset[0]);
-  const viewport = headInner.match(/<meta[^>]*name=["']viewport["'][^>]*>/i);
-  if (viewport) metas.push(viewport[0]);
-  const favicon = headInner.match(/<link[^>]*rel=["']icon["'][^>]*>/i);
-  if (favicon) metas.push(favicon[0]);
-  const fonts   = [...headInner.matchAll(/<link\b[^>]*fonts\.googleapis[^>]*>/gi)].map(x=>x[0]);
-  log('loadBaseHead ok in', (Date.now()-t)+'ms');
-  return { cssLinks: links.join('\n'), baseMetas: metas.join('\n') + '\n' + fonts.join('\n') };
-}
-
+// Extract topbar/footer from bundle (no product.html dependency)
 function extractTopbarFooter() {
   const t = Date.now();
   const bundle = read('js/app.bundle.js');
   const mTop = bundle.match(/const\s+topbarHTML\s*=\s*`([\s\S]*?)`;/);
   const mFoot= bundle.match(/const\s+footerHTML\s*=\s*`([\s\S]*?)`;/);
-  if (!mTop || !mFoot) {
-    throw new Error('Could not extract topbarHTML/footerHTML from js/app.bundle.js');
-  }
-  log('extractTopbarFooter ok in', (Date.now()-t)+'ms');
+  if (!mTop || !mFoot) throw new Error('Could not extract topbarHTML/footerHTML from js/app.bundle.js');
+  log('nav extracted in', (Date.now()-t)+'ms');
   return { topbarHTML: mTop[1], footerHTML: mFoot[1] };
 }
 
-function buildImages(product) {
-  const slug = product.slug || product.Slug || product.name || product.nome || '';
-  const arr = [];
-  if (Array.isArray(product.images) && product.images.length) {
-    for (const f of product.images) {
-      arr.push(STORAGE_PUBLIC + String(f).replace(/^\/+/, ''));
-    }
-  } else {
-    const files = ['banner.webp','1.webp','2.webp','3.webp','4.webp','5.webp'];
-    for (const f of files) arr.push(`${STORAGE_PUBLIC}${slug}/${f}`);
-  }
-  return [...new Set(arr)];
-}
-
-function buildMetaHead(baseMetas, cssLinks, slug, p) {
-  const title = p.title || p.name || p.nome || `${slug} | GraficaPT`;
-  const descr = p.shortdesc || p.descricao || p.description || 'Produto personalizado GraficaPT.';
+// HEAD builder (fresh)
+function buildHead(slug, p) {
+  const title = p.name || p.nome || slug;
+  const descr = p.shortdesc || p.descricao || `Compra ${title} personalizada na GráficaPT.`;
   const keywords = asArray(p.metawords).join(', ');
-  const ogImg = p.og_image || p.hero || `${STORAGE_PUBLIC}${slug}/og/index.png`;
-  return [
-    baseMetas,
-    `<title>${esc(title)}</title>`,
-    `<link rel="canonical" href="${BASE_URL}/produto/${esc(slug)}">`,
-    `<meta name="description" content="${esc(descr)}">`,
-    `<meta name="keywords" content="${esc(keywords)}">`,
-    `<meta name="robots" content="index, follow">`,
-    `<meta property="og:title" content="${esc(title)}">`,
-    `<meta property="og:description" content="${esc(descr)}">`,
-    `<meta property="og:image" content="${esc(ogImg)}">`,
-    `<meta property="og:type" content="product">`,
-    `<meta property="og:url" content="${BASE_URL}/produto/${esc(slug)}">`,
-    `<meta name="twitter:card" content="summary_large_image">`,
-    `<meta name="twitter:title" content="${esc(title)}">`,
-    `<meta name="twitter:description" content="${esc(descr)}">`,
-    `<meta name="twitter:image" content="${esc(ogImg)}">`,
-    cssLinks
-  ].join('\n');
-}
-
-function buildCarousel(slug, images) {
-  if (!images.length) return '';
-  const indicators = images.map((_,i)=>`<span class="indicador ${i===0?'ativo':''}" data-index="${i}"></span>`).join('');
-  const imgs = images.map((src,i)=>`<img class="carrossel-img ${i===0?'visivel':''}" src="${src}" alt="${esc(slug)} imagem ${i+1}" loading="lazy">`).join('');
-  return `
-  <div class="carrossel">
-    <button class="nav prev" aria-label="Imagem anterior">&#10094;</button>
-    <div class="carrossel-imagens">
-      ${imgs}
-    </div>
-    <button class="nav next" aria-label="Próxima imagem">&#10095;</button>
-    <div class="indicadores">${indicators}</div>
-  </div>`;
-}
-
-function buildPriceOrOptions(p) {
-  const pt = Array.isArray(p.price_table) ? p.price_table : null;
-  const opts = Array.isArray(p.options) ? p.options : null;
-  if (pt && pt.length) {
-    const rows = pt.map(r => `
-      <tr>
-        <td>${esc(r.label || r.nome || '')}</td>
-        <td>${esc(r.spec || r.descricao || '')}</td>
-        <td>${esc(r.price || r.preco || '')}</td>
-      </tr>`).join('');
-    return `
-      <div class="price-table">
-        <h3>Tabela de preços</h3>
-        <table>
-          <thead><tr><th>Opção</th><th>Descrição</th><th>Preço</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
-  }
-  if (opts && opts.length) {
-    const lis = opts.map(o => `<li>${esc(o.label || o)}</li>`).join('');
-    return `<div class="options"><h3>Opções</h3><ul>${lis}</ul></div>`;
-  }
-  return '';
-}
-
-function buildBody(topbarHTML, footerHTML, slug, p) {
-  const nome = p.title || p.name || p.nome || slug;
-  const descr = p.descricao || p.shortdesc || '';
-  const images = buildImages(p);
-  const price = buildPriceOrOptions(p);
-  const carousel = buildCarousel(slug, images);
+  const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
+  const og = mkUrl((images && images[0]) || p.og_image || '');
+  const canonical = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
 
   return `
-  <div class="topbar" id="topbar">
-${topbarHTML}
-  </div>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)} | GráficaPT</title>
+<link rel="canonical" href="${canonical}">
+<meta name="description" content="${esc(descr)}">
+${keywords ? `<meta name="keywords" content="${esc(keywords)}">` : ''}
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="${esc(title)} | GráficaPT">
+<meta property="og:description" content="${esc(descr)}">
+${og ? `<meta property="og:image" content="${esc(og)}">` : ''}
+<meta property="og:type" content="product">
+<meta property="og:url" content="${canonical}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/imagens/logo.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/css/product.css">`.trim();
+}
 
-  <div class="productcontainer">
-    <div class="produto">
-      <h1 class="produto-titulo">${esc(nome)}</h1>
-      ${carousel}
+// Components (exact classes)
+
+function criarCarrosselHTML(slug, imagens) {
+  const imgs = (imagens || []).map(mkUrl).filter(Boolean);
+  if (!imgs.length) return '';
+  return `
+<div class="carrossel-container">
+  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>
+  <div class="carrossel-imagens-wrapper">
+    <div class="carrossel-imagens" id="carrossel">
+      ${imgs.map((src, i)=>`<img src="${esc(src)}" alt="Imagem ${i+1}" class="carrossel-img">`).join('')}
     </div>
-    <div class="produto-descricao">
-      <p>${esc(descr)}</p>
-      ${price}
-    </div>
   </div>
+  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>
+</div>
+<div class="indicadores" id="indicadores"></div>`;
+}
 
-  <footer class="footer" id="footer">
-${footerHTML}
-  </footer>
+function renderOption(opt={}, index=0) {
+  const tipo = String(opt?.tipo || '').toLowerCase();
+  const label = esc(opt?.label || `${index+1}:`);
+  const valores = Array.isArray(opt?.valores) ? opt.valores : [];
 
-  <script>
-  // Sidebar toggle (UI only)
-  function toggleSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-    const isOpen = sidebar && sidebar.style.left === "0%";
-    if (!sidebar || !overlay) return;
-    sidebar.style.left = isOpen ? "-100%" : "0%";
-    overlay.style.display = isOpen ? "none" : "block";
+  const labelRow = `<div class="overcell"><label>${label}:</label></div>`;
+
+  if (tipo === 'select') {
+    const inputHTML = `<select name="${label}" required>
+      ${valores.map((v,i)=>`<option value="${esc(v)}"${i===0?' selected':''}>${esc(v)}</option>`).join('')}
+    </select>`;
+    return `<div class="option-group">${labelRow}<div class="overcell">${inputHTML}</div></div>`;
   }
-  // Carousel minimal JS (UI only)
-  (function() {
-    const wrap = document.querySelector('.carrossel-imagens');
-    if (!wrap) return;
-    const imgs = Array.from(wrap.querySelectorAll('.carrossel-img'));
-    const indicators = Array.from(document.querySelectorAll('.indicador'));
-    let idx = 0;
-    function show(i){
-      idx = (i + imgs.length) % imgs.length;
-      imgs.forEach((img,k)=>img.classList.toggle('visivel', k===idx));
-      indicators.forEach((el,k)=>el.classList.toggle('ativo', k===idx));
-    }
-    document.querySelector('.nav.prev')?.addEventListener('click',()=>show(idx-1));
-    document.querySelector('.nav.next')?.addEventListener('click',()=>show(idx+1));
-    indicators.forEach((el,i)=>el.addEventListener('click',()=>show(i)));
-  })();
-  </script>
+  if (tipo === 'number') {
+    const inputHTML = `<input type="number" name="${label}" min="1" value="1" required>`;
+    return `<div class="option-group">${labelRow}<div class="overcell">${inputHTML}</div></div>`;
+  }
+  if (tipo === 'cores') {
+    const cores = valores.map((item, idx) => {
+      let title='', colorStyle='', imgAssoc='';
+      if (typeof item === 'object') {
+        title = item.nome || '';
+        colorStyle = item.cor || '';
+        imgAssoc = item.imagem || '';
+      } else {
+        title = item; colorStyle = item;
+      }
+      const tLower = String(title).toLowerCase();
+      if (tLower === 'multicolor' || tLower === 'multicor') {
+        colorStyle = 'linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)';
+        title = 'Multicor';
+      }
+      const id = `${label.replace(/\s+/g,'-').toLowerCase()}-color-${idx}`;
+      return `
+        <div class="overcell">
+          <input type="radio" id="${esc(id)}" name="${label}" value="${esc(title)}"${idx===0?' checked':''} required>
+          <label class="color-circle" for="${esc(id)}" title="${esc(title)}" style="background:${esc(colorStyle)}"
+            ${imgAssoc ? `onclick="selecionarCorEImagem('${esc(imgAssoc)}')"` : ''}></label>
+        </div>`;
+    }).join('');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">${cores}</div></div></div>`;
+  }
+  if (tipo === 'imagem-radio') {
+    const blocks = valores.map((item, idx) => {
+      const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
+      const nome = esc(item?.nome || '');
+      const imgSrc = item?.imagem ? mkUrl(item.imagem) : '';
+      return `
+        <div class="overcell">
+          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${idx===0?' checked':''} required>
+          <label class="posicionamento-label" for="${esc(posID)}">
+            <div class="posicionamento-img-wrapper">
+              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">
+              <span class="posicionamento-nome">${nome}</span>
+            </div>
+          </label>
+        </div>`;
+    }).join('');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">${blocks}</div></div></div>`;
+  }
+  if (tipo === 'quantidade-por-tamanho') {
+    const grid = valores.map((t) => {
+      const id = `tamanho-${t}`;
+      return `
+        <div class="tamanho-input">
+          <label for="${esc(id)}">${esc(t)}:</label>
+          <input type="number" id="${esc(id)}" name="Tamanho - ${esc(t)}" min="0" value="0">
+        </div>`;
+    }).join('');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">${grid}</div></div></div>`;
+  }
+  return `<div class="option-group">${labelRow}<div class="overcell"></div></div>`;
+}
+
+function createStaticFields() {
+  return `
+  <div class="options-row">
+    <div class="form-group">
+      <div class="overcell">
+        <label for="detalhes">Detalhes:</label>
+        <textarea name="Detalhes" placeholder="Descreve todas as informações sobre como queres o design e atenções extras!" required></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="options-row">
+    <div class="form-group">
+      <div class="overcell">
+        <label for="empresa">Empresa / Nome:</label>
+        <input type="text" name="Empresa" placeholder="Empresa ou Nome" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="overcell">
+        <label for="ficheiro">(Opcional) Logotipo:</label>
+        <input type="file" id="ficheiro" name="Ficheiro">
+        <input type="hidden" name="Logotipo" id="link_ficheiro">
+        <p id="uploadStatus" style="display:none"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="options-row">
+    <div class="form-group">
+      <div class="overcell">
+        <label for="email">Email:</label>
+        <input type="email" name="Email" placeholder="o.teu@email.com" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="overcell">
+        <label for="telemovel">Telemóvel:</label>
+        <input type="tel" name="Telemóvel" placeholder="+351 ..." required>
+      </div>
+    </div>
+  </div>
+
+  <div class="options-row">
+    <div class="form-group">
+      <div class="overcell">
+        <label for="quantidade">Quantidade:</label>
+        <input type="number" name="Quantidade" min="1" value="1" required>
+      </div>
+    </div>
+  </div>
+
+  <input type="hidden" name="_captcha" value="false">
+  <input type="hidden" name="_next" value="https://graficapt.com">
+
+  <button id="submit" type="submit">Pedir Orçamento</button>
   `;
 }
 
-function renderFullHTML(headInner, bodyInner) {
+function inlineCarouselScript() {
+  return `<script>
+  (function(){
+    window.imagemAtual = window.imagemAtual ?? 0;
+    function atualizarIndicadores(){
+      const dots = document.querySelectorAll('.indicador');
+      dots.forEach((d,i)=>d.classList.toggle('ativo', i===window.imagemAtual));
+    }
+    window.irParaImagem = function(i){
+      const imgs = document.querySelectorAll('.carrossel-img');
+      const wrap = document.querySelector('.carrossel-imagens');
+      if (!imgs.length || !wrap) return;
+      window.imagemAtual = (i + imgs.length) % imgs.length;
+      wrap.style.transform = 'translateX(' + (-window.imagemAtual * 100) + '%)';
+      atualizarIndicadores();
+    };
+    window.mudarImagem = function(delta){ window.irParaImagem((window.imagemAtual||0) + (delta||1)); };
+    window.selecionarCorEImagem = function(imgPath){
+      if (!imgPath) return;
+      const imgs = Array.from(document.querySelectorAll('.carrossel-img'));
+      const idx = imgs.findIndex(img => img.src.endsWith(imgPath) || img.src.includes(imgPath));
+      if (idx>=0) window.irParaImagem(idx);
+    };
+    const ind = document.getElementById('indicadores');
+    const imgs = document.querySelectorAll('.carrossel-img');
+    if (ind && imgs.length) {
+      ind.innerHTML = '';
+      imgs.forEach((_, idx) => {
+        const dot = document.createElement('div');
+        dot.className = 'indicador' + (idx===0 ? ' ativo' : '');
+        dot.addEventListener('click', ()=>window.irParaImagem(idx));
+        ind.appendChild(dot);
+      });
+    }
+    window.irParaImagem(window.imagemAtual||0);
+  })();
+  </script>`;
+}
+
+function renderPage(slug, p, topbarHTML, footerHTML) {
+  const head = buildHead(slug, p);
+  const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
+  let opcoes = [];
+  if (Array.isArray(p.opcoes)) opcoes = p.opcoes;
+  else if (p.opcoes && typeof p.opcoes === 'object') opcoes = Object.entries(p.opcoes).map(([label,op])=>({label, ...(op||{})}));
+
+  const carouselHTML = images && images.length ? `<div class="product-image">${criarCarrosselHTML(slug, images)}</div>` : '';
+  const optionsHTML = (opcoes||[]).map((opt,i)=>renderOption(opt,i)).join('');
+  const staticFields = createStaticFields();
+
+  const body = `
+<div class="topbar" id="topbar">
+${topbarHTML}
+</div>
+
+<div class="productcontainer" id="produto-dinamico">
+  ${carouselHTML}
+  <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">
+    <input type="text" class="productname" id="productname" name="Produto" value="${esc(p.name || p.nome || slug)}">
+    <div class="product-details">
+      <h1>${esc(p.name || p.nome || slug)}</h1>
+      ${optionsHTML}
+      ${staticFields}
+    </div>
+  </form>
+</div>
+
+<footer class="footer" id="footer">
+${footerHTML}
+</footer>
+
+${inlineCarouselScript()}
+<script src="/js/formSender.js" defer></script>
+`;
+
   return `<!DOCTYPE html>
 <html lang="pt">
 <head>
-${headInner}
+${head}
 </head>
 <body>
-${bodyInner}
+${body}
 </body>
 </html>`;
 }
 
-// ---------- MAIN ----------
+// MAIN
 async function main() {
   log('start', new Date().toISOString());
   const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const tFetch = Date.now();
   const { data: products, error } = await supa.from('products').select('*');
-  if (error) throw error;
+  if (error) { console.error(error); process.exit(1); }
   log('fetched products:', products?.length ?? 0, 'in', (Date.now()-tFetch)+'ms');
 
-  if (!products || !products.length) {
-    console.warn('[build-products] No products found.');
-    return;
-  }
-
-  ensureDir(OUT_ROOT);
-
-  const { cssLinks, baseMetas } = loadBaseHead();
   const { topbarHTML, footerHTML } = extractTopbarFooter();
 
+  ensureDir(OUT_ROOT);
   let count = 0;
   const tGen = Date.now();
   for (const p of products) {
     const t1 = Date.now();
     const slug = p.slug || p.Slug || p.name || p.nome;
     if (!slug) continue;
-
-    const head = buildMetaHead(baseMetas, cssLinks, slug, p);
-    const body = buildBody(topbarHTML, footerHTML, slug, p);
-    const html = renderFullHTML(head, body);
-
+    const html = renderPage(slug, p, topbarHTML, footerHTML);
     const dir = path.join(OUT_ROOT, slug);
     ensureDir(dir);
     writeFileAtomic(path.join(dir, 'index.html'), html);
@@ -265,8 +352,7 @@ async function main() {
     log('wrote', `/produto/${slug}/index.html`, 'in', (Date.now()-t1)+'ms');
   }
   log('generated all pages in', (Date.now()-tGen)+'ms');
-
-  console.log(`✅ Built ${count} product pages in ${Date.now()-t0}ms (no browser, single query).`);
+  console.log(`✅ Built ${count} product pages (FULL STATIC)`);
 }
 
 main().catch((e)=>{ console.error(e); process.exit(1); });
