@@ -1,3 +1,4 @@
+const supabase = (window.Supa && window.Supa.client) || null;
 import { supabase } from '../supamanager/supabase.js';
 
 export async function fetchProductBySlug(slug) {

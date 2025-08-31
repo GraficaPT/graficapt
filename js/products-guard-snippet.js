@@ -1,3 +1,4 @@
+const supabase = (window.Supa && window.Supa.client) || null;
 (function(){
   const container = document.getElementById('produto-dinamico');
   if (container && container.children && container.children.length) {

@@ -1,7 +1,8 @@
 {
   "name": "graficapt",
   "scripts": {
-    "build": "node generate-sitemap.mjs && node scripts/build-products.mjs"
+    "build": "node scripts/generate-env.mjs && node scripts/build-products.mjs",
+    "prebuild": "node scripts/generate-env.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.42.3",
