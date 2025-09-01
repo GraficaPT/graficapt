@@ -395,7 +395,7 @@ const webSiteLd = '<script type="application/ld+json">' + JSON.stringify({
       "https://www.facebook.com/profile.php?id=61564124441415"
     ]
   }) + '</script>';
-  const headWithLd = [head, webSiteLd, orgLd, extraHead, itemListLd].join('\\n');
+  const headWithLd = [head, webSiteLd, orgLd, extraHead, itemListLd].join('\n');
 const cards = [...products]
     .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
     .map(renderCard).join('\n');
