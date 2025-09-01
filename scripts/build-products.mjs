@@ -619,7 +619,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
     preselect = { [String(variant.label || '').toLowerCase()]: String(variant.value || '') };
   }
 
-  const head = buildHead(url, seoTitle, descr, keywords, og);
+  const head = buildHead(url, seoTitle, descr, keywords, og, 'product');
   const absImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
   const productLd = buildProductJsonLd({ baseUrl: url, title: seoTitle.replace(/\s*\|\s*GráficaPT$/,''), descr, images: absImages,
     sku: (p && (p.sku || p.SKU)) || '', brand: (p && (p.brand || p.marca)) || 'GraficaPT', category: (p && (p.category || p.categoria)) || '', availability: (p && p.availability) || 'InStock' });
