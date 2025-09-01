@@ -356,14 +356,12 @@ const bannerHTML = `
 
 
 function renderHome(topbarHTML, footerHTML, products) {
-  \1
 const extraHead = [
   '<link rel="alternate" hreflang="pt-PT" href="' + BASE_URL + '/">',
   '<link rel="alternate" hreflang="x-default" href="' + BASE_URL + '/">',
   '<meta property="og:locale" content="pt_PT">',
   '<link rel="preconnect" href="' + new URL(STORAGE_PUBLIC).origin + '" crossorigin>'
-].join('
-');
+].join('');
 
 const itemListLd = '<script type="application/ld+json">' + JSON.stringify({
   "@context": "https://schema.org",
