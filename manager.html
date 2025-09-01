@@ -51,8 +51,10 @@
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script src="js/admin.bundle.js"></script>
+    <script src="/js/env.js"></script>
+    <script type="module">
+    await import('/js/admin.bundle.js');
+    </script>
 
 </body>
 </html>
