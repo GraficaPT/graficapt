@@ -498,3 +498,12 @@ button:hover {
 .related__price{margin:0;font-weight:700}
 .related__empty{color:#666;font-size:.95rem}
 .related__empty.error{color:#b00020}
+
+
+/* FAQ basic styles */
+.faq { margin-top: 2rem; }
+.faq__head h2 { font-size: 1.4rem; margin-bottom: .75rem; }
+.faq__list { display: grid; gap: .5rem; }
+.faq-item { border: 1px solid #eee; border-radius: 10px; padding: .75rem 1rem; background: #fff; }
+.faq-item summary { cursor: pointer; font-weight: 600; outline: none; }
+.faq-answer { margin-top: .5rem; line-height: 1.5; color: #333; }
