@@ -41,7 +41,6 @@ const esc = (s='') => String(s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const asArray = (v) => Array.isArray(v) ? v : (v ? String(v).split(',').map(x=>x.trim()).filter(Boolean) : []);
-const mkUrl = (p) => (!p ? '' : (/^https?:\/\//i.test(p) ? p : (STORAGE_PUBLIC + String(p).replace(/^\/+/, ''))));
 const safeJson = (v) => { try { return JSON.parse(v || '[]'); } catch { return []; } };
 
 const slugify = (s='') => {
@@ -70,7 +69,7 @@ function buildHead(baseUrl, title, descr, keywords, og) {
     '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     `<title>${esc(title)}</title>`,
-    `<link rel="canonical" href="${baseUrl}">`,
+    `<link rel="canonical" href="${esc(baseUrl)}">`,
     `<meta name="description" content="${esc(descr)}">`,
     keywords ? `<meta name="keywords" content="${esc(keywords)}">` : '',
     '<meta name="robots" content="index, follow">',
@@ -78,7 +77,7 @@ function buildHead(baseUrl, title, descr, keywords, og) {
     `<meta property="og:description" content="${esc(descr)}">`,
     og ? `<meta property="og:image" content="${esc(og)}">` : '',
     '<meta property="og:type" content="product">',
-    `<meta property="og:url" content="${baseUrl}">`,
+    `<meta property="og:url" content="${esc(baseUrl)}">`,
     '<meta name="twitter:card" content="summary_large_image">',
     '<link rel="icon" href="/imagens/logo.ico">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
@@ -96,13 +95,13 @@ function buildHeadHome() {
     '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<title>GráficaPT — Produtos Personalizáveis</title>',
-    `<link rel="canonical" href="${url}">`,
+    `<link rel="canonical" href="${esc(url)}">`,
     '<meta name="description" content="Impressão e personalização: bandeiras, sacos, rígidos, vestuário e muito mais. Pede orçamento grátis!">',
     '<meta name="robots" content="index, follow">',
     '<meta property="og:title" content="GráficaPT — Produtos Personalizáveis">',
     '<meta property="og:description" content="Impressão e personalização: bandeiras, sacos, rígidos, vestuário e muito mais.">',
     '<meta property="og:type" content="website">',
-    `<meta property="og:url" content="${url}">`,
+    `<meta property="og:url" content="${esc(url)}">`,
     '<link rel="icon" href="/imagens/logo.ico">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
@@ -134,22 +133,23 @@ function joinPublicPath(prefix, pth) {
   const parts = String(pth).split('/').filter(Boolean).map(encodeURIComponent);
   return prefix + parts.join('/');
 }
-function resolveImagePath(slug, raw, STORAGE_PUBLIC) {
+function resolveImagePath(slug, raw, STORAGE_PUBLIC_ARG) {
+  const base = STORAGE_PUBLIC_ARG || STORAGE_PUBLIC;
   if (!raw || typeof raw !== 'string') return undefined;
   const s = raw.trim();
   if (!s) return undefined;
   if (/^https?:\/\//i.test(s)) return s;
-  if (s.includes('/')) return joinPublicPath(STORAGE_PUBLIC, s);
-  return joinPublicPath(STORAGE_PUBLIC, `${slug}/${s}`);
+  if (s.includes('/')) return joinPublicPath(base, s);
+  return joinPublicPath(base, `${slug}/${s}`);
 }
-function relatedImageUrl(prod, STORAGE_PUBLIC) {
+function relatedImageUrl(prod, STORAGE_PUBLIC_ARG) {
   const slug = prod.slug || prod.Slug || prod.name || prod.nome || '';
   if (Array.isArray(prod.images) && prod.images[0]) {
-    const u = resolveImagePath(slug, prod.images[0], STORAGE_PUBLIC);
+    const u = resolveImagePath(slug, prod.images[0], STORAGE_PUBLIC_ARG);
     if (u) return u;
   }
   if (prod.banner) {
-    const u = resolveImagePath(slug, prod.banner, STORAGE_PUBLIC);
+    const u = resolveImagePath(slug, prod.banner, STORAGE_PUBLIC_ARG);
     if (u) return u;
   }
   return 'https://placehold.co/800x600?text=Produto';
@@ -195,9 +195,146 @@ function renderRelated(current, allProducts){
   ].join('\n');
 }
 
+// ---------- HOMEPAGE ----------
+function renderCard(p){
+  const slug = p.slug || p.Slug || p.name || p.nome;
+  const nome = p.name || p.nome || slug;
+  const cat  = (p.category || p.categoria || '').toLowerCase();
+  const tags = asArray(p.tags || p.metawords).join(',');
+  const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
+  const img = resolveImagePath(slug, images[0] || '', STORAGE_PUBLIC);
+  const href = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
+
+  const parts = [];
+  parts.push(`<a class="cell" href="${esc(href)}" data-categoria="${esc(cat)}" data-nome="${esc(nome)}" data-item data-tags="${esc(tags)}">`);
+  if (img) parts.push(`  <img src="${esc(img)}" alt="${esc(nome)}">`);
+  parts.push(`  <div class="cellText">${esc(nome)}</div>`);
+  parts.push('  <div class="cellBtn">Ver Opções</div>');
+  parts.push('</a>');
+  return parts.join('\n');
+}
+
+const bannerHTML = (() => {
+  const parts = [];
+  parts.push('<div class="banner hcenter">');
+  parts.push(`  <a href="${BASE_URL}/produto/bandeiravela">`);
+  parts.push('    <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy">');
+  parts.push('  </a>');
+  parts.push('  <div class="banner-right">');
+  parts.push(`    <a href="${BASE_URL}/produto/tshirtregent">`);
+  parts.push('      <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy">');
+  parts.push('    </a>');
+  parts.push(`    <a href="${BASE_URL}/produto/sacoskraft">`);
+  parts.push('      <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy">');
+  parts.push('    </a>');
+  parts.push('  </div>');
+  parts.push('</div>');
+  return parts.join('\n');
+})();
+
+function renderHome(topbarHTML, footerHTML, products) {
+  const head = buildHeadHome();
+  const cards = [...products]
+    .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
+    .map(renderCard).join('\n');
+
+  const cats = Array.from(new Set((products||[]).map(p => String(p.category || p.categoria || '').toLowerCase()).filter(Boolean))).sort();
+  const catOptions = ['<option value="all">Todas</option>'].concat(cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`)).join('');
+
+  const body = [
+    '<div class="topbar" id="topbar">',
+    topbarHTML,
+    '</div>',
+    '',
+    bannerHTML,
+    '',
+    '<div id="products">',
+    '  <a class="subtitle hcenter">Produtos Personalizáveis</a>',
+    '  <div class="filter-sort">',
+    '    <select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
+         catOptions,
+    '    </select>',
+    '    <select id="sortBy" onchange="applyFilters()">',
+    '      <option value="default">Ordenar por</option>',
+    '      <option value="az">Nome A-Z</option>',
+    '      <option value="za">Nome Z-A</option>',
+    '    </select>',
+    '  </div>',
+    '  <div id="products-grid" class="products-grid">',
+         cards,
+    '  </div>',
+    '</div>',
+    '',
+    '<a class="overtitle hcenter">Não encontras o que precisas?</a>',
+    '<form id="orcamentoForm" enctype="multipart/form-data" class="invoce hcenter">',
+    '  <input required placeholder="Nome" type="text" name="name" class="name">',
+    '  <input required placeholder="Email" type="email" name="email" class="email">',
+    '  <input required placeholder="Telefone" type="text" name="phone" class="phone">',
+    '  <input placeholder="Empresa" type="text" name="company" class="company">',
+    '  <textarea required rows="5" placeholder="Descreve que produto procuras assim como qualquer outro detalhe relevante!" name="description" class="description"></textarea>',
+    '  <input type="hidden" name="_captcha" value="false">',
+    '  <input type="hidden" name="_next" value="https://graficapt.com">',
+    '  <button type="submit" id="submit">ENVIAR</button>',
+    '</form>',
+    '',
+    '<footer class="footer" id="footer">',
+    footerHTML,
+    '</footer>',
+    '',
+    '<script src="/js/env.js"></script>',
+    '<script>',
+    '(function(){',
+    '  const grid = document.getElementById("products-grid");',
+    '  const selCat = document.getElementById("filterCategory");',
+    '  const selSort = document.getElementById("sortBy");',
+    '  if (!grid) return;',
+    '  function filterBy(cat){',
+    '    const items = Array.from(grid.querySelectorAll(".cell"));',
+    '    items.forEach(it => {',
+    '      const ok = !cat || cat === "all" || it.dataset.categoria === cat;',
+    '      it.style.display = ok ? "" : "none";',
+    '    });',
+    '  }',
+    '  window.applyFilters = function(){',
+    '    const dir = (selSort && selSort.value === "za") ? -1 : 1;',
+    '    const items = Array.from(grid.querySelectorAll(".cell"));',
+    '    items.sort((a,b)=> a.dataset.nome.localeCompare(b.dataset.nome) * dir);',
+    '    items.forEach(it => grid.appendChild(it));',
+    '    const cat = selCat ? selCat.value : "all";',
+    '    filterBy(cat);',
+    '  };',
+    '  function readHash(){',
+    '    const m = location.hash.match(/filter=([^&]+)/i);',
+    '    return m ? decodeURIComponent(m[1]) : "all";',
+    '  }',
+    '  function init(){',
+    '    const current = readHash();',
+    '    if (selCat) selCat.value = current;',
+    '    filterBy(current);',
+    '  }',
+    '  window.addEventListener("hashchange", init);',
+    '  init();',
+    '})();',
+    '</script>',
+    '<script src="/js/formSender.js" defer></script>'
+  ].join('\n');
+
+  return [
+    '<!DOCTYPE html>',
+    '<html lang="pt">',
+    '<head>',
+    head,
+    '</head>',
+    '<body>',
+    body,
+    '</body>',
+    '</html>'
+  ].join('\n');
+}
+
 // ---------- PRODUCT PAGE PARTS ----------
 function criarCarrosselHTML(slug, imagens) {
-  const imgs = (imagens || []).map(mkUrl).filter(Boolean);
+  const imgs = (imagens || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
   if (!imgs.length) return '';
   return [
     '<div class="carrossel-container">',
@@ -265,7 +402,7 @@ ${valores.map((v,i)=>{
     const blocks = valores.map((item, idx) => {
       const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
       const nome = esc(item?.nome || '');
-      const imgSrc = item?.imagem ? mkUrl(item.imagem) : '';
+      const imgSrc = item?.imagem ? resolveImagePath('', item.imagem, STORAGE_PUBLIC) : '';
       const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
       return [
         '        <div class="overcell">',
@@ -408,147 +545,6 @@ function inlineFormGuardScript() {
   ].join('\n');
 }
 
-// ---------- HOMEPAGE ----------
-
-
-function renderCard(p){
-  const slug = p.slug || p.Slug || p.name || p.nome;
-  const nome = p.name || p.nome || slug;
-  const cat  = (p.category || p.categoria || '').toLowerCase();
-  const tags = asArray(p.tags || p.metawords).join(',');
-  const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
-  const img = mkUrl(images[0] || '');
-  const href = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
-
-  const parts = [];
-  parts.push(`<a class="cell" href="${esc(href)}" data-categoria="${esc(cat)}" data-nome="${esc(nome)}" data-item data-tags="${esc(tags)}">`);
-  if (img) parts.push(`  <img src="${esc(img)}" alt="${esc(nome)}">`);
-  parts.push(`  <div class="cellText">${esc(nome)}</div>`);
-  parts.push('  <div class="cellBtn">Ver Opções</div>');
-  parts.push('</a>');
-  return parts.join('');
-}
-
-
-
-
-const bannerHTML = `
-<div class="banner hcenter">
-  <a href="${BASE_URL}/produto/bandeiravela">
-    <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy">
-  </a>
-  <div class="banner-right">
-    <a href="${BASE_URL}/produto/tshirtregent">
-      <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy">
-    </a>
-    <a href="${BASE_URL}/produto/sacoskraft">
-      <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy">
-    </a>
-  </div>
-</div>`;
-
-
-function renderHome(topbarHTML, footerHTML, products) {
-  const head = buildHeadHome();
-  const cards = [...products]
-    .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
-    .map(renderCard).join('\n');
-
-  const cats = Array.from(new Set((products||[]).map(p => String(p.category || p.categoria || '').toLowerCase()).filter(Boolean))).sort();
-  const catOptions = ['<option value="all">Todas</option>'].concat(cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`)).join('');
-
-  const body = [
-    '<div class="topbar" id="topbar">',
-    topbarHTML,
-    '</div>',
-    '',
-    bannerHTML,
-    '',
-    '<div id="products">',
-    '  <a class="subtitle hcenter">Produtos Personalizáveis</a>',
-    '  <div class="filter-sort">',
-    '    <select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
-         catOptions,
-    '    </select>',
-    '    <select id="sortBy" onchange="applyFilters()">',
-    '      <option value="default">Ordenar por</option>',
-    '      <option value="az">Nome A-Z</option>',
-    '      <option value="za">Nome Z-A</option>',
-    '    </select>',
-    '  </div>',
-    '  <div id="products-grid" class="products-grid">',
-         cards,
-    '  </div>',
-    '</div>',
-    '',
-    '<a class="overtitle hcenter">Não encontras o que precisas?</a>',
-    '<form id="orcamentoForm" enctype="multipart/form-data" class="invoce hcenter">',
-    '  <input required placeholder="Nome" type="text" name="name" class="name">',
-    '  <input required placeholder="Email" type="email" name="email" class="email">',
-    '  <input required placeholder="Telefone" type="text" name="phone" class="phone">',
-    '  <input placeholder="Empresa" type="text" name="company" class="company">',
-    '  <textarea required rows="5" placeholder="Descreve que produto procuras assim como qualquer outro detalhe relevante!" name="description" class="description"></textarea>',
-    '  <input type="hidden" name="_captcha" value="false">',
-    '  <input type="hidden" name="_next" value="https://graficapt.com">',
-    '  <button type="submit" id="submit">ENVIAR</button>',
-    '</form>',
-    '',
-    '<footer class="footer" id="footer">',
-    footerHTML,
-    '</footer>',
-    '',
-    '<script src="/js/env.js"></script>',
-    '<script>',
-    '(function(){',
-    '  const grid = document.getElementById("products-grid");',
-    '  const selCat = document.getElementById("filterCategory");',
-    '  const selSort = document.getElementById("sortBy");',
-    '  if (!grid) return;',
-    '  function filterBy(cat){',
-    '    const items = Array.from(grid.querySelectorAll(".cell"));',
-    '    items.forEach(it => {',
-    '      const ok = !cat || cat === "all" || it.dataset.categoria === cat;',
-    '      it.style.display = ok ? "" : "none";',
-    '    });',
-    '  }',
-    '  window.applyFilters = function(){',
-    '    const dir = (selSort && selSort.value === "za") ? -1 : 1;',
-    '    const items = Array.from(grid.querySelectorAll(".cell"));',
-    '    items.sort((a,b)=> a.dataset.nome.localeCompare(b.dataset.nome) * dir);',
-    '    items.forEach(it => grid.appendChild(it));',
-    '    const cat = selCat ? selCat.value : "all";',
-    '    filterBy(cat);',
-    '  };',
-    '  function readHash(){',
-    '    const m = location.hash.match(/filter=([^&]+)/i);',
-    '    return m ? decodeURIComponent(m[1]) : "all";',
-    '  }',
-    '  function init(){',
-    '    const current = readHash();',
-    '    if (selCat) selCat.value = current;',
-    '    filterBy(current);',
-    '  }',
-    '  window.addEventListener("hashchange", init);',
-    '  init();',
-    '})();',
-    '</script>',
-    '<script src="/js/formSender.js" defer></script>'
-  ].join('\n');
-
-  return [
-    '<!DOCTYPE html>',
-    '<html lang="pt">',
-    '<head>',
-    head,
-    '</head>',
-    '<body>',
-    body,
-    '</body>',
-    '</html>'
-  ].join('\n');
-}
-
-// ---------- PRODUCT PAGE RENDER ----------
 function variantLinksHTML(slug, name, sizeGroups){
   if (!sizeGroups || !sizeGroups.length) return '';
   const links = [];
@@ -561,31 +557,33 @@ function variantLinksHTML(slug, name, sizeGroups){
   return `<nav class="variant-links">${links.join('')}</nav>`;
 }
 
+// ---------- PRODUCT PAGE RENDER ----------
 function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null) {
   const slug = p.slug || p.Slug || p.name || p.nome;
   const baseName = p.name || p.nome || slug;
   const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
-  const og = mkUrl((images && images[0]) || p.og_image || '');
+  const og = resolveImagePath(slug, (images && images[0]) || p.og_image || '', STORAGE_PUBLIC);
   const keywords = asArray(p.metawords).join(', ');
   const sizeGroups = getSizeGroups(p.opcoes);
 
-  // variant handling
-  let titleName = baseName;
+  // variant handling: keep H1/display name constant, use SEO title with size
+  let displayName = baseName;
+  let seoTitle = `${baseName} | GráficaPT`;
   let descr = p.shortdesc || p.descricao || `Compra ${baseName} personalizada na GráficaPT.`;
   let url = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
   let preselect = {};
   if (variant && variant.value) {
-    titleName = `${baseName} — ${variant.value}`;
+    seoTitle = `${baseName} — ${variant.value} | GráficaPT`;
     descr = `${baseName} no tamanho ${variant.value}. Personaliza e pede orçamento em segundos.`;
     url = `${BASE_URL}/produto/${encodeURIComponent(slug)}/${slugify(variant.value)}`;
     preselect = { [String(variant.label || '').toLowerCase()]: String(variant.value || '') };
   }
 
-  const head = buildHead(url, `${titleName} | GráficaPT`, descr, keywords, og);
+  const head = buildHead(url, seoTitle, descr, keywords, og);
 
-  const carouselHTML = images && images.length ? `<div class="product-image">
-${criarCarrosselHTML(slug, images)}
-</div>` : '';
+  const carouselHTML = (images && images.length)
+    ? ['<div class="product-image">', criarCarrosselHTML(slug, images), '</div>'].join('\n')
+    : '';
 
   const optionsArr = [];
   if (Array.isArray(p.opcoes)) optionsArr.push(...p.opcoes);
@@ -604,9 +602,9 @@ ${criarCarrosselHTML(slug, images)}
     '<div class="productcontainer" id="produto-dinamico">',
     `  ${carouselHTML}`,
     '  <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">',
-    `    <input type="text" class="productname" id="productname" name="Produto" value="${esc(titleName)}">`,
+    `    <input type="text" class="productname" id="productname" name="Produto" value="${esc(displayName)}">`,
     '    <div class="product-details">',
-    `      <h1>${esc(titleName)}</h1>`,
+    `      <h1>${esc(displayName)}</h1>`,
     `      ${optionsHTML}`,
     `      ${staticFields}`,
     '    </div>',
