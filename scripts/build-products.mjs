@@ -56,6 +56,47 @@ function extractTopbarFooter() {
 }
 
 // ---------- HEAD BUILDERS ----------
+
+// ---------- JSON-LD BUILDERS ----------
+function buildProductJsonLd({ baseUrl, title, descr, images=[], sku='', brand='GraficaPT', category='', availability='InStock', price=null, priceCurrency='EUR' }) {
+  const imgs = (images || []).filter(Boolean);
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": title,
+    "description": descr,
+    "image": imgs,
+    "sku": sku || undefined,
+    "brand": brand ? { "@type": "Brand", "name": brand } : undefined,
+    "category": category || undefined,
+    "url": baseUrl
+  };
+  if (price !== null) {
+    ld.offers = {
+      "@type": "Offer",
+      "url": baseUrl,
+      "priceCurrency": priceCurrency,
+      "price": String(price),
+      "availability": `https://schema.org/${availability || 'InStock'}`,
+      "itemCondition": "https://schema.org/NewCondition"
+    };
+  }
+  return `<script type="application/ld+json">${JSON.stringify(ld)}</script>`;
+}
+
+function buildBreadcrumbJsonLd(items) {
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": (items || []).map((it, i) => ({
+      "@type":"ListItem",
+      "position": i+1,
+      "name": it.name,
+      "item": it.item
+    }))
+  };
+  return `<script type="application/ld+json">${JSON.stringify(ld)}</script>`;
+}
 function buildHead(baseUrl, title, descr, keywords, og) {
   return [
     '<meta charset="utf-8">',
@@ -71,10 +112,10 @@ function buildHead(baseUrl, title, descr, keywords, og) {
     og ? `<meta property="og:image" content="${esc(og)}">` : '',
     '<meta property="og:type" content="product">',
     `<meta property="og:url" content="${esc(baseUrl)}">`,
-    '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${title}">
-<meta name="twitter:description" content="${descr}">
-<meta name="twitter:image" content="${ogImage}">
-',
+    '<meta name="twitter:card" content="summary_large_image">',
+title ? `<meta name="twitter:title" content="${esc(title)}">` : '',
+descr ? `<meta name="twitter:description" content="${esc(descr)}">` : '',
+og ? `<meta name="twitter:image" content="${esc(og)}">` : '',
     '<link rel="icon" href="https://graficapt.com/imagens/logo.ico">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
@@ -316,7 +357,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     '<!DOCTYPE html>',
     '<html lang="pt">',
     '<head>',
-    head,
+    headWithLd,
     '</head>',
     '<body>',
     body,
@@ -573,6 +614,15 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   }
 
   const head = buildHead(url, seoTitle, descr, keywords, og);
+  const absImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
+  const productLd = buildProductJsonLd({ baseUrl: url, title: seoTitle.replace(/\s*\|\s*GráficaPT$/,''), descr, images: absImages,
+    sku: (p && (p.sku || p.SKU)) || '', brand: (p && (p.brand || p.marca)) || 'GraficaPT', category: (p && (p.category || p.categoria)) || '', availability: (p && p.availability) || 'InStock' });
+  const breadcrumbLd = buildBreadcrumbJsonLd([
+    { name: 'Início', item: `${BASE_URL}/` },
+    { name: 'Produtos', item: `${BASE_URL}/index.html#filter=all` },
+    { name: baseName, item: url }
+  ]);
+  const headWithLd = [head, productLd, breadcrumbLd].filter(Boolean).join('\n');
 
   const carouselHTML = (images && images.length)
     ? ['<div class="product-image">', criarCarrosselHTML(slug, images), '</div>'].join('\n')
@@ -620,7 +670,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
     '<!DOCTYPE html>',
     '<html lang="pt">',
     '<head>',
-    head,
+    headWithLd,
     '</head>',
     '<body>',
     body,
