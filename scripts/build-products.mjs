@@ -357,7 +357,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     '<!DOCTYPE html>',
     '<html lang="pt">',
     '<head>',
-    headWithLd,
+    head,
     '</head>',
     '<body>',
     body,
