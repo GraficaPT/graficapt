@@ -691,9 +691,9 @@ const footerHTML = `
                     <button type="submit">Subscrever</button>
                 </form>
                 <div class="social-icons hcenter">
-                    <img href="https://www.facebook.com/profile.php?id=61564124441415" src="../imagens/social/facebook.svg" alt="Facebook">
-                    <img href="https://www.instagram.com/graficapt/" src="../imagens/social/instagram.svg" alt="Instagram">
-                    <img href="https://wa.me/351969205741" src="../imagens/social/whatsapp.svg" alt="WhatsApp">
+                    <img href="https://www.facebook.com/profile.php?id=61564124441415" src="https://graficapt.com/imagens/social/facebook.svg" alt="Facebook">
+                    <img href="https://www.instagram.com/graficapt/" src="https://graficapt.com/imagens/social/instagram.svg" alt="Instagram">
+                    <img href="https://wa.me/351969205741" src="https://graficapt.com/imagens/social/whatsapp.svg" alt="WhatsApp">
                 </div>
             </div>
         </div>
