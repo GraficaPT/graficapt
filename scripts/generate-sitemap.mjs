@@ -1,3 +1,12 @@
+
+// Helper: build URL list from the generated sitemap file (basic parse)
+import fs from 'fs';
+let allUrls = [];
+try {
+  const sm = fs.readFileSync('sitemap.xml','utf-8');
+  allUrls = Array.from(sm.matchAll(/<loc>(.*?)<\/loc>/g)).map(m=>m[1]);
+} catch {}
+
 import fs from 'fs';
 import path from 'path';
 
@@ -85,3 +94,64 @@ function main(){
 }
 
 main();
+
+
+// --- AUTO SEO PING & WEBSUB ---
+try {
+  const ORIGIN = process.env.SITE_ORIGIN || 'https://graficapt.com';
+  const SITEMAP_URL = `${ORIGIN}/sitemap.xml`;
+
+  // 1) Ping Google + Bing (Sitemap)
+  const pingTargets = [
+    `https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`,
+    `https://www.bing.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`,
+  ];
+  for (const url of pingTargets) {
+    try {
+      const r = await fetch(url);
+      console.log('[SEO][PING]', url, r.status);
+    } catch (e) {
+      console.warn('[SEO][PING][ERR]', url, e.message);
+    }
+  }
+
+  // 2) IndexNow (optional) - submit a subset of URLs if key is set
+  const INDEXNOW_KEY = process.env.INDEXNOW_KEY;
+  if (INDEXNOW_KEY && Array.isArray(allUrls) && allUrls.length) {
+    const host = (process.env.INDEXNOW_HOST || ORIGIN).replace(/^https?:\/\//,'');
+    const chunk = allUrls.slice(0, Math.min(1000, allUrls.length)); // safety cap
+    const payload = {
+      host,
+      key: INDEXNOW_KEY,
+      keyLocation: process.env.INDEXNOW_KEY_LOCATION || `https://${host}/${INDEXNOW_KEY}.txt`,
+      urlList: chunk
+    };
+    try {
+      const r = await fetch('https://api.indexnow.org/indexnow', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      console.log('[SEO][INDEXNOW]', r.status);
+    } catch (e) {
+      console.warn('[SEO][INDEXNOW][ERR]', e.message);
+    }
+  }
+
+  // 3) WebSub publish (optional)
+  const topic = `${ORIGIN}/api/updates.atom`;
+  const hub = 'https://pubsubhubbub.appspot.com';
+  try {
+    const form = new URLSearchParams();
+    form.set('hub.mode', 'publish');
+    form.set('hub.url', topic);
+    const r = await fetch(hub, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: form.toString() });
+    console.log('[SEO][WEBSUB] publish', r.status);
+  } catch (e) {
+    console.warn('[SEO][WEBSUB][ERR]', e.message);
+  }
+} catch (e) {
+  console.warn('[SEO][AUTO][ERR]', e.message);
+}
+// --- end AUTO SEO ---
+
