@@ -1,3 +1,5 @@
+(async () => {
+
 ;(function(window,document){'use strict';
 const supabase = (window.Supa && window.Supa.client) || null;
 
@@ -614,3 +616,5 @@ export async function uploadImageToSupabase(file, slug) {
 
 
 })(window,document);
+
+})();
