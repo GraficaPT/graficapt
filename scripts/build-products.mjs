@@ -137,13 +137,13 @@ function criarCarrosselHTML(slug, imagens) {
     '  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>',
     '  <div class="carrossel-imagens-wrapper">',
     '    <div class="carrossel-imagens" id="carrossel">',
-         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem ${i+1}" class="carrossel-img">`).join('\\n'),
+         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem ${i+1}" class="carrossel-img">`).join('\n'),
     '    </div>',
     '  </div>',
     '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
     '</div>',
     '<div class="indicadores" id="indicadores"></div>'
-  ].join('\\n');
+  ].join('\n');
 }
 
 function renderOption(opt={}, index=0, preselect={}) {
@@ -162,7 +162,7 @@ ${valores.map((v,i)=>{
   const val = typeof v === 'object' ? (v.nome || v.name || v.label || '') : String(v||'');
   const sel = (val.toLowerCase() === wanted) ? ' selected' : (i===0 ? ' selected' : '');
   return `        <option value="${esc(val)}"${sel}>${esc(val)}</option>`;
-}).join('\\n')}
+}).join('\n')}
       </select>`;
     return `<div class="option-group">${labelRow}<div class="overcell">${inputHTML}</div></div>`;
   }
@@ -190,9 +190,11 @@ ${valores.map((v,i)=>{
         `          <input type="radio" id="${esc(id)}" name="${label}" value="${esc(title)}"${checked} required>`,
         `          <label class="color-circle" for="${esc(id)}" title="${esc(title)}" style="background:${esc(colorStyle)}"${imgAssoc ? ` onclick="selecionarCorEImagem('${esc(imgAssoc)}')"` : ''}></label>`,
         '        </div>'
-      ].join('\\n');
-    }).join('\\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">\\n${cores}\\n</div></div></div>`;
+      ].join('\n');
+    }).join('\n');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">
+${cores}
+</div></div></div>`;
   }
   if (tipo === 'imagem-radio') {
     const blocks = valores.map((item, idx) => {
@@ -210,9 +212,11 @@ ${valores.map((v,i)=>{
         '            </div>',
         '          </label>',
         '        </div>'
-      ].join('\\n');
-    }).join('\\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">\\n${blocks}\\n</div></div></div>`;
+      ].join('\n');
+    }).join('\n');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">
+${blocks}
+</div></div></div>`;
   }
   if (tipo === 'quantidade-por-tamanho') {
     const grid = valores.map((t) => {
@@ -222,9 +226,11 @@ ${valores.map((v,i)=>{
         `          <label for="${esc(id)}">${esc(t)}:</label>`,
         `          <input type="number" id="${esc(id)}" name="Tamanho - ${esc(t)}" min="0" value="0">`,
         '        </div>'
-      ].join('\\n');
-    }).join('\\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">\\n${grid}\\n</div></div></div>`;
+      ].join('\n');
+    }).join('\n');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">
+${grid}
+</div></div></div>`;
   }
   return `<div class="option-group">${labelRow}<div class="overcell"></div></div>`;
 }
@@ -276,7 +282,7 @@ function createStaticFields() {
     '  <input type="hidden" name="_next" value="https://graficapt.com">',
     '',
     '  <button id="submit" type="submit">Pedir Orçamento</button>'
-  ].join('\\n');
+  ].join('\n');
 }
 
 function inlineCarouselScript() {
@@ -317,7 +323,7 @@ function inlineCarouselScript() {
     '  window.irParaImagem(window.imagemAtual||0);',
     '})();',
     '</script>'
-  ].join('\\n');
+  ].join('\n');
 }
 
 function inlineFormGuardScript() {
@@ -338,7 +344,7 @@ function inlineFormGuardScript() {
     '  }',
     '})();',
     '</script>'
-  ].join('\\n');
+  ].join('\n');
 }
 
 // ---------- HOMEPAGE ----------
@@ -356,7 +362,7 @@ function renderCard(p){
     '  <div class="cellText">'+esc(nome)+'</div>',
     '  <div class="cellBtn">Ver Opções</div>',
     '</div>'
-  ].filter(Boolean).join('\\n');
+  ].filter(Boolean).join('\n');
 }
 
 const bannerHTML = `
@@ -372,7 +378,7 @@ function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();
   const cards = [...products]
     .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
-    .map(renderCard).join('\\n');
+    .map(renderCard).join('\n');
 
   const cats = Array.from(new Set((products||[]).map(p => String(p.category || p.categoria || '').toLowerCase()).filter(Boolean))).sort();
   const catOptions = ['<option value="all">Todas</option>'].concat(cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`)).join('');
@@ -387,7 +393,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     '<div id="products">',
     '  <a class="subtitle hcenter">Produtos Personalizáveis</a>',
     '  <div class="filter-sort">',
-    '    <select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
+'    <select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
          catOptions,
     '    </select>',
     '    <select id="sortBy" onchange="applyFilters()">',
@@ -453,7 +459,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     '})();',
     '</script>',
     '<script src="/js/formSender.js" defer></script>'
-  ].join('\\n');
+  ].join('\n');
 
   return [
     '<!DOCTYPE html>',
@@ -465,7 +471,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     body,
     '</body>',
     '</html>'
-  ].join('\\n');
+  ].join('\n');
 }
 
 // ---------- PRODUCT PAGE RENDER ----------
@@ -511,7 +517,7 @@ ${criarCarrosselHTML(slug, images)}
   if (Array.isArray(p.opcoes)) optionsArr.push(...p.opcoes);
   else if (p.opcoes && typeof p.opcoes === 'object') optionsArr.push(...Object.entries(p.opcoes).map(([label,op])=>({label, ...(op||{})})));
 
-  const optionsHTML = (optionsArr||[]).map((opt,i)=>renderOption(opt,i,preselect)).join('\\n');
+  const optionsHTML = (optionsArr||[]).map((opt,i)=>renderOption(opt,i,preselect)).join('\n');
   const staticFields = createStaticFields();
 
   const variantsNav = (!variant && sizeGroups.length) ? variantLinksHTML(slug, baseName, sizeGroups) : '';
@@ -542,7 +548,7 @@ ${criarCarrosselHTML(slug, images)}
     inlineCarouselScript(),
     '<script src="/js/formSender.js" defer></script>',
     inlineFormGuardScript()
-  ].join('\\n');
+  ].join('\n');
 
   return [
     '<!DOCTYPE html>',
@@ -554,7 +560,7 @@ ${criarCarrosselHTML(slug, images)}
     body,
     '</body>',
     '</html>'
-  ].join('\\n');
+  ].join('\n');
 }
 
 // ---------- MAIN ----------
