@@ -356,8 +356,25 @@ const bannerHTML = `
 
 
 function renderHome(topbarHTML, footerHTML, products) {
-  const head = buildHeadHome();
-  const webSiteLd = '<script type="application/ld+json">' + JSON.stringify({
+  \1
+const extraHead = [
+  '<link rel="alternate" hreflang="pt-PT" href="' + BASE_URL + '/">',
+  '<link rel="alternate" hreflang="x-default" href="' + BASE_URL + '/">',
+  '<meta property="og:locale" content="pt_PT">',
+  '<link rel="preconnect" href="' + new URL(STORAGE_PUBLIC).origin + '" crossorigin>'
+].join('
+');
+
+const itemListLd = '<script type="application/ld+json">' + JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": products.map((p, idx) => ({
+    "@type": "ListItem",
+    "position": idx + 1,
+    "url": BASE_URL + '/produto/' + p.slug
+  })).slice(0, 20)
+}) + '</script>';
+const webSiteLd = '<script type="application/ld+json">' + JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "GráficaPT",
@@ -742,7 +759,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   });
   const breadcrumbLd = buildBreadcrumbJsonLd([
     { name: 'Início', item: BASE_URL + '/' },
-    { name: 'Produtos', item: BASE_URL + '/index.html#filter=all' },
+    { name: 'Produtos', item: BASE_URL + '/#filter=all' },
     { name: baseName, item: url }
   ]);
   const faqItems = defaultFaqForProduct(baseName);
