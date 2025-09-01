@@ -2,13 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
-/**
- * build-products.mjs — FULL STATIC GENERATOR
- * - /produto/<slug>/index.html (página base)
- * - /produto/<slug>/<variantSlug>/index.html (variantes por tamanho)
- * - /index.html (homepage estática)
- * - Secção "Produtos relacionados" gerada no build (mesma categoria, máx 4)
- */
 
 const log = (...a) => console.log('[build-products]', ...a);
 
