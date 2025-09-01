@@ -3,10 +3,11 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * build-products.mjs — FULL STATIC w/ VARIANT PAGES
- * - /produto/<slug>/index.html (base product)
- * - /produto/<slug>/<variantSlug>/index.html (size variants; title/meta/canonical unique, option preselected)
- * - /index.html (homepage static)
+ * build-products.mjs — FULL STATIC GENERATOR
+ * - /produto/<slug>/index.html (página base)
+ * - /produto/<slug>/<variantSlug>/index.html (variantes por tamanho)
+ * - /index.html (homepage estática)
+ * - Secção "Produtos relacionados" gerada no build (mesma categoria, máx 4)
  */
 
 const log = (...a) => console.log('[build-products]', ...a);
@@ -44,7 +45,7 @@ const mkUrl = (p) => (!p ? '' : (/^https?:\/\//i.test(p) ? p : (STORAGE_PUBLIC +
 const safeJson = (v) => { try { return JSON.parse(v || '[]'); } catch { return []; } };
 
 const slugify = (s='') => {
-  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'') // remove diacritics
+  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'') // remove acentos
     .toLowerCase()
     .replace(/[^a-z0-9]+/g,'-')
     .replace(/^-+|-+$/g,'')
@@ -128,6 +129,72 @@ function getSizeGroups(opcoes){
   return groups;
 }
 
+// ---------- RELATED HELPERS (replica do teu front) ----------
+function joinPublicPath(prefix, pth) {
+  const parts = String(pth).split('/').filter(Boolean).map(encodeURIComponent);
+  return prefix + parts.join('/');
+}
+function resolveImagePath(slug, raw, STORAGE_PUBLIC) {
+  if (!raw || typeof raw !== 'string') return undefined;
+  const s = raw.trim();
+  if (!s) return undefined;
+  if (/^https?:\/\//i.test(s)) return s;
+  if (s.includes('/')) return joinPublicPath(STORAGE_PUBLIC, s);
+  return joinPublicPath(STORAGE_PUBLIC, `${slug}/${s}`);
+}
+function relatedImageUrl(prod, STORAGE_PUBLIC) {
+  const slug = prod.slug || prod.Slug || prod.name || prod.nome || '';
+  if (Array.isArray(prod.images) && prod.images[0]) {
+    const u = resolveImagePath(slug, prod.images[0], STORAGE_PUBLIC);
+    if (u) return u;
+  }
+  if (prod.banner) {
+    const u = resolveImagePath(slug, prod.banner, STORAGE_PUBLIC);
+    if (u) return u;
+  }
+  return 'https://placehold.co/800x600?text=Produto';
+}
+function renderRelated(current, allProducts){
+  const currentSlug = (current.slug || current.Slug || current.name || current.nome);
+  const cat = String(current.category || current.categoria || '').toLowerCase();
+  if (!cat) return '';
+
+  const rel = (allProducts || [])
+    .filter(p => (p.slug || p.Slug || p.name || p.nome) !== currentSlug)
+    .filter(p => String(p.category || p.categoria || '').toLowerCase() === cat)
+    .sort((a,b)=> (b.id||0) - (a.id||0))
+    .slice(0,4);
+
+  if (!rel.length) return '';
+
+  const cards = rel.map(p => {
+    const slug = p.slug || p.Slug || p.name || p.nome;
+    const name = p.name || p.nome || slug;
+    const img = relatedImageUrl({ ...p, slug }, STORAGE_PUBLIC);
+    return [
+      `<a class="related__card" href="/produto/${esc(slug)}" aria-label="${esc(name)}">`,
+      '  <div class="related__thumbwrap">',
+      `    <img class="related__thumb" src="${esc(img)}" alt="${esc(name)}" loading="lazy">`,
+      '  </div>',
+      '  <div class="related__body">',
+      `    <h3 class="related__title">${esc(name)}</h3>`,
+      '  </div>',
+      '</a>'
+    ].join('\n');
+  }).join('\n');
+
+  return [
+    '<section id="related-products" class="related">',
+    '  <div class="related__head">',
+    '    <h2>Produtos relacionados</h2>',
+    '  </div>',
+    '  <div id="related-grid" class="related__grid">',
+         cards,
+    '  </div>',
+    '</section>'
+  ].join('\n');
+}
+
 // ---------- PRODUCT PAGE PARTS ----------
 function criarCarrosselHTML(slug, imagens) {
   const imgs = (imagens || []).map(mkUrl).filter(Boolean);
@@ -183,7 +250,7 @@ ${valores.map((v,i)=>{
         colorStyle = 'linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)';
         title = 'Multicor';
       }
-      const id = `${label.replace(/\\s+/g,'-').toLowerCase()}-color-${idx}`;
+      const id = `${label.replace(/\s+/g,'-').toLowerCase()}-color-${idx}`;
       const checked = (title.toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
       return [
         '        <div class="overcell">',
@@ -192,13 +259,11 @@ ${valores.map((v,i)=>{
         '        </div>'
       ].join('\n');
     }).join('\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">
-${cores}
-</div></div></div>`;
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">\n${cores}\n</div></div></div>`;
   }
   if (tipo === 'imagem-radio') {
     const blocks = valores.map((item, idx) => {
-      const posID = `${label.replace(/\\s+/g,'-').toLowerCase()}-pos-${idx}`;
+      const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
       const nome = esc(item?.nome || '');
       const imgSrc = item?.imagem ? mkUrl(item.imagem) : '';
       const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
@@ -214,9 +279,7 @@ ${cores}
         '        </div>'
       ].join('\n');
     }).join('\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">
-${blocks}
-</div></div></div>`;
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">\n${blocks}\n</div></div></div>`;
   }
   if (tipo === 'quantidade-por-tamanho') {
     const grid = valores.map((t) => {
@@ -228,9 +291,7 @@ ${blocks}
         '        </div>'
       ].join('\n');
     }).join('\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">
-${grid}
-</div></div></div>`;
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">\n${grid}\n</div></div></div>`;
   }
   return `<div class="option-group">${labelRow}<div class="overcell"></div></div>`;
 }
@@ -347,32 +408,6 @@ function inlineFormGuardScript() {
   ].join('\n');
 }
 
-
-function joinPublicPath(prefix, pth) {
-  const parts = String(pth).split('/').filter(Boolean).map(encodeURIComponent);
-  return prefix + parts.join('/');
-}
-function resolveImagePath(slug, raw, STORAGE_PUBLIC) {
-  if (!raw || typeof raw !== 'string') return undefined;
-  const s = raw.trim();
-  if (!s) return undefined;
-  if (/^https?:\/\//i.test(s)) return s;
-  if (s.includes('/')) return joinPublicPath(STORAGE_PUBLIC, s);
-  return joinPublicPath(STORAGE_PUBLIC, `${slug}/${s}`);
-}
-function relatedImageUrl(prod, STORAGE_PUBLIC) {
-  const slug = prod.slug || prod.Slug || prod.name || prod.nome || '';
-  if (Array.isArray(prod.images) && prod.images[0]) {
-    const u = resolveImagePath(slug, prod.images[0], STORAGE_PUBLIC);
-    if (u) return u;
-  }
-  if (prod.banner) {
-    const u = resolveImagePath(slug, prod.banner, STORAGE_PUBLIC);
-    if (u) return u;
-  }
-  return 'https://placehold.co/800x600?text=Produto';
-}
-
 // ---------- HOMEPAGE ----------
 function renderCard(p){
   const slug = p.slug || p.Slug || p.name || p.nome;
@@ -400,68 +435,6 @@ const bannerHTML = `
   </div>
 </div>`;
 
-
-function renderRelated(current, allProducts){
-  const cat = String(current.category || current.categoria || '').toLowerCase();
-  if (!cat) return '';
-  const rel = (allProducts || [])
-    .filter(x => (x.slug || x.Slug || x.name || x.nome) !== (current.slug || current.Slug || current.name || current.nome))
-    .filter(x => String(x.category || x.categoria || '').toLowerCase() === cat)
-    .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
-    .slice(0,4);
-  if (!rel.length) return '';
-  const cards = rel.map(renderCard).join('\n');
-  return [
-    '<div id="related" class="related">',
-    '  <a class="subtitle hcenter">Produtos Relacionados</a>',
-    '  <div class="products-grid">',
-         cards,
-    '  </div>',
-    '</div>'
-  ].join('\n');
-}
-
-function renderRelated(current, allProducts){
-  const currentSlug = (current.slug || current.Slug || current.name || current.nome);
-  const cat = String(current.category || current.categoria || '').toLowerCase();
-  if (!cat) return '';
-
-  const rel = (allProducts || [])
-    .filter(p => (p.slug || p.Slug || p.name || p.nome) !== currentSlug)
-    .filter(p => String(p.category || p.categoria || '').toLowerCase() === cat)
-    .sort((a,b)=> (b.id||0) - (a.id||0))
-    .slice(0,4);
-
-  if (!rel.length) return '';
-
-  const cards = rel.map(p => {
-    const slug = p.slug || p.Slug || p.name || p.nome;
-    const name = p.name || p.nome || slug;
-    const img = relatedImageUrl({ ...p, slug }, STORAGE_PUBLIC);
-    return [
-      `<a class="related__card" href="/produto/${esc(slug)}" aria-label="${esc(name)}">`,
-      '  <div class="related__thumbwrap">',
-      `    <img class="related__thumb" src="${esc(img)}" alt="${esc(name)}" loading="lazy">`,
-      '  </div>',
-      '  <div class="related__body">',
-      `    <h3 class="related__title">${esc(name)}</h3>`,
-      '  </div>',
-      '</a>'
-    ].join('\n');
-  }).join('\n');
-
-  return [
-    '<section id="related-products" class="related">',
-    '  <div class="related__head">',
-    '    <h2>Produtos relacionados</h2>',
-    '  </div>',
-    '  <div id="related-grid" class="related__grid">',
-         cards,
-    '  </div>',
-    '</section>'
-  ].join('\n');
-}
-
 function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();
   const cards = [...products]
@@ -481,7 +454,7 @@ function renderHome(topbarHTML, footerHTML, products) {
     '<div id="products">',
     '  <a class="subtitle hcenter">Produtos Personalizáveis</a>',
     '  <div class="filter-sort">',
-'    <select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
+    '    <select id="filterCategory" onchange="location.hash = &quot;filter=&quot; + this.value">',
          catOptions,
     '    </select>',
     '    <select id="sortBy" onchange="applyFilters()">',
