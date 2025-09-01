@@ -532,5 +532,3 @@ await loadProdutos();
 // expose a few for inline handlers if exist
 window.editProduto = editProduto;
 window.deleteProduto = deleteProduto;
-
-
