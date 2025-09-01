@@ -814,7 +814,6 @@ const carouselHTML = (images && images.length)
     '</head>',
     '<body>',
     body,
-    renderFaqHTML(faqItems),
     '</body>',
     '</html>'
   ].join('\n');
