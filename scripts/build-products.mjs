@@ -72,7 +72,7 @@ function buildHead(baseUrl, title, descr, keywords, og) {
     '<meta property="og:type" content="product">',
     `<meta property="og:url" content="${esc(baseUrl)}">`,
     '<meta name="twitter:card" content="summary_large_image">',
-    '<link rel="icon" href="/imagens/logo.ico">',
+    '<link rel="icon" href="https://graficapt.com/imagens/logo.ico">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
     '<link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">',
@@ -165,7 +165,7 @@ function renderRelated(current, allProducts){
     const name = p.name || p.nome || slug;
     const img = relatedImageUrl({ ...p, slug }, STORAGE_PUBLIC);
     return [
-      `<a class="related__card" href="/produto/${esc(slug)}" aria-label="${esc(name)}">`,
+      `<a class="related__card" href="${BASE_URL}/produto/${esc(slug)}" aria-label="${esc(name)}">`,
       '  <div class="related__thumbwrap">',
       `    <img class="related__thumb" src="${esc(img)}" alt="${esc(name)}" loading="lazy">`,
       '  </div>',
