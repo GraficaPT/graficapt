@@ -409,6 +409,8 @@ function inlineFormGuardScript() {
 }
 
 // ---------- HOMEPAGE ----------
+
+
 function renderCard(p){
   const slug = p.slug || p.Slug || p.name || p.nome;
   const nome = p.name || p.nome || slug;
@@ -416,24 +418,35 @@ function renderCard(p){
   const tags = asArray(p.tags || p.metawords).join(',');
   const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
   const img = mkUrl(images[0] || '');
+  const href = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
 
-  return [
-    '<div class="cell" data-categoria="'+esc(cat)+'" data-nome="'+esc(nome)+'" data-item data-tags="'+esc(tags)+'" onclick="location.href=\\\'/produto/'+esc(slug)+'\\\'">',
-    img ? `  <img src="${esc(img)}" alt="${esc(nome)}">` : '',
-    '  <div class="cellText">'+esc(nome)+'</div>',
-    '  <div class="cellBtn">Ver Opções</div>',
-    '</div>'
-  ].filter(Boolean).join('\n');
+  const parts = [];
+  parts.push(`<a class="cell" href="${esc(href)}" data-categoria="${esc(cat)}" data-nome="${esc(nome)}" data-item data-tags="${esc(tags)}">`);
+  if (img) parts.push(`  <img src="${esc(img)}" alt="${esc(nome)}">`);
+  parts.push(`  <div class="cellText">${esc(nome)}</div>`);
+  parts.push('  <div class="cellBtn">Ver Opções</div>');
+  parts.push('</a>');
+  return parts.join('');
 }
+
+
+
 
 const bannerHTML = `
 <div class="banner hcenter">
-  <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy" onclick="location.href = 'produto/bandeiravela'">
+  <a href="${BASE_URL}/produto/bandeiravela">
+    <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy">
+  </a>
   <div class="banner-right">
-    <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy" onclick="location.href = 'produto/tshirtregent'">
-    <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy" onclick="location.href = 'produto/sacoskraft'">
+    <a href="${BASE_URL}/produto/tshirtregent">
+      <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy">
+    </a>
+    <a href="${BASE_URL}/produto/sacoskraft">
+      <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy">
+    </a>
   </div>
 </div>`;
+
 
 function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();

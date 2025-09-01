@@ -1,107 +1,69 @@
 import fs from 'fs';
 import path from 'path';
-import { createClient } from '@supabase/supabase-js';
 
 /**
- * scripts/generate-sitemap.mjs
- * - Homepage
- * - /produto/<slug>
- * - /produto/<slug>/<variantSlug> (size variants)
+ * scripts/generate-sitemap.mjs (FS-based)
+ * - Lê o filesystem gerado no build:
+ *     /produto/<slug>/index.html
+ *     /produto/<slug>/<variant>/index.html
+ * - Gera sitemap.xml com homepage, produtos e variantes
+ * - Usa mtime do index.html como <lastmod> quando disponível
  */
 
 const ROOT = process.cwd();
 const OUT  = path.join(ROOT, 'sitemap.xml');
-
-const BASE_URL          = process.env.BASE_URL || 'https://graficapt.com';
-const SUPABASE_URL      = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+const BASE_URL = process.env.BASE_URL || 'https://graficapt.com';
 
 function escXml(s='') {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-function fmtDate(d){
-  try { return (d ? new Date(d) : new Date()).toISOString(); }
-  catch { return new Date().toISOString(); }
-}
-const slugify = (s='') => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').replace(/--+/g,'-');
-
-function normalizeLabel(s=''){ return String(s).trim().toLowerCase(); }
-
-function getSizeGroups(opcoes){
-  const result = [];
-  if (!opcoes) return result;
-
-  let opts = [];
-  if (Array.isArray(opcoes)) opts = opcoes;
-  else if (typeof opcoes === 'object') opts = Object.entries(opcoes).map(([label, op]) => ({ label, ...(op || {}) }));
-  else {
-    try { opts = JSON.parse(opcoes); } catch { opts = []; }
-  }
-
-  for (const op of opts) {
-    const label = String(op?.label || '').trim();
-    const norm  = normalizeLabel(label);
-    if (!/^(tamanho|tam|size)\b/.test(norm)) continue;
-    const valores = Array.isArray(op?.valores) ? op.valores : [];
-    const names = valores.map(v => (v && typeof v === 'object') ? (v.nome || v.name || v.label || '') : String(v || '')).filter(Boolean);
-    if (names.length) result.push({ label, values: names });
-  }
-  return result;
-}
-
-async function fetchProducts(){
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return { products: null, error: new Error('missing env') };
-  const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const { data, error } = await supa.from('products').select('slug, name, opcoes, updated_at');
-  if (error) return { products: null, error };
-  return { products: data, error: null };
-}
-
-function fallbackProductsFromFs(){
-  const productDir = path.join(ROOT, 'produto');
+function fmtDateFromStat(stat){
   try {
-    return fs.readdirSync(productDir, { withFileTypes: true })
-      .filter(d => d.isDirectory())
-      .map(d => ({ slug: d.name, name: d.name, opcoes: [], updated_at: new Date() }));
-  } catch {
-    return [];
-  }
+    if (stat && stat.mtime) return new Date(stat.mtime).toISOString();
+  } catch {}
+  return new Date().toISOString();
 }
 
-async function main(){
+function gatherProductsAndVariants(){
+  const dir = path.join(ROOT, 'produto');
+  const list = [];
+  try {
+    const slugs = fs.readdirSync(dir, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name);
+    for (const slug of slugs) {
+      const baseIndex = path.join(dir, slug, 'index.html');
+      const baseStat  = fs.existsSync(baseIndex) ? fs.statSync(baseIndex) : null;
+      list.push({ loc: `${BASE_URL}/produto/${encodeURIComponent(slug)}`, lastmod: fmtDateFromStat(baseStat) });
+
+      // variants are subdirs that contain index.html
+      const vDir = path.join(dir, slug);
+      const entries = fs.readdirSync(vDir, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name);
+      for (const variant of entries) {
+        const vIndex = path.join(vDir, variant, 'index.html');
+        if (fs.existsSync(vIndex)) {
+          const vStat = fs.statSync(vIndex);
+          list.push({ loc: `${BASE_URL}/produto/${encodeURIComponent(slug)}/${encodeURIComponent(variant)}`, lastmod: fmtDateFromStat(vStat) });
+        }
+      }
+    }
+  } catch (e) {
+    console.error('[sitemap] FS scan error:', e.message);
+  }
+  return list;
+}
+
+function main(){
   const urls = [];
-  const pushUrl = (loc, lastmod, priority = null, changefreq = null) => {
-    urls.push({ loc, lastmod: fmtDate(lastmod), priority, changefreq });
+  const push = (loc, lastmod, priority = null, changefreq = null) => {
+    urls.push({ loc, lastmod, priority, changefreq });
   };
 
   // homepage
-  pushUrl(`${BASE_URL}/`, new Date(), 0.9, 'daily');
+  push(`${BASE_URL}/`, new Date().toISOString(), 0.9, 'daily');
 
-  let { products, error } = await fetchProducts();
-  if (error || !products) {
-    console.warn('[sitemap] Using FS fallback:', error?.message || 'unknown');
-    products = fallbackProductsFromFs();
-  }
-
-  let variants = 0;
-  for (const p of products) {
-    const slug = p.slug || p.Slug || p.name;
-    if (!slug) continue;
-    const last = p.updated_at || new Date();
-
-    // base product url
-    const base = `${BASE_URL}/produto/${encodeURIComponent(slug)}`;
-    pushUrl(base, last, 0.8, 'weekly');
-
-    // variant urls
-    const groups = getSizeGroups(p.opcoes);
-    for (const g of groups) {
-      for (const val of g.values) {
-        const vs = slugify(val);
-        pushUrl(`${base}/${vs}`, last, 0.6, 'weekly');
-        variants++;
-      }
-    }
+  // produtos + variantes a partir do FS
+  const items = gatherProductsAndVariants();
+  for (const it of items) {
+    push(it.loc, it.lastmod, it.loc.split('/').length > 5 ? 0.6 : 0.8, 'weekly');
   }
 
   const xml = [
@@ -119,7 +81,7 @@ async function main(){
   ].join('\n');
 
   fs.writeFileSync(OUT, xml, 'utf-8');
-  console.log(`✅ sitemap.xml gerado: ${urls.length} URLs (${variants} variantes)`);
+  console.log(`✅ sitemap.xml (FS) gerado com ${urls.length} URLs`);
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main();
