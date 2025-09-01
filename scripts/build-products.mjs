@@ -58,7 +58,7 @@ function extractTopbarFooter() {
 // ---------- HEAD BUILDERS ----------
 
 // ---------- JSON-LD BUILDERS ----------
-function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', brand = 'GraficaPT', category = '' }) {
+function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', brand = 'GraficaPT', category = '', offers }) {
   const imgs = (images || []).filter(Boolean);
   const ld = {
     "@context": "https://schema.org",
@@ -71,6 +71,35 @@ function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', bran
     "category": category || undefined,
     "url": baseUrl
   };
+  if (offers && offers.price) {
+    ld.offers = {
+      "@type": "Offer",
+      "price": String(offers.price),
+      "priceCurrency": offers.priceCurrency || "EUR",
+      "availability": offers.availability || "https://schema.org/InStock",
+      "url": baseUrl
+    };
+  }
+
+function buildServiceJsonLd({ baseUrl, title, descr, images = [], brand = 'GráficaPT', category = '' }) {
+  const imgs = (images || []).filter(Boolean);
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": title,
+    "description": descr,
+    "image": imgs,
+    "serviceType": category || "Impressão e personalização",
+    "areaServed": { "@type": "Country", "name": "PT" },
+    "provider": {
+      "@type": "Organization",
+      "name": brand || "GráficaPT",
+      "url": BASE_URL
+    },
+    "url": baseUrl
+  };
+  return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
+}
   return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
 }
 function buildBreadcrumbJsonLd(items) {
@@ -746,24 +775,45 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   }
 
   let supaOrigin = ''; try { supaOrigin = new URL(STORAGE_PUBLIC || '').origin; } catch(e) {}
-  const head = buildHead(url, seoTitle, descr, keywords, og, 'product', supaOrigin ? [supaOrigin] : []);
-  const resolvedImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
-  const productLd = buildProductJsonLd({
-    baseUrl: url,
-    title: baseName,
-    descr,
-    images: resolvedImages,
-    brand: 'GraficaPT',
-    category: p.categoria || ''
-  });
-  const breadcrumbLd = buildBreadcrumbJsonLd([
-    { name: 'Início', item: BASE_URL + '/' },
-    { name: 'Produtos', item: BASE_URL + '/#filter=all' },
-    { name: baseName, item: url }
-  ]);
-  const faqItems = defaultFaqForProduct(baseName);
-  const faqLd = buildFaqJsonLd(faqItems);
-  const headWithLd = [head, productLd, breadcrumbLd, faqLd].join('\n');
+
+// --- Detect price fields ---
+const rawPrice = p.price ?? p.preco ?? p.precoMin ?? p.min_price ?? p.minPrice ?? p.valor ?? p.valorMin;
+const priceNum = Number(String(rawPrice ?? '').replace(',', '.'));
+const hasPrice = Number.isFinite(priceNum) && priceNum > 0;
+
+// Choose og:type based on having price
+const ogType = hasPrice ? 'product' : 'website';
+const head = buildHead(url, seoTitle, descr, keywords, og, ogType, supaOrigin ? [supaOrigin] : []);
+const resolvedImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
+
+// Choose structured data: Product (with offers) when hasPrice; otherwise Service
+const structuredLd = hasPrice
+  ? buildProductJsonLd({
+      baseUrl: url,
+      title: baseName,
+      descr,
+      images: resolvedImages,
+      brand: 'GraficaPT',
+      category: p.categoria || '',
+      offers: { price: priceNum.toFixed(2), priceCurrency: 'EUR' }
+    })
+  : buildServiceJsonLd({
+      baseUrl: url,
+      title: baseName,
+      descr,
+      images: resolvedImages,
+      brand: 'GráficaPT',
+      category: p.categoria || ''
+    });
+
+const breadcrumbLd = buildBreadcrumbJsonLd([
+  { name: 'Início', item: BASE_URL + '/' },
+  { name: 'Produtos', item: BASE_URL + '/#filter=all' },
+  { name: baseName, item: url }
+]);
+const faqItems = defaultFaqForProduct(baseName);
+const faqLd = buildFaqJsonLd(faqItems);
+const headWithLd = [head, structuredLd, breadcrumbLd, faqLd].join('\n');
 const carouselHTML = (images && images.length)
     ? ['<div class="product-image">', criarCarrosselHTML(slug, images), '</div>'].join('\n')
     : '';
