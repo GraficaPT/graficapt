@@ -708,7 +708,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   }
 
   let supaOrigin = ''; try { supaOrigin = new URL(STORAGE_PUBLIC || '').origin; } catch(e) {}
-
+  const head = buildHead(url, seoTitle, descr, keywords, og, 'product', supaOrigin ? [supaOrigin] : []);
   const resolvedImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
   const productLd = buildProductJsonLd({
     baseUrl: url,
