@@ -794,6 +794,7 @@ const carouselHTML = (images && images.length)
     '  </form>',
     variantsNav,
     renderRelated(p, allProducts),
+    renderFaqHTML(faqItems),
     '</div>',
     '',
     '<footer class="footer" id="footer">',
