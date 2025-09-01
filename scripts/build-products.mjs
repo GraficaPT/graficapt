@@ -57,80 +57,79 @@ function extractTopbarFooter() {
 
 // ---------- HEAD BUILDERS ----------
 
-// ---------- FAQ BUILDERS ----------
-function buildFaqJsonLd(faqItems) {
+// ---------- JSON-LD BUILDERS ----------
+function buildProductJsonLd({ baseUrl, title, descr, images=[], sku='', brand='GraficaPT', category='', availability='InStock' }) {
+  const imgs = (images || []).filter(Boolean);
   const ld = {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": (faqItems||[]).map(it => ({
-      "@type": "Question",
-      "name": it.q,
-      "acceptedAnswer": { "@type": "Answer", "text": it.a }
-    }))
+    "@type": "Product",
+    "name": title,
+    "description": descr,
+    "image": imgs,
+    "sku": sku || undefined,
+    "brand": brand ? { "@type": "Brand", "name": brand } : undefined,
+    "category": category || undefined,
+    "url": baseUrl
   };
   return `<script type="application/ld+json">${JSON.stringify(ld)}</script>`;
 }
 
-function defaultFaqForProduct(name='Produto') {
-  const n = String(name||'Produto');
-  return [
-    { q: `Qual é o prazo de produção do ${n}?`,
-      a: "Normalmente 3–5 dias úteis após confirmação de arte final. Prazos urgentes podem ser possíveis mediante disponibilidade." },
-    { q: "A arte/maquete está incluída?",
-      a: "Sim, ajustamos o teu logotipo e texto básico sem custos. Trabalhos de design avançado podem ter orçamento adicional." },
-    { q: "Que ficheiros aceitam?",
-      a: "PDF, AI, SVG ou PNG/JPG de alta resolução. Se possível, envia em CMYK e com fontes convertidas em curvas." },
-    { q: "Posso imprimir frente e verso?",
-      a: "Sim. Se aplicável ao produto, adiciona essa informação nos detalhes do pedido." },
-    { q: "Como é o envio e prazos de entrega?",
-      a: "Expedimos por transportadora para todo o país. Após produção, a entrega habitual é 24–48h (dias úteis)." }
-  ];
+function buildBreadcrumbJsonLd(items) {
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": (items || []).map((it, i) => ({
+      "@type": "ListItem",
+      "position": i+1,
+      "name": it.name,
+      "item": it.item
+    }))
+  };
+  return `<script type="application/ld+json">${JSON.stringify(ld)}</script>`;
 }
-
-function renderFaqHTML(faqItems) {
-  if (!faqItems || !faqItems.length) return '';
-  const items = faqItems.map(it => [
-    '<details class="faq-item">',
-    `  <summary>${esc(it.q)}</summary>`,
-    `  <div class="faq-answer"><p>${esc(it.a)}</p></div>`,
-    '</details>'
-  ].join('\n')).join('\n');
-  return [
-    '<section class="faq">',
-    '  <div class="faq__head"><h2>Perguntas frequentes</h2></div>',
-    `  <div class="faq__list">`,
-    items,
-    '  </div>',
-    '</section>'
-  ].join('\n');
-}
-function buildHead(baseUrl, title, descr, keywords, og) {
+// ---------- HEAD BUILDERS ----------
+function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website') {
   return [
     '<meta charset="utf-8">',
     '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    `<title>${esc(title)}</title>`,
+    // Title + Canonical
+    ` <title>${esc(title)}</title>`,
     `<link rel="canonical" href="${esc(baseUrl)}">`,
+
+    // Meta básicas
     `<meta name="description" content="${esc(descr)}">`,
     keywords ? `<meta name="keywords" content="${esc(keywords)}">` : '',
     '<meta name="robots" content="index, follow">',
+
+    // Open Graph
     `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:description" content="${esc(descr)}">`,
     og ? `<meta property="og:image" content="${esc(og)}">` : '',
-    '<meta property="og:type" content="product">',
+    `<meta property="og:type" content="${esc(ogType)}">`,
     `<meta property="og:url" content="${esc(baseUrl)}">`,
     og ? '<meta property="og:image:width" content="1200">' : '',
     og ? '<meta property="og:image:height" content="630">' : '',
     og ? `<link rel="preload" as="image" href="${esc(og)}" fetchpriority="high">` : '',
+
+    // Twitter
     '<meta name="twitter:card" content="summary_large_image">',
+    title ? `<meta name="twitter:title" content="${esc(title)}">` : '',
+    descr ? `<meta name="twitter:description" content="${esc(descr)}">` : '',
+    og ? `<meta name="twitter:image" content="${esc(og)}">` : '',
+
+    // Assets
     '<link rel="icon" href="https://graficapt.com/imagens/logo.ico">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
     '<link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">',
     '<link rel="stylesheet" href="/css/index.css">',
     '<link rel="stylesheet" href="/css/product.css">'
-  ].filter(Boolean).join('\n');
+  ]
+  .filter(Boolean)
+  .join('\n');
 }
+
 
 function buildHeadHome() {
   const url = `${BASE_URL}/`;
@@ -621,6 +620,15 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   }
 
   const head = buildHead(url, seoTitle, descr, keywords, og);
+  const absImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
+  const productLd = buildProductJsonLd({ baseUrl: url, title: seoTitle.replace(/\s*\|\s*GráficaPT$/,''), descr, images: absImages,
+    sku: (p && (p.sku || p.SKU)) || '', brand: (p && (p.brand || p.marca)) || 'GraficaPT', category: (p && (p.category || p.categoria)) || '', availability: (p && p.availability) || 'InStock' });
+  const breadcrumbLd = buildBreadcrumbJsonLd([
+    { name: 'Início', item: `${BASE_URL}/` },
+    { name: 'Produtos', item: `${BASE_URL}/index.html#filter=all` },
+    { name: baseName, item: url }
+  ]);
+  const headWithLd = [head, productLd, breadcrumbLd].filter(Boolean).join('\n');
 
   const carouselHTML = (images && images.length)
     ? ['<div class="product-image">', criarCarrosselHTML(slug, images), '</div>'].join('\n')
@@ -668,7 +676,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
     '<!DOCTYPE html>',
     '<html lang="pt">',
     '<head>',
-    head,
+    headWithLd,
     '</head>',
     '<body>',
     body,
