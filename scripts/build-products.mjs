@@ -356,12 +356,13 @@ const bannerHTML = `
 
 
 function renderHome(topbarHTML, footerHTML, products) {
+  const head = buildHeadHome();
 const extraHead = [
   '<link rel="alternate" hreflang="pt-PT" href="' + BASE_URL + '/">',
   '<link rel="alternate" hreflang="x-default" href="' + BASE_URL + '/">',
   '<meta property="og:locale" content="pt_PT">',
   '<link rel="preconnect" href="' + new URL(STORAGE_PUBLIC).origin + '" crossorigin>'
-].join('');
+].join('\n');
 
 const itemListLd = '<script type="application/ld+json">' + JSON.stringify({
   "@context": "https://schema.org",
@@ -394,7 +395,7 @@ const webSiteLd = '<script type="application/ld+json">' + JSON.stringify({
       "https://www.facebook.com/profile.php?id=61564124441415"
     ]
   }) + '</script>';
-  const headWithLd = [head, webSiteLd, orgLd].join('');
+  const headWithLd = [head, webSiteLd, orgLd, extraHead, itemListLd].join('\\n');
 const cards = [...products]
     .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
     .map(renderCard).join('\n');
