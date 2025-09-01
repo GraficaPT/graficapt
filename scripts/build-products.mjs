@@ -62,7 +62,6 @@ function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', prec
     '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     ` <title>${esc(title)}
-function getOriginFromUrl(u){ try { return new URL(u).origin; }
 // ---------- FAQ BUILDERS ----------
 function buildFaqJsonLd(faqItems) {
   const ld = {
@@ -629,7 +628,8 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
     preselect = { [String(variant.label || '').toLowerCase()]: String(variant.value || '') };
   }
 
-  const supaOrigin = getOriginFromUrl(STORAGE_PUBLIC || '');
+  let supaOrigin = '';
+  try { supaOrigin = new URL(STORAGE_PUBLIC || '').origin; } catch(e) { supaOrigin = ''; }
   const head = buildHead(url, seoTitle, descr, keywords, og, 'product', supaOrigin ? [supaOrigin] : []);
 
   const carouselHTML = (images && images.length)
