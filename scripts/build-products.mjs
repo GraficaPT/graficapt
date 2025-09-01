@@ -357,7 +357,29 @@ const bannerHTML = `
 
 function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();
-  const headWithLd = head;
+  const webSiteLd = '<script type="application/ld+json">' + JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "GráficaPT",
+    "url": BASE_URL,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": BASE_URL + "/index.html?query={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }) + '</script>';
+  const orgLd = '<script type="application/ld+json">' + JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "GráficaPT",
+    "url": BASE_URL,
+    "logo": "https://graficapt.com/imagens/logo.ico",
+    "sameAs": [
+      "https://www.instagram.com/graficapt/",
+      "https://www.facebook.com/profile.php?id=61564124441415"
+    ]
+  }) + '</script>';
+  const headWithLd = [head, webSiteLd, orgLd].join('');
 const cards = [...products]
     .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
     .map(renderCard).join('\n');
