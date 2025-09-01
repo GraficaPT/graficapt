@@ -631,6 +631,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   let supaOrigin = '';
   try { supaOrigin = new URL(STORAGE_PUBLIC || '').origin; } catch(e) { supaOrigin = ''; }
   const head = buildHead(url, seoTitle, descr, keywords, og, 'product', supaOrigin ? [supaOrigin] : []);
+  const headWithLd = head;
 
   const carouselHTML = (images && images.length)
     ? ['<div class="product-image">', criarCarrosselHTML(slug, images), '</div>'].join('\n')
