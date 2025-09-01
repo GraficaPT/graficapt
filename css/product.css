@@ -478,3 +478,5 @@ button:hover {
 
 .carrossel-imagens { display:flex; transition: transform .3s ease; }
 .carrossel-slide { min-width:100%; }
+
+.variant-links { display:none; }
