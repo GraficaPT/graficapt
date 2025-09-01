@@ -1,14 +1,15 @@
 
-// Helper: build URL list from the generated sitemap file (basic parse)
 import fs from 'fs';
+import path from 'path';
+
+// Helper: build URL list from the generated sitemap file (basic parse)
 let allUrls = [];
 try {
   const sm = fs.readFileSync('sitemap.xml','utf-8');
   allUrls = Array.from(sm.matchAll(/<loc>(.*?)<\/loc>/g)).map(m=>m[1]);
 } catch {}
 
-import fs from 'fs';
-import path from 'path';
+
 
 /**
  * scripts/generate-sitemap.mjs (FS-based)
