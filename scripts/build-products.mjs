@@ -32,7 +32,9 @@ const writeFileAtomic = (filePath, content) => {
   fs.writeFileSync(tmp, content, 'utf-8');
   fs.renameSync(tmp, filePath);
 };
-const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf-8');
+const readIfExists = (rel) => {
+  try { return fs.readFileSync(path.join(ROOT, rel), 'utf-8'); } catch { return null; }
+};
 
 // -----------------------------
 // Small utils
@@ -55,14 +57,21 @@ function resolveImagePath(slug, image, storageBase) {
 }
 
 // -----------------------------
-// Extract topbar/footer from bundle
+// Extract topbar/footer from bundle (with fallbacks)
 // -----------------------------
 function extractTopbarFooter() {
-  const bundle = read('js/app.bundle.js');
-  const mTop   = bundle.match(/const\s+topbarHTML\s*=\s*`([\s\S]*?)`;/);
-  const mFoot  = bundle.match(/const\s+footerHTML\s*=\s*`([\s\S]*?)`;/);
-  if (!mTop || !mFoot) throw new Error('Could not extract topbarHTML/footerHTML from js/app.bundle.js');
-  return { topbarHTML: mTop[1], footerHTML: mFoot[1] };
+  const bundle = readIfExists('js/app.bundle.js') || readIfExists('js/main.js') || '';
+  let topbar = '', footer = '';
+  if (bundle) {
+    const mTop   = bundle.match(/const\s+topbarHTML\s*=\s*`([\s\S]*?)`;/);
+    const mFoot  = bundle.match(/const\s+footerHTML\s*=\s*`([\s\S]*?)`;/);
+    topbar = mTop ? mTop[1] : topbar;
+    footer = mFoot ? mFoot[1] : footer;
+  }
+  // try html partials
+  topbar = topbar || readIfExists('partials/topbar.html') || '';
+  footer = footer || readIfExists('partials/footer.html') || '';
+  return { topbarHTML: topbar, footerHTML: footer };
 }
 
 // -----------------------------
@@ -170,7 +179,7 @@ function buildHead(baseUrl, title, descr, keywords, ogImage, ogType = 'website',
 }
 
 // -----------------------------
-// FAQ HTML (for page body)
+// FAQ HTML
 // -----------------------------
 function renderFaqHTML(faqItems) {
   if (!faqItems || !faqItems.length) return '';
@@ -179,7 +188,7 @@ function renderFaqHTML(faqItems) {
     `  <summary>${esc(it.q)}</summary>`,
     `  <div class="faq-answer"><p>${esc(it.a)}</p></div>`,
     '</details>'
-  ].join('\\n')).join('\\n');
+  ].join('\n')).join('\n');
   return [
     '<section class="faq">',
     '  <div class="faq__head"><h2>Perguntas frequentes</h2></div>',
@@ -187,7 +196,7 @@ function renderFaqHTML(faqItems) {
     items,
     '  </div>',
     '</section>'
-  ].join('\\n');
+  ].join('\n');
 }
 
 // -----------------------------
@@ -210,7 +219,7 @@ function renderCard(p) {
 function renderRelated(allProducts = [], currentSlug = '') {
   const others = allProducts.filter(p => (p.slug || p.Slug) !== currentSlug).slice(0, 4);
   if (!others.length) return '';
-  const cards = others.map(renderCard).join('\\n');
+  const cards = others.map(renderCard).join('\n');
   return [
     '<section class="related">',
     '  <h2>Também podes gostar</h2>',
@@ -218,7 +227,7 @@ function renderRelated(allProducts = [], currentSlug = '') {
     cards,
     '  </div>',
     '</section>'
-  ].join('\\n');
+  ].join('\n');
 }
 
 // -----------------------------
@@ -235,7 +244,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts) {
   const resolvedImages = images.map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
   const ogImage  = resolvedImages[0] || '';
 
-  // detect price
+  // detect price (several possible field names)
   const rawPrice = p.price ?? p.preco ?? p.precoMin ?? p.min_price ?? p.minPrice;
   const priceNum = Number(String(rawPrice ?? '').replace(',', '.'));
   const hasPrice = Number.isFinite(priceNum) && priceNum > 0;
@@ -271,7 +280,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts) {
 
   const faqItems = defaultFaqForProduct(baseName);
   const faqLd    = buildFaqJsonLd(faqItems);
-  const headWithLd = [head, structuredLd, breadcrumbLd, faqLd].join('\\n');
+  const headWithLd = [head, structuredLd, breadcrumbLd, faqLd].join('\n');
 
   const gallery = resolvedImages.length
     ? '<div class="gallery">' + resolvedImages.map(src => `<img src="${esc(src)}" alt="${esc(baseName)}">`).join('') + '</div>'
@@ -288,7 +297,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts) {
     related,
     renderFaqHTML(faqItems),
     '</div>'
-  ].join('\\n');
+  ].join('\n');
 
   const html = [
     '<!DOCTYPE html>',
@@ -297,12 +306,12 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts) {
     headWithLd,
     '</head>',
     '<body>',
-    topbarHTML,
+    topbarHTML || '',
     body,
-    footerHTML,
+    footerHTML || '',
     '</body>',
     '</html>'
-  ].join('\\n');
+  ].join('\n');
 
   return html;
 }
@@ -313,13 +322,13 @@ function renderHome(topbarHTML, footerHTML, products = []) {
   const descr = 'Impressão, personalização e soluções de comunicação visual. Pede orçamento online.';
   const head  = buildHead(url, title, descr, 'impressão, personalização, gráfica', '', 'website', [new URL(STORAGE_PUBLIC).origin]);
 
-  const cards = products.map(renderCard).join('\\n');
+  const cards = products.map(renderCard).join('\n');
   const body = [
     '<div class="container">',
     '  <h1>Produtos</h1>',
     `  <div class="cards">${cards}</div>`,
     '</div>'
-  ].join('\\n');
+  ].join('\n');
 
   return [
     '<!DOCTYPE html>',
@@ -328,29 +337,55 @@ function renderHome(topbarHTML, footerHTML, products = []) {
     head,
     '</head>',
     '<body>',
-    topbarHTML,
+    topbarHTML || '',
     body,
-    footerHTML,
+    footerHTML || '',
     '</body>',
     '</html>'
-  ].join('\\n');
+  ].join('\n');
+}
+
+// -----------------------------
+// Helpers for resilient querying
+// -----------------------------
+async function run(q) {
+  const { data, error } = await q;
+  if (error) throw error;
+  return data || [];
+}
+
+async function fetchProducts() {
+  // Try with `published` + order by `name`
+  try {
+    return await run(
+      supabase.from('products').select('*').eq('published', true).order('name', { ascending: true })
+    );
+  } catch (e) {
+    if (e.code !== '42703') throw e; // not a 'column does not exist'
+  }
+  // Try without `published`, still order by `name`
+  try {
+    return await run(
+      supabase.from('products').select('*').order('name', { ascending: true })
+    );
+  } catch (e) {
+    if (e.code !== '42703') throw e;
+  }
+  // Try order by `Slug`
+  try {
+    return await run(
+      supabase.from('products').select('*').order('Slug', { ascending: true })
+    );
+  } catch (e) {
+    if (e.code !== '42703') throw e;
+  }
+  // Last resort: plain select
+  return await run(supabase.from('products').select('*'));
 }
 
 // -----------------------------
 // Main
 // -----------------------------
-async function fetchProducts() {
-  // Adjust table name/columns here if needed
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('published', true)
-    .order('name', { ascending: true });
-
-  if (error) throw error;
-  return data || [];
-}
-
 async function main() {
   const t0 = Date.now();
   log('start', new Date().toISOString());
