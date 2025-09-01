@@ -163,6 +163,60 @@ function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', prec
   ].filter(Boolean).join('\n');
 }
 
+// ---- SAFETY SHIM: ensure FAQ helpers are defined before use ----
+if (typeof buildFaqJsonLd !== 'function') {
+  var buildFaqJsonLd = function(faqItems) {
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": (faqItems || []).map(function (it) {
+        return {
+          "@type": "Question",
+          "name": it.q,
+          "acceptedAnswer": { "@type": "Answer", "text": it.a }
+        };
+      })
+    };
+    return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
+  };
+}
+if (typeof defaultFaqForProduct !== 'function') {
+  var defaultFaqForProduct = function(name) {
+    var n = String(name || 'Produto');
+    return [
+      { q: 'Qual é o prazo de produção do ' + n + '?', a: 'Normalmente 3-5 dias úteis após confirmação de arte final. Prazos urgentes podem ser possíveis mediante disponibilidade.' },
+      { q: 'A arte/maquete está incluída?', a: 'Sim, ajustamos o teu logotipo e texto básico sem custos. Trabalhos de design avançado podem ter orçamento adicional.' },
+      { q: 'Que ficheiros aceitam?', a: 'PDF, AI, SVG ou PNG/JPG de alta resolução. Se possível, envia em CMYK e com fontes convertidas em curvas.' },
+      { q: 'Posso imprimir frente e verso?', a: 'Sim. Se aplicável ao produto, adiciona essa informação nos detalhes do pedido.' },
+      { q: 'Como é o envio e prazos de entrega?', a: 'Expedimos por transportadora para todo o país. Após produção, a entrega habitual é 24-48h (dias úteis).' }
+    ];
+  };
+}
+if (typeof renderFaqHTML !== 'function') {
+  var renderFaqHTML = function(faqItems) {
+    if (!faqItems || !faqItems.length) return '';
+    var items = faqItems.map(function (it) {
+      return [
+        '<details class="faq-item">',
+        '  <summary>' + esc(it.q) + '</summary>',
+        '  <div class="faq-answer"><p>' + esc(it.a) + '</p></div>',
+        '</details>'
+      ].join('\n');
+    }).join('\n');
+    return [
+      '<section class="faq">',
+      '  <div class="faq__head"><h2>Perguntas frequentes</h2></div>',
+      '  <div class="faq__list">',
+      items,
+      '  </div>',
+      '</section>'
+    ].join('\n');
+  };
+}
+// ---- END SHIM ----
+
+
+
 
 function buildHeadHome() {
   const url = `${BASE_URL}/`;
@@ -654,6 +708,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   }
 
   let supaOrigin = ''; try { supaOrigin = new URL(STORAGE_PUBLIC || '').origin; } catch(e) {}
+
   const resolvedImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
   const productLd = buildProductJsonLd({
     baseUrl: url,
