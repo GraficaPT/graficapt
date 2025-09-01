@@ -385,3 +385,12 @@ h1 {
 .addbtnmain{
   position: fixed;
 }
+/* SEO tools block */
+#seo-tools.card{border:1px solid #eee;border-radius:12px;padding:16px;margin:16px 0;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+#seo-tools h2{margin:0 0 8px;font-size:1.1rem}
+#seo-tools .group{margin:14px 0}
+#seo-tools .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#seo-tools input,#seo-tools textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px}
+#seo-tools textarea{min-height:110px}
+#seo-tools button{padding:10px 14px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer}
+#seo-tools pre{background:#0b1020;color:#e4eaff;padding:10px;border-radius:10px;overflow:auto;max-height:260px}
