@@ -56,12 +56,33 @@ function extractTopbarFooter() {
 }
 
 // ---------- HEAD BUILDERS ----------
-function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', preconnects = []) {
-  return [
-    '<meta charset="utf-8">',
-    '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
-    '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    ` <title>${esc(title)}
+
+// ---------- JSON-LD BUILDERS ----------
+function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', brand = 'GraficaPT', category = '' }) {
+  const imgs = (images || []).filter(Boolean);
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": title,
+    "description": descr,
+    "image": imgs,
+    "sku": sku || undefined,
+    "brand": brand ? { "@type": "Brand", "name": brand } : undefined,
+    "category": category || undefined,
+    "url": baseUrl
+  };
+  return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
+}
+function buildBreadcrumbJsonLd(items) {
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": (items || []).map(function(it, i){ return {
+      "@type": "ListItem",
+      "position": i+1,
+      "name": it.name,
+      "item": it.item
+    }
 // ---------- FAQ BUILDERS ----------
 function buildFaqJsonLd(faqItems) {
   const ld = {
@@ -77,7 +98,6 @@ function buildFaqJsonLd(faqItems) {
   };
   return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
 }
-
 function defaultFaqForProduct(name) {
   var n = String(name || 'Produto');
   return [
@@ -88,7 +108,6 @@ function defaultFaqForProduct(name) {
     { q: 'Como é o envio e prazos de entrega?', a: 'Expedimos por transportadora para todo o país. Após produção, a entrega habitual é 24-48h (dias úteis).' }
   ];
 }
-
 function renderFaqHTML(faqItems) {
   if (!faqItems || !faqItems.length) return '';
   var items = faqItems.map(function (it) {
@@ -99,7 +118,6 @@ function renderFaqHTML(faqItems) {
       '</details>'
     ].join('\n');
   }).join('\n');
-
   return [
     '<section class="faq">',
     '  <div class="faq__head"><h2>Perguntas frequentes</h2></div>',
@@ -109,9 +127,16 @@ function renderFaqHTML(faqItems) {
     '</section>'
   ].join('\n');
 }
-
- catch(e){ return ''; } }
-</title>`,
+;})
+  };
+  return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
+}
+function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', preconnects = []) {
+  return [
+    '<meta charset="utf-8">',
+    '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    ` <title>${esc(title)}</title>`,
     `<link rel="canonical" href="${esc(baseUrl)}">`,
     `<meta name="description" content="${esc(descr)}">`,
     (keywords ? `<meta name="keywords" content="${esc(keywords)}">` : ''),
@@ -278,7 +303,8 @@ const bannerHTML = `
 
 function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();
-  const cards = [...products]
+  const headWithLd = head;
+const cards = [...products]
     .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
     .map(renderCard).join('\n');
 
@@ -375,7 +401,6 @@ function renderHome(topbarHTML, footerHTML, products) {
     '</head>',
     '<body>',
     body,
-    renderFaqHTML(faqItems),
     '</body>',
     '</html>'
   ].join('');
@@ -390,7 +415,7 @@ function criarCarrosselHTML(slug, imagens) {
     '  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>',
     '  <div class="carrossel-imagens-wrapper">',
     '    <div class="carrossel-imagens" id="carrossel">',
-         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem ${i+1}" class="carrossel-img">`).join('\n'),
+         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem ${i+1}" class="carrossel-img" ${i===0?'fetchpriority="high"':'loading="lazy"'} decoding="async">`).join('\n'),
     '    </div>',
     '  </div>',
     '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
@@ -628,12 +653,25 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
     preselect = { [String(variant.label || '').toLowerCase()]: String(variant.value || '') };
   }
 
-  let supaOrigin = '';
-  try { supaOrigin = new URL(STORAGE_PUBLIC || '').origin; } catch(e) { supaOrigin = ''; }
-  const head = buildHead(url, seoTitle, descr, keywords, og, 'product', supaOrigin ? [supaOrigin] : []);
-  const headWithLd = head;
-
-  const carouselHTML = (images && images.length)
+  let supaOrigin = ''; try { supaOrigin = new URL(STORAGE_PUBLIC || '').origin; } catch(e) {}
+  const resolvedImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
+  const productLd = buildProductJsonLd({
+    baseUrl: url,
+    title: baseName,
+    descr,
+    images: resolvedImages,
+    brand: 'GraficaPT',
+    category: p.categoria || ''
+  });
+  const breadcrumbLd = buildBreadcrumbJsonLd([
+    { name: 'Início', item: BASE_URL + '/' },
+    { name: 'Produtos', item: BASE_URL + '/index.html#filter=all' },
+    { name: baseName, item: url }
+  ]);
+  const faqItems = defaultFaqForProduct(baseName);
+  const faqLd = buildFaqJsonLd(faqItems);
+  const headWithLd = [head, productLd, breadcrumbLd, faqLd].join('\n');
+const carouselHTML = (images && images.length)
     ? ['<div class="product-image">', criarCarrosselHTML(slug, images), '</div>'].join('\n')
     : '';
 
@@ -679,10 +717,11 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
     '<!DOCTYPE html>',
     '<html lang="pt">',
     '<head>',
-    head,
+    headWithLd,
     '</head>',
     '<body>',
     body,
+    renderFaqHTML(faqItems),
     '</body>',
     '</html>'
   ].join('\n');
