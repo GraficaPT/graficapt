@@ -71,7 +71,10 @@ function buildHead(baseUrl, title, descr, keywords, og) {
     og ? `<meta property="og:image" content="${esc(og)}">` : '',
     '<meta property="og:type" content="product">',
     `<meta property="og:url" content="${esc(baseUrl)}">`,
-    '<meta name="twitter:card" content="summary_large_image">',
+    '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${title}">
+<meta name="twitter:description" content="${descr}">
+<meta name="twitter:image" content="${ogImage}">
+',
     '<link rel="icon" href="https://graficapt.com/imagens/logo.ico">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
