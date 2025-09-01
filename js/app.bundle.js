@@ -640,7 +640,7 @@ function setMetaProperty(prop, content) {
 /* ===== js/footerheader.js ===== */
 const topbarHTML = `
     <div class="bar">
-        <img src="../imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
+        <img src="https://graficapt.com/imagens/social/logo_minimal.svg" onclick="location.href = '/index.html'">
         <div class="tabs desktop-only">
             <a href="/index.html#filter=rigidos">Suportes Rigídos</a>
             <a href="/index.html#filter=bandeiras">Bandeiras Publicitárias</a>
@@ -653,7 +653,7 @@ const topbarHTML = `
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <img src="../imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = '/index.html'">
+            <img src="https://graficapt.com/imagens/social/logo_minimal.svg" class="sidebar-logo" onclick="location.href = '/index.html'">
         </div>
         <a href="/index.html#filter=Rigidos">Suportes Rigídos</a>
         <a href="/index.html#filter=Bandeiras">Bandeiras Publicitárias</a>
