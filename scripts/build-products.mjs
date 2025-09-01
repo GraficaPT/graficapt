@@ -374,6 +374,26 @@ const bannerHTML = `
   </div>
 </div>`;
 
+
+function renderRelated(current, allProducts){
+  const cat = String(current.category || current.categoria || '').toLowerCase();
+  if (!cat) return '';
+  const rel = (allProducts || [])
+    .filter(x => (x.slug || x.Slug || x.name || x.nome) !== (current.slug || current.Slug || current.name || current.nome))
+    .filter(x => String(x.category || x.categoria || '').toLowerCase() === cat)
+    .sort((a,b)=>String(a.name||a.nome).localeCompare(String(b.name||b.nome)))
+    .slice(0,4);
+  if (!rel.length) return '';
+  const cards = rel.map(renderCard).join('\n');
+  return [
+    '<div id="related" class="related">',
+    '  <a class="subtitle hcenter">Produtos Relacionados</a>',
+    '  <div class="products-grid">',
+         cards,
+    '  </div>',
+    '</div>'
+  ].join('\n');
+}
 function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();
   const cards = [...products]
@@ -487,7 +507,7 @@ function variantLinksHTML(slug, name, sizeGroups){
   return `<nav class="variant-links">${links.join('')}</nav>`;
 }
 
-function renderProductPage(p, topbarHTML, footerHTML, variant=null) {
+function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null) {
   const slug = p.slug || p.Slug || p.name || p.nome;
   const baseName = p.name || p.nome || slug;
   const images = Array.isArray(p.images) ? p.images : safeJson(p.images);
@@ -538,6 +558,7 @@ ${criarCarrosselHTML(slug, images)}
     '    </div>',
     '  </form>',
     variantsNav,
+    renderRelated(p, allProducts),
     '</div>',
     '',
     '<footer class="footer" id="footer">',
@@ -585,7 +606,7 @@ async function main() {
 
     // base page
     {
-      const html = renderProductPage(p, topbarHTML, footerHTML, null);
+      const html = renderProductPage(p, topbarHTML, footerHTML, products, null);
       const dir = path.join(OUT_ROOT, slug);
       ensureDir(dir);
       writeFileAtomic(path.join(dir, 'index.html'), html);
@@ -598,7 +619,7 @@ async function main() {
     for (const grp of groups) {
       for (const val of grp.values) {
         const vs = slugify(val);
-        const html = renderProductPage(p, topbarHTML, footerHTML, { label: grp.label, value: val });
+        const html = renderProductPage(p, topbarHTML, footerHTML, products, { label: grp.label, value: val });
         const dir = path.join(OUT_ROOT, slug, vs);
         ensureDir(dir);
         writeFileAtomic(path.join(dir, 'index.html'), html);
