@@ -214,23 +214,16 @@ function renderCard(p){
   return parts.join('\n');
 }
 
-const bannerHTML = (() => {
-  const parts = [];
-  parts.push('<div class="banner hcenter">');
-  parts.push(`  <a href="${BASE_URL}/produto/bandeiravela">`);
-  parts.push('    <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy">');
-  parts.push('  </a>');
-  parts.push('  <div class="banner-right">');
-  parts.push(`    <a href="${BASE_URL}/produto/tshirtregent">`);
-  parts.push('      <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy">');
-  parts.push('    </a>');
-  parts.push(`    <a href="${BASE_URL}/produto/sacoskraft">`);
-  parts.push('      <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy">');
-  parts.push('    </a>');
-  parts.push('  </div>');
-  parts.push('</div>');
-  return parts.join('\n');
-})();
+
+const bannerHTML = `
+<div class="banner hcenter">
+  <img class="banner-left" src="imagens/banner/bandeirasbanner.webp" alt="Bandeiras promocionais" loading="lazy" data-href="${BASE_URL}/produto/bandeiravela">
+  <div class="banner-right">
+    <img src="imagens/banner/tshirtbanner.webp" alt="T-shirt personalizada" loading="lazy" data-href="${BASE_URL}/produto/tshirtregent">
+    <img src="imagens/banner/sacoskraftbanner.webp" alt="Saco kraft personalizado" loading="lazy" data-href="${BASE_URL}/produto/sacoskraft">
+  </div>
+</div>`;
+
 
 function renderHome(topbarHTML, footerHTML, products) {
   const head = buildHeadHome();
@@ -248,6 +241,10 @@ function renderHome(topbarHTML, footerHTML, products) {
     '',
     bannerHTML,
     '',
+    '<script>',
+    "document.querySelectorAll('.banner img[data-href]').forEach(el=>{el.style.cursor='pointer';el.addEventListener('click',()=>location.href=el.dataset.href);});",
+    '</script>',
+    '' ,
     '<div id="products">',
     '  <a class="subtitle hcenter">Produtos Personalizáveis</a>',
     '  <div class="filter-sort">',
