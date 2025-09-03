@@ -557,19 +557,7 @@ button:hover {
 }
 
 
-/* mobile carousel rebuilt */
-@media (max-width: 768px) {
-  .posicionamento-options {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto;
-    overflow-y: hidden;
-    gap: 12px;
-    padding: 8px 12px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-  /* each option wrapper */
+/* each option wrapper */
   .posicionamento-options > .overcell {
     flex: 0 0 auto;
     scroll-snap-align: start;
@@ -604,19 +592,7 @@ button:hover {
 }
 
 
-/* stretch fix applied */
-@media (max-width: 768px) {
-  html, body { overflow-x: hidden; }
-
-  .posicionamento-options {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    padding-left: 12px;
-    padding-right: 12px;
-    overscroll-behavior-x: contain; /* stop viewport from panning when reaching edges */
+/* stop viewport from panning when reaching edges */
     touch-action: pan-x;            /* hint that we're handling horizontal pan here */
   }
 
@@ -634,7 +610,7 @@ button:hover {
 }
 
 
-/* === Rebuilt mobile carousel (transform-based, no body pan) === */
+
 @media (max-width: 768px) {
   html, body { overflow-x: hidden; }
 
@@ -697,4 +673,46 @@ button:hover {
     background: #3198a7;
     transition: left .25s ease, width .25s ease;
   }
+}
+
+
+/* === SIMPLE MOBILE CAROUSEL FOR posicionamento-options === */
+@media (max-width: 768px) {
+  html, body { overflow-x: hidden; }
+
+  .option-group,
+  .options-row {
+    width: auto !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .posicionamento-options {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 10px !important;
+    padding: 8px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .posicionamento-options > .overcell {
+    flex: 0 0 auto !important;
+    scroll-snap-align: center;
+  }
+
+  /* fixed, compact card width to prevent page stretch */
+  .posicionamento-options .posicionamento-label {
+    width: 150px !important;
+    max-width: 150px !important;
+  }
+  .posicionamento-options .posicionamento-img-wrapper { width: 100% !important; }
+  .posicionamento-options img { max-width: 100% !important; height: auto !important; display: block; }
+
+  /* safety: prevent any 100vw-based rule from overflowing inside padded parents */
+  [class*="posicionamento"] { max-inline-size: 100%; }
 }
