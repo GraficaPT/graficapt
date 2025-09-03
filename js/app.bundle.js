@@ -941,32 +941,86 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 })(window,document);
-// Initialize posicionamento-options carousel progress bar for mobile
-function initPosCarousel() {
-  document.querySelectorAll('.posicionamento-options').forEach(function(wrapper) {
-    if(window.innerWidth <= 768 && !wrapper.dataset.carouselReady) {
-      wrapper.dataset.carouselReady = "1";
-      // Create progress bar container
-      const barContainer = document.createElement('div');
-      barContainer.className = 'pos-carousel-bar';
-      const bar = document.createElement('div');
-      bar.className = 'pos-carousel-progress';
-      barContainer.appendChild(bar);
-      wrapper.parentNode.insertBefore(barContainer, wrapper.nextSibling);
-      // Update progress on scroll
-      wrapper.addEventListener('scroll', function() {
-        const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
-        const progress = (wrapper.scrollLeft / maxScroll) * 100;
-        bar.style.width = progress + "%";
-      });
+
+/* ===== Mobile collapse for .posicionamento-options (show 1 row + Ver Mais) ===== */
+(function(){
+  function isMobile(){ return window.matchMedia('(max-width: 768px)').matches; }
+
+  function measureFirstRowHeight(container){
+    const kids = Array.from(container.children).filter(el => el.nodeType===1);
+    if (!kids.length) return 0;
+    const top0 = kids[0].offsetTop;
+    let maxBottom = 0;
+    for (const el of kids){
+      if (el.offsetTop === top0){
+        const bottom = el.offsetTop + el.offsetHeight;
+        if (bottom > maxBottom) maxBottom = bottom;
+      }
     }
-  });
-}
-window.addEventListener('load', initPosCarousel);
-window.addEventListener('resize', initPosCarousel);
+    return Math.max(0, maxBottom - top0);
+  }
 
+  function setupContainer(container){
+    if (container.__posiReady) return;
+    container.__posiReady = true;
 
-// old pos carousel removed
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'posi-toggle';
+    btn.setAttribute('aria-expanded','false');
+    btn.innerHTML = 'Ver mais <span class="seta">▼</span>';
 
+    // Insert button after the container
+    if (container.parentElement){
+      container.parentElement.appendChild(btn);
+    } else {
+      container.after(btn);
+    }
 
-// simple mobile carousel uses CSS only
+    function apply(){
+      if (!isMobile()){
+        container.style.maxHeight = '';
+        container.style.overflow = '';
+        btn.style.display = 'none';
+        btn.setAttribute('aria-expanded','true');
+        btn.innerHTML = 'Ver mais <span class="seta">▼</span>';
+        return;
+      }
+      btn.style.display = '';
+      const rowH = measureFirstRowHeight(container) || 0;
+      if (container.classList.contains('expanded')){
+        container.style.maxHeight = container.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded','true');
+        btn.innerHTML = 'Ver menos <span class="seta">▲</span>';
+      } else {
+        container.style.maxHeight = (rowH || 200) + 'px';
+        btn.setAttribute('aria-expanded','false');
+        btn.innerHTML = 'Ver mais <span class="seta">▼</span>';
+      }
+      container.style.overflow = 'hidden';
+    }
+
+    btn.addEventListener('click', function(){
+      container.classList.toggle('expanded');
+      apply();
+    });
+
+    // Initial
+    apply();
+
+    // Re-apply on images load that may change heights
+    const imgs = container.querySelectorAll('img');
+    imgs.forEach(img => img.addEventListener('load', apply));
+    window.addEventListener('resize', apply);
+  }
+
+  function initPosicionamentoCollapse(){
+    document.querySelectorAll('.option-group .posicionamento-options').forEach(setupContainer);
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initPosicionamentoCollapse);
+  } else {
+    initPosicionamentoCollapse();
+  }
+})();
