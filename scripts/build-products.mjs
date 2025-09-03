@@ -581,35 +581,52 @@ ${valores.map((v,i)=>{
     return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">\n${cores}\n</div></div></div>`;
   }
   if (tipo === 'imagem-radio') {
+    // constrói os cards
     const blocks = valores.map((item, idx) => {
       const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
       const nome = esc(item?.nome || '');
       const imgSrc = item?.imagem ? resolveImagePath('', item.imagem, STORAGE_PUBLIC) : '';
       const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
       return [
-  '<div class="option-group">',
-    labelRow,
-    '<div class="overcell">',
-      // wrapper + checkbox (sem JS) + botão
-      `<div class="posicionamento-wrapper" id="${label.replace(/\s+/g,'-').toLowerCase()}-wrap">`,
-        // toggle “sem JS” (o CSS trata do abrir/fechar)
-        `<input type="checkbox" id="${label.replace(/\s+/g,'-').toLowerCase()}-chk" class="pos-toggle-check" hidden>`,
-        `<label class="pos-toggle" for="${label.replace(/\s+/g,'-').toLowerCase()}-chk" aria-controls="${label.replace(/\s+/g,'-').toLowerCase()}-opts" aria-expanded="false">
-           <span class="texto-mais">Ver mais</span>
-           <span class="texto-menos">Ver menos</span>
-           <span class="seta" aria-hidden="true">▾</span>
-         </label>`,
-        // lista de opções
-        `<div class="posicionamento-options" id="${label.replace(/\s+/g,'-').toLowerCase()}-opts">
-      ${blocks}
-              </div>`,
-            '</div>',
-          '</div>',
-        '</div>'
+        '        <div class="overcell">',
+        `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
+        `          <label class="posicionamento-label" for="${esc(posID)}">`,
+        '            <div class="posicionamento-img-wrapper">',
+        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
+        `              <span class="posicionamento-nome">${nome}</span>`,
+        '            </div>',
+        '          </label>',
+        '        </div>'
       ].join('\n');
     }).join('\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">\n${blocks}\n</div></div></div>`;
+
+    // evita hoisting/ordem: constrói HTML depois de blocks existir
+    const wrapId = `${label.replace(/\s+/g,'-').toLowerCase()}-wrap`;
+    const chkId  = `${label.replace(/\s+/g,'-').toLowerCase()}-chk`;
+    const listId = `${label.replace(/\s+/g,'-').toLowerCase()}-opts`;
+
+    const html = [
+      '<div class="option-group">',
+      labelRow,
+      '<div class="overcell">',
+      `<div class="posicionamento-wrapper" id="${wrapId}">`,
+      `<input type="checkbox" id="${chkId}" class="pos-toggle-check" hidden>`,
+      `<label class="pos-toggle" for="${chkId}" aria-controls="${listId}" aria-expanded="false">`,
+      '  <span class="texto-mais">Ver mais</span>',
+      '  <span class="texto-menos">Ver menos</span>',
+      '  <span class="seta" aria-hidden="true">▾</span>',
+      '</label>',
+      `<div class="posicionamento-options" id="${listId}">`,
+      blocks,
+      '</div>',
+      '</div>',
+      '</div>',
+      '</div>'
+    ].join('\n');
+
+    return html;
   }
+
   if (tipo === 'quantidade-por-tamanho') {
     const grid = valores.map((t) => {
       const id = `tamanho-${t}`;

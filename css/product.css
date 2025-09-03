@@ -508,8 +508,7 @@ button:hover {
 .faq-item summary { cursor: pointer; font-weight: 600; outline: none; }
 .faq-answer { margin-top: .5rem; line-height: 1.5; color: #333; }
 
-
-/* ————— Posicionamento: mostrar só 1 row no telemóvel com "Ver mais" ————— */
+/* === Posicionamento: mobile ver mais/menos === */
 .posicionamento-wrapper { width: 100%; }
 .pos-toggle { 
   display: none; 
@@ -523,37 +522,22 @@ button:hover {
 .pos-toggle .seta { display: inline-block; transition: transform .25s ease; }
 .pos-toggle .texto-menos { display: none; }
 
-/* Estado do botão quando aberto (controlado pelo :checked do input) */
 .pos-toggle-check:checked + .pos-toggle .texto-mais { display: none; }
 .pos-toggle-check:checked + .pos-toggle .texto-menos { display: inline; }
 .pos-toggle-check:checked + .pos-toggle .seta { transform: rotate(180deg); }
 
-/* Container das opções com colapso/expansão suave */
 .posicionamento-options {
   transition: max-height .3s ease;
   overflow: hidden;
 }
 
-/* MOBILE: mostra só a primeira row por defeito */
 @media (max-width: 768px) {
-  /* Mostra o botão no mobile */
   .pos-toggle { display: inline-flex; }
-
-  /* Altura de 1 linha (fallback). É ajustada por JS para ficar 100% certa. */
   .posicionamento-wrapper { --pos-row-h: 240px; }
-
-  /* Fechado: apenas 1 row visível */
-  .pos-toggle-check:not(:checked) ~ .posicionamento-options {
-    max-height: var(--pos-row-h);
-  }
-
-  /* Aberto: tudo visível */
-  .pos-toggle-check:checked ~ .posicionamento-options {
-    max-height: 5000px; /* grande o suficiente */
-  }
+  .pos-toggle-check:not(:checked) ~ .posicionamento-options { max-height: var(--pos-row-h); }
+  .pos-toggle-check:checked ~ .posicionamento-options { max-height: 5000px; }
 }
 
-/* DESKTOP: comportamento normal, sem botão e sem limite */
 @media (min-width: 769px) {
   .posicionamento-options { max-height: none !important; overflow: visible; }
 }
