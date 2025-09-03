@@ -330,7 +330,7 @@ button:hover {
   box-sizing: border-box;
 }
 
-.related{max-width:1200px;margin:1rem auto;padding:0 1rem}
+.related{max-width:1200px;margin:3rem auto;padding:0 1rem}
 .related__head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1rem}
 .related__more{border:1px solid #ddd;border-radius:10px;padding:.55rem .9rem;text-decoration:none;color:#111}
 .related__more:hover{background:#f7f7f7}
@@ -481,7 +481,7 @@ button:hover {
 
 .variant-links { display:none; }
 
-.related{max-width:1200px;margin:1rem auto;padding:0 1rem}
+.related{max-width:1200px;margin:3rem auto;padding:0 1rem}
 .related__head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1rem}
 .related__more{border:1px solid #ddd;border-radius:10px;padding:.55rem .9rem;text-decoration:none;color:#111}
 .related__more:hover{background:#f7f7f7}
@@ -514,7 +514,8 @@ button:hover {
 
 
 
-/* === Mobile carousel for imagem-radio groups (posicionamento-options) — v2 === */
+
+/* === Mobile carousel for imagem-radio groups (posicionamento-options) — v3 === */
 @media (max-width: 768px) {
   .posicionamento-options {
     position: relative;
@@ -524,16 +525,16 @@ button:hover {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     gap: 16px;
-    padding: 10px 6px 18px;
+    padding: 10px 6px 24px; /* extra bottom space for progress bar */
   }
-  /* show ~2 full + a bit of the 3rd */
+  /* show ~2 full + more of the 3rd */
   .posicionamento-options > .overcell {
-    flex: 0 0 48%;
+    flex: 0 0 43%;
+    min-width: 160px;
     scroll-snap-align: start;
   }
   .posicionamento-options::-webkit-scrollbar { display: none; }
 
-  /* make cards feel bigger/clearer */
   .posicionamento-label { align-items: center; }
   .posicionamento-img { width: 100%; height: auto; }
   .posicionamento-nome { font-size: 1rem; }
@@ -548,13 +549,49 @@ button:hover {
     background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
   }
 
-  /* small "desliza" hint (subtle) */
-  .posicionamento-options::before {
-    content: "desliza →";
-    position: absolute;
-    right: 10px; bottom: 2px;
-    font-size: 11px;
-    color: #999;
-    pointer-events: none;
+  /* Modern progress bar under the carousel */
+  .posicionamento-track {
+    position: relative;
+    height: 4px;
+    width: 100%;
+    margin-top: 8px;
+    background: #e9edf3;
+    border-radius: 999px;
+    overflow: hidden;
   }
+  .posicionamento-thumb {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 20%;
+    background: linear-gradient(90deg, #0b5cff, #2f88ff);
+    border-radius: 999px;
+    transform: translateX(0%);
+  }
+
+  /* Arrows (only injected when >3 items) */
+  .posicionamento-arrow {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255,255,255,.9);
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    display: grid;
+    place-items: center;
+    padding: 0;
+    z-index: 3;
+  }
+  .posicionamento-arrow svg {
+    width: 18px; height: 18px;
+  }
+  .posicionamento-arrow.left { left: -2px; }
+  .posicionamento-arrow.right { right: -2px; }
+
+  /* Hide arrows if container can't scroll (JS toggles via hidden class) */
+  .posicionamento-arrow.hidden { display: none; }
 }
