@@ -509,286 +509,36 @@ button:hover {
 .faq-answer { margin-top: .5rem; line-height: 1.5; color: #333; }
 
 
-/* MOBILE CAROUSEL for posicionamento-options */
-@media (max-width: 768px) {
-  .posicionamento-options {
-    display: flex !important;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 12px;
-    padding-bottom: 12px;
-  }
-  .posicionamento-options::-webkit-scrollbar {
-    height: 6px;
-  }
-  .posicionamento-options::-webkit-scrollbar-track {
-    background: #f0f0f0;
-    border-radius: 10px;
-  }
-  .posicionamento-options::-webkit-scrollbar-thumb {
-    background: #bbb;
-    border-radius: 10px;
-  }
-  .posicionamento-options .image-radio {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-    width: 45%;
-    max-width: 180px;
-  }
-}
-
-
-/* Progress bar for posicionamento-options carousel */
-.pos-carousel-bar {
-  position: relative;
-  width: 100%;
-  height: 4px;
-  background: #eee;
-  border-radius: 4px;
-  margin-top: 6px;
-  overflow: hidden;
-}
-.pos-carousel-progress {
-  height: 100%;
-  width: 0%;
-  background: #333;
-  transition: width 0.2s;
-}
-
-
-/* each option wrapper */
-  .posicionamento-options > .overcell {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-  }
-  /* keep cards visually consistent; width tuned for mobile */
-  .posicionamento-options .posicionamento-label {
-    width: 44vw;            /* ~2 items in viewport */
-    max-width: 320px;
-  }
-  .posicionamento-options .posicionamento-img-wrapper {
-    width: 100%;
-  }
-  /* progress bar (track) */
-  .posicionamento-progress {
-    position: relative;
-    height: 6px;
-    margin: 8px 16px 0 16px;
-    background: #e8ecf2;
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .posicionamento-progress__bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 20%;
-    border-radius: 999px;
-    background: #3198a7;
-    transition: left .2s ease;
-  }
-
-
-
-
-  /* ensure children don't push beyond the viewport */
-  .posicionamento-options > .overcell {
-    margin: 0 !important;
-    max-width: 80vw;
-  }
-
-  /* keep cards inside viewport width */
-  .posicionamento-options .posicionamento-label {
-    width: 60vw;        /* comfortable card width without stretching page */
-    max-width: 360px;
-  }
-
-
-
-
-@media (max-width: 768px) {
-  html, body { overflow-x: hidden; }
-
-  /* wrapper that we inject around the existing .posicionamento-options */
-  .pos-op-carousel {
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  .pos-op-viewport {
-    overflow: hidden;           /* hides overflow so the page never stretches */
-    width: 100%;
-  }
-
-  /* the original .posicionamento-options becomes the track */
-  .pos-op-viewport > .posicionamento-options {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    gap: 12px;
-    margin: 0 !important;
-    padding: 8px 12px;
-    transform: translateX(0);
-    will-change: transform;
-    touch-action: none;         /* we handle pointer moves for drag */
-    cursor: grab;
-  }
-  .pos-op-viewport > .posicionamento-options.dragging {
-    cursor: grabbing;
-  }
-
-  /* slides (each child) */
-  .pos-op-viewport > .posicionamento-options > .overcell {
-    flex: 0 0 auto;
-  }
-
-  /* keep your existing card sizing but make sure it fits viewport */
-  .posicionamento-label {
-    width: 60vw;
-    max-width: 360px;
-  }
-  .posicionamento-img-wrapper { width: 100%; }
-
-  /* progress bar */
-  .posicionamento-progress {
-    position: relative;
-    height: 6px;
-    margin: 8px 16px 0 16px;
-    background: #e8ecf2;
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .posicionamento-progress__bar {
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
-    width: 20%;
-    border-radius: 999px;
-    background: #3198a7;
-    transition: left .25s ease, width .25s ease;
-  }
-}
-
-
-/* === SIMPLE MOBILE CAROUSEL FOR posicionamento-options === */
-@media (max-width: 768px) {
-  html, body { overflow-x: hidden; }
-
-  .option-group,
-  .options-row {
-    width: auto !important;
-    max-width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  .posicionamento-options {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    gap: 10px !important;
-    padding: 8px !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-  }
-  .posicionamento-options > .overcell {
-    flex: 0 0 auto !important;
-    scroll-snap-align: center;
-  }
-
-  /* fixed, compact card width to prevent page stretch */
-  .posicionamento-options .posicionamento-label {
-    width: 150px !important;
-    max-width: 150px !important;
-  }
-  .posicionamento-options .posicionamento-img-wrapper { width: 100% !important; }
-  .posicionamento-options img { max-width: 100% !important; height: auto !important; display: block; }
-
-  /* safety: prevent any 100vw-based rule from overflowing inside padded parents */
-  [class*="posicionamento"] { max-inline-size: 100%; }
-}
-
-
-/* === FLOATING (ABSOLUTE) MOBILE CAROUSEL FOR posicionamento-options === */
+/* === FINAL APPENDED MOBILE CAROUSEL OVERRIDES === */
 @media (max-width: 768px) {
   html, body, .product-details { overflow-x: hidden; }
 
-  /* reserve space and anchor point */
-  .option-group .overcell {
-    position: relative !important;
-    min-height: 230px !important; /* space for the carousel height */
-  }
-
-  /* take carousel out of document flow */
-  .option-group .overcell > .posicionamento-options {
-    position: absolute !important;
-    inset: 0 auto auto 0; /* top:0; left:0; */
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    white-space: nowrap !important;   /* use inline-block slides to avoid flex measuring expanding parents */
-    padding: 8px 12px !important;
-    box-sizing: border-box !important;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
-    margin: 0 !important;
-  }
-
-  /* slides as inline blocks so they don't stretch the parent width */
-  .option-group .overcell > .posicionamento-options > .overcell {
-    display: inline-block !important;
-    vertical-align: top !important;
-    width: 150px !important;
-    max-width: 150px !important;
-    margin-right: 10px !important;
-    scroll-snap-align: center;
-  }
-
-  .posicionamento-options .posicionamento-label { width: 100% !important; max-width: 100% !important; }
-  .posicionamento-options .posicionamento-img-wrapper { width: 100% !important; }
-  .posicionamento-options img { max-width: 100% !important; height: auto !important; display: block !important; }
-}
-
-
-/* === FLOATING CAROUSEL TWEAKS (compact + no hidden items) === */
-@media (max-width: 768px) {
-  /* compact overall spacings around groups */
+  /* reduce vertical spacing */
   .product-details .option-group,
   .product-details .options-row { margin: 8px 0 !important; }
 
-  /* anchor and reserve just the needed height (compact) */
   .option-group .overcell {
     position: relative !important;
-    min-height: 190px !important; /* was 230px */
+    min-height: 170px !important;
   }
 
-  /* carousel container – make sure it starts fully left and doesn't add whitespace height */
   .option-group .overcell > .posicionamento-options {
     position: absolute !important;
     top: 0; left: 0; right: 0;
-    height: 180px;                 /* matches slide visuals */
+    height: 160px;
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    padding: 4px 8px !important;   /* tighter padding */
+    padding: 4px 8px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
     white-space: nowrap !important;
-    font-size: 0 !important;       /* remove inline-block baseline gap */
-    text-align: left !important;    /* ensure start is left, not centered */
-    direction: ltr !important;      /* prevent RTL side effects */
-    scroll-snap-type: x proximity;
+    font-size: 0 !important;
+    text-align: left !important;
+    scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    transform: none !important;     /* override any previous transforms */
+    transform: none !important;
   }
 
-  /* slides – fixed and compact */
   .option-group .overcell > .posicionamento-options > .overcell {
     display: inline-block !important;
     vertical-align: top !important;
@@ -798,7 +548,7 @@ button:hover {
     scroll-snap-align: start;
   }
 
-  /* cards fill their slide */
+  /* cards inside */
   .posicionamento-options .posicionamento-label {
     width: 100% !important;
     max-width: 100% !important;
@@ -808,19 +558,48 @@ button:hover {
 }
 
 
-/* stop viewport from panning when reaching edges */
-.posicionamento-options {
-  touch-action: pan-x; /* hint que tratamos o pan horizontal */
+/* === MOBILE OVERRIDES: posicionamento-options as horizontal carousel (CSS-only) === */
+@media (max-width: 768px) {
+  /* keep layout tight */
+  .product-details .option-group,
+  .product-details .options-row { margin: 8px 0 !important; }
+
+  /* turn grid into horizontal scroller */
+  .posicionamento-options {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 10px !important;
+    padding: 6px 8px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap !important; /* for safe inline-block slides */
+    transform: none !important;     /* ensure no offset */
+  }
+
+  /* each option cell behaves like a slide */
+  .posicionamento-options > .overcell {
+    display: inline-block !important;
+    vertical-align: top !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    scroll-snap-align: start;
+  }
+
+  /* card width compact and consistent */
+  .posicionamento-options .posicionamento-label {
+    width: 150px !important;
+    max-width: 150px !important;
+  }
+  .posicionamento-options .posicionamento-img { width: 100% !important; height: auto !important; }
 }
 
-/* ensure children don't push beyond the viewport */
-.posicionamento-options > .overcell {
-  margin: 0 !important;
-  max-width: 80vw;
-}
-
-/* keep cards inside viewport width */
-.posicionamento-options .posicionamento-label {
-  width: 60vw;        /* largura confortável sem esticar a página */
-  max-width: 360px;
+/* safety: never allow page to stretch horizontally */
+@media (max-width: 768px) {
+  html, body, .product, .product-details { overflow-x: hidden; }
 }
