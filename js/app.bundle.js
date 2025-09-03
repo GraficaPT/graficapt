@@ -941,3 +941,74 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 })(window,document);
+// Initialize posicionamento-options carousel progress bar for mobile
+function initPosCarousel() {
+  document.querySelectorAll('.posicionamento-options').forEach(function(wrapper) {
+    if(window.innerWidth <= 768 && !wrapper.dataset.carouselReady) {
+      wrapper.dataset.carouselReady = "1";
+      // Create progress bar container
+      const barContainer = document.createElement('div');
+      barContainer.className = 'pos-carousel-bar';
+      const bar = document.createElement('div');
+      bar.className = 'pos-carousel-progress';
+      barContainer.appendChild(bar);
+      wrapper.parentNode.insertBefore(barContainer, wrapper.nextSibling);
+      // Update progress on scroll
+      wrapper.addEventListener('scroll', function() {
+        const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+        const progress = (wrapper.scrollLeft / maxScroll) * 100;
+        bar.style.width = progress + "%";
+      });
+    }
+  });
+}
+window.addEventListener('load', initPosCarousel);
+window.addEventListener('resize', initPosCarousel);
+
+
+// === Mobile carousel for posicionamento-options (image-radio) ===
+(function(){
+  function initPosCarousel(){
+    try{
+      if (!window.matchMedia('(max-width: 768px)').matches) return;
+      document.querySelectorAll('.posicionamento-options').forEach(function(container){
+        // Avoid duplicate init
+        if (container.dataset.carouselInit === '1') return;
+        container.dataset.carouselInit = '1';
+        container.classList.add('pos-op-carousel');
+        // Create progress bar after container group if possible
+        var parent = container.parentElement;
+        if (parent){
+          var barTrack = document.createElement('div');
+          barTrack.className = 'posicionamento-progress';
+          var bar = document.createElement('div');
+          bar.className = 'posicionamento-progress__bar';
+          barTrack.appendChild(bar);
+          // Insert after container
+          if (parent.lastElementChild === container) {
+            parent.appendChild(barTrack);
+          } else {
+            container.insertAdjacentElement('afterend', barTrack);
+          }
+          var update = function(){
+            var maxScroll = container.scrollWidth - container.clientWidth;
+            var ratio = maxScroll > 0 ? (container.scrollLeft / maxScroll) : 0;
+            var visible = container.clientWidth / (container.scrollWidth || 1);
+            // Bar width reflects visible fraction; left reflects scroll position
+            bar.style.width = (Math.max(0.1, Math.min(1, visible)) * 100).toFixed(2) + '%';
+            bar.style.left = ((1 - visible) > 0 ? ratio * (100 - visible*100) : 0).toFixed(2) + '%';
+          };
+          container.addEventListener('scroll', update, {passive:true});
+          window.addEventListener('resize', update);
+          // Initial update after layout
+          setTimeout(update, 0);
+        }
+      });
+    }catch(e){ console.warn('[pos-carousel]', e); }
+  }
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initPosCarousel);
+  } else {
+    initPosCarousel();
+  }
+})();
