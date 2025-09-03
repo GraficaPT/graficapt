@@ -555,7 +555,7 @@ button:hover {
 
 @media (max-width: 768px) {
   .pos-toggle { display: inline-flex; align-items:center; gap:.5rem; cursor:pointer; font-weight:600; margin:.5rem 0 0; user-select:none; }
-  .posicionamento-wrapper { --pos-row-h: 151px; } /* fallback de 1 linha; JS afina */
+  .posicionamento-wrapper { --pos-row-h: 150px; } /* fallback de 1 linha; JS afina */
   .posicionamento-options { padding: 5px;}
 }
 
