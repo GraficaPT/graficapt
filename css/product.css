@@ -509,64 +509,75 @@ button:hover {
 .faq-answer { margin-top: .5rem; line-height: 1.5; color: #333; }
 
 
+/* === Positioning Options Carousel (mobile) === */
 
+.pos-options {
+  --gap: 12px;
+  --cards-per-view: 2.5;
+  margin-top: 8px;
+}
 
+.pos-progress {
+  height: 4px;
+  background: #e9eef6;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.pos-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #0b5cff;
+  border-radius: 999px;
+  transform-origin: left center;
+}
 
+/* default layout for track (desktop/list) */
+.pos-track {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--gap);
+}
 
+/* Make existing positioning blocks look like cards without changing their HTML */
+.pos-track > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border: 1px solid #e5e8ef;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: box-shadow .15s, border-color .15s, transform .15s;
+  white-space: nowrap;
+}
+.pos-track > *:hover { box-shadow: 0 6px 16px rgba(16,24,40,.06); }
 
+/* ensure inner labels respect layout */
+.pos-track .posicionamento-label { width: 100%; display: flex; align-items: center; gap: 8px; }
+.pos-track .posicionamento-img-wrapper { display: inline-flex; align-items: center; gap: 8px; }
+.pos-track .posicionamento-nome { display: inline-block; }
 
-
-
-
-
-/* === Mobile carousel (posicionamento-options) — v5 minimal === */
 @media (max-width: 768px) {
-  .posicionamento-options {
+  .pos-options.is-carousel .pos-track {
     display: flex;
-    flex-wrap: nowrap;
+    gap: var(--gap);
     overflow-x: auto;
-    scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    gap: 8px;
-    padding: 8px 4px;
-    max-width: 100%;
-  }
-  .posicionamento-options > .overcell {
-    flex: 0 0 40%;
-    max-width: 200px;
-    scroll-snap-align: start;
+    scroll-snap-type: x mandatory;
+    padding: 2px;
     margin: 0;
   }
-  .posicionamento-options::-webkit-scrollbar { display: none; }
-  .posicionamento-label { align-items: center; max-width: 100%; }
-  .posicionamento-img { width: 100%; height: auto; }
-  .posicionamento-nome { font-size: .95rem; }
-}
-
-/* progress bar for mobile carousels */
-@media (max-width: 768px) {
-  .posicionamento-track {
-    height: 4px;
-    width: 100%;
-    margin-top: 6px;
-    background: #e9edf3;
-    border-radius: 999px;
-    overflow: hidden;
+  .pos-options.is-carousel .pos-track > * {
+    flex: 0 0 calc((100% - (var(--gap) * (var(--cards-per-view) - 1))) / var(--cards-per-view));
+    scroll-snap-align: start;
   }
-  .posicionamento-thumb {
-    height: 100%;
-    width: 20%;
-    transform: translateX(0%);
-    background: linear-gradient(90deg, #0b5cff, #2f88ff);
-  }
-}
-
-
-@media (max-width: 768px) {
-  /* Hide empty/non-radio cells so o carrossel começa mesmo no 1º válido */
-  .posicionamento-options > .overcell:empty { display: none !important; }
-  .posicionamento-options > .overcell:not(:has(input[type="radio"])) { display: none !important; }
-
-  /* Track spacing tweak */
-  .posicionamento-track { margin: 6px 4px 0; }
+  .pos-options.is-carousel .pos-progress { opacity: 1; }
+  .pos-options.is-carousel .pos-track::-webkit-scrollbar { display: none; }
+  .pos-options.is-carousel .pos-track { scrollbar-width: none; }
 }
