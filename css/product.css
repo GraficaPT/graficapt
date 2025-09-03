@@ -565,5 +565,11 @@ button:hover {
 
 
 .productcontainer{
-  padding: 0 15vw;
+  padding: 0 18vw;
+}
+
+@media (max-width: 768px) {
+  .productcontainer{
+  padding: 0 2vw;
+}
 }
