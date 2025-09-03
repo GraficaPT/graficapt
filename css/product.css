@@ -384,3 +384,40 @@ button:hover { background-color: #3197a7d7; }
   border: 0.3vh solid #3198a7;
   transform: scale(1.08);
 }
+
+
+/* === MOBILE: .posicionamento-options em carrossel, sem alterar tamanhos internos === */
+@media (max-width: 768px) {
+  /* Força a deixar de ser grid (se tiveres definido antes) */
+  .posicionamento-options {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    gap: 1.5vh;                 /* mantém o teu espaçamento */
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 8px; /* ajuda a não “cortar” o 1.º/último item */
+    padding-inline: 8px;
+    /* Evita “esticar” a página por efeitos de inércia/scroll */
+    overscroll-behavior-inline: contain;
+  }
+
+  /* Cada item mantém o seu tamanho intrínseco (não forçamos width) */
+  .posicionamento-options .posicionamento-label {
+    flex: 0 0 auto;             /* não encolhe, não cresce: preserva dimensões */
+    scroll-snap-align: start;   /* encaixe suave ao arrastar */
+  }
+
+  /* Se tiver inputs visíveis como “células”, preserva dimensões também */
+  .posicionamento-options > input[type="radio"] {
+    flex: 0 0 auto;
+  }
+
+  /* (Opcional) Remove grelha anterior se existia */
+  .posicionamento-options {
+    grid-template-columns: none !important;
+    grid-auto-flow: unset !important;
+  }
+}
