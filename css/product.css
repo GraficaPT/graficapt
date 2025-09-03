@@ -557,7 +557,7 @@ button:hover {
 }
 
 
-/* === Mobile carousel for posicionamento-options (image-radio) === */
+/* mobile carousel rebuilt */
 @media (max-width: 768px) {
   .posicionamento-options {
     display: flex !important;
@@ -604,7 +604,7 @@ button:hover {
 }
 
 
-/* === FIX: prevent page from stretching horizontally when swiping carousel === */
+/* stretch fix applied */
 @media (max-width: 768px) {
   html, body { overflow-x: hidden; }
 
@@ -630,5 +630,71 @@ button:hover {
   .posicionamento-options .posicionamento-label {
     width: 60vw;        /* comfortable card width without stretching page */
     max-width: 360px;
+  }
+}
+
+
+/* === Rebuilt mobile carousel (transform-based, no body pan) === */
+@media (max-width: 768px) {
+  html, body { overflow-x: hidden; }
+
+  /* wrapper that we inject around the existing .posicionamento-options */
+  .pos-op-carousel {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .pos-op-viewport {
+    overflow: hidden;           /* hides overflow so the page never stretches */
+    width: 100%;
+  }
+
+  /* the original .posicionamento-options becomes the track */
+  .pos-op-viewport > .posicionamento-options {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 12px;
+    margin: 0 !important;
+    padding: 8px 12px;
+    transform: translateX(0);
+    will-change: transform;
+    touch-action: none;         /* we handle pointer moves for drag */
+    cursor: grab;
+  }
+  .pos-op-viewport > .posicionamento-options.dragging {
+    cursor: grabbing;
+  }
+
+  /* slides (each child) */
+  .pos-op-viewport > .posicionamento-options > .overcell {
+    flex: 0 0 auto;
+  }
+
+  /* keep your existing card sizing but make sure it fits viewport */
+  .posicionamento-label {
+    width: 60vw;
+    max-width: 360px;
+  }
+  .posicionamento-img-wrapper { width: 100%; }
+
+  /* progress bar */
+  .posicionamento-progress {
+    position: relative;
+    height: 6px;
+    margin: 8px 16px 0 16px;
+    background: #e8ecf2;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .posicionamento-progress__bar {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: 20%;
+    border-radius: 999px;
+    background: #3198a7;
+    transition: left .25s ease, width .25s ease;
   }
 }
