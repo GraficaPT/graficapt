@@ -536,8 +536,9 @@ button:hover {
   .posicionamento-wrapper { --pos-row-h: 150px; }
   .pos-toggle-check:not(:checked) ~ .posicionamento-options { max-height: var(--pos-row-h); }
   .pos-toggle-check:checked ~ .posicionamento-options { max-height: 5000px; }
+  .posicionamento-options { padding:5px;}
 }
 
 @media (min-width: 769px) {
-  .posicionamento-options { padding:5px; max-height: none !important; overflow: visible; }
+  .posicionamento-options { max-height: none !important; overflow: visible; }
 }
