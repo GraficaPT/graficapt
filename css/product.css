@@ -560,3 +560,13 @@ button:hover {
     background: linear-gradient(90deg, #0b5cff, #2f88ff);
   }
 }
+
+
+@media (max-width: 768px) {
+  /* Hide empty/non-radio cells so o carrossel começa mesmo no 1º válido */
+  .posicionamento-options > .overcell:empty { display: none !important; }
+  .posicionamento-options > .overcell:not(:has(input[type="radio"])) { display: none !important; }
+
+  /* Track spacing tweak */
+  .posicionamento-track { margin: 6px 4px 0; }
+}
