@@ -386,37 +386,49 @@ button:hover { background-color: #3197a7d7; }
 }
 
 
-/* === MOBILE: .posicionamento-options carrossel 2.5 elementos visíveis === */
+/* === MOBILE: .posicionamento-options como carrossel (2.5 itens), sem empurrar o layout === */
 @media (max-width: 768px) {
   .posicionamento-options {
+    /* scroller horizontal isolado */
+    --gap: 1.5vh;                  /* adapta se quiseres */
     display: flex !important;
     flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: hidden;
-    gap: 1.5vh;
+    gap: var(--gap);
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    overflow-x: auto !important;   /* só o container rola, o resto da página fica intacto */
+    overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain; /* NÃO “puxa” conteúdo adjacente */
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 8px;
     padding-inline: 8px;
-    overscroll-behavior-inline: contain; /* não empurra o resto da página */
+
+    /* ajuda a evitar saltos com/sem scrollbar em alguns browsers */
+    scrollbar-gutter: stable both-edges;
   }
 
-  /* Cada item ocupa ~40% da largura do container → 2.5 elementos visíveis */
-  .posicionamento-options .posicionamento-label {
-    flex: 0 0 40%;
+  /* Cada célula (.overcell) ocupa largura calculada para caberem 2.5 visíveis.
+     Fórmula: (100% - 2 gaps visíveis) / 2.5 */
+  .posicionamento-options .overcell {
+    flex: 0 0 calc((100% - (var(--gap) * 2)) / 2.5);
     scroll-snap-align: start;
+    min-width: 0;                  /* evita “alargar” o scroller por min-content */
     box-sizing: border-box;
   }
 
-  /* Garante que imagens se adaptam dentro da célula */
+  /* Mantém as dimensões internas como já tens (apenas garantimos que ocupam a célula) */
+  .posicionamento-options .posicionamento-label,
   .posicionamento-options .posicionamento-img {
     width: 100%;
     height: auto;
   }
 
-  .posicionamento-options .overcell {
-    width: 200px !important;
-    height: 200px !important;
-  }
+  /* Corta qualquer possível overflow horizontal global (cintura-e-suspensórios) */
+  html, body { overflow-x: hidden; }
+
+  /* Opcional: melhora o gesto de arrasto no touch */
+  .posicionamento-options { touch-action: pan-x pinch-zoom; }
 }
