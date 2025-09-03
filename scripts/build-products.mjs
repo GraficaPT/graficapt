@@ -498,12 +498,10 @@ const cards = [...products]
     '  init();',
     '})();',
     '</script>',
-    '<script src="/js/env.js"></script>',
-    inlineCarouselScript(),
+    '<script src="/js/pos-carousel.js" defer></script>',
     inlinePosCarouselScript(),
-    '<script src="/js/formSender.js" defer></script>',
-    inlineFormGuardScript()
-    ].join('\n');
+    '<script src="/js/formSender.js" defer></script>'
+  ].join('\n');
 
   return [
     '<!DOCTYPE html>',
@@ -558,30 +556,38 @@ ${valores.map((v,i)=>{
   }
 
   if (tipo === 'imagem-radio') {
-    const blocks = valores.map((item, idx) => {
-      const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
-      const nome = esc(item?.nome || '');
-      const imgSrc = item?.imagem ? resolveImagePath('', item.imagem, STORAGE_PUBLIC) : '';
-      const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
-      return [
-        '        <div class="overcell">',
-        `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
-        `          <label class="posicionamento-label" for="${esc(posID)}">`,
-        '            <div class="posicionamento-img-wrapper">',
-        imgSrc ? `              <img src="${esc(imgSrc)}" alt="${nome}" width="40" height="40" loading="lazy">` : '',
-        `              <span class="posicionamento-nome">${nome}</span>`,
-        '            </div>',
-        '          </label>',
-        '        </div>'
-      ].join('\n');
-    }).join('\n');
+  const blocks = valores.map((item, idx) => {
+    const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
+    const nome = esc(item?.nome || '');
+    const imgSrc = item?.imagem ? resolveImagePath('', item.imagem, STORAGE_PUBLIC) : '';
+    const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
+    return [
+      '        <div class="overcell">',
+      `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
+      `          <label class="posicionamento-label" for="${esc(posID)}">`,
+      '            <div class="posicionamento-img-wrapper">',
+      imgSrc ? `              <img src="${esc(imgSrc)}" alt="${nome}" width="40" height="40" loading="lazy">` : '',
+      `              <span class="posicionamento-nome">${nome}</span>`,
+      '            </div>',
+      '          </label>',
+      '        </div>'
+    ].join('\n');
+  }).join('\n');
 
+  // Só carrossel se for o grupo Posicionamento
+  const isPos = /posicionamento/i.test(labelRaw || '');
+  if (isPos) {
     return `<div class="option-group">${labelRow}<section class="overcell pos-options" data-carousel="pos-options"><div class="pos-track posicionamento-options">
 ${blocks}
 </div><div class="pos-progress"><div class="pos-progress-bar"></div></div></section></div>`;
   }
+  // Caso contrário, mantém grelha normal
+  return `<div class="option-group">${labelRow}<div class="overcell"><div class="pos-track posicionamento-options">
+${blocks}
+</div></div></div>`;
+}
 
-  if (tipo === 'quantidade-por-tamanho') {
+if (tipo === 'quantidade-por-tamanho') {
     const grid = valores.map((t) => {
       const id = `tamanho-${t}`;
       return [

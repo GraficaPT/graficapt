@@ -581,3 +581,7 @@ button:hover {
   .pos-options.is-carousel .pos-track::-webkit-scrollbar { display: none; }
   .pos-options.is-carousel .pos-track { scrollbar-width: none; }
 }
+
+@media (max-width:768px){
+  .pos-options.is-carousel .pos-track{ display:flex !important; }
+}
