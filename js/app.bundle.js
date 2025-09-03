@@ -944,77 +944,75 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 
-// === Mobile carousel UI for .posicionamento-options (progress bar + arrows) ===
+
+
+// === Mobile carousel UI (v4) for .posicionamento-options — CSS vars + arrows ===
 (function(){
   try {
     var mq = window.matchMedia ? window.matchMedia('(max-width: 768px)') : null;
     var isMobile = mq ? mq.matches : (window.innerWidth <= 768);
     if (!isMobile) return;
 
-    function createArrow(dir){
-      var btn = document.createElement('button');
-      btn.className = 'posicionamento-arrow ' + dir + ' hidden';
-      btn.setAttribute('type','button');
-      btn.innerHTML = (dir === 'left')
+    function svg(dir){
+      return (dir === 'left')
         ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      return btn;
     }
 
     function enhance(container){
-      var items = container.querySelectorAll(':scope > .overcell');
-      if (!items.length) return;
-
-      // Progress bar track
-      var track = document.createElement('div');
-      track.className = 'posicionamento-track';
-      var thumb = document.createElement('div');
-      thumb.className = 'posicionamento-thumb';
-      track.appendChild(thumb);
-      container.parentElement.insertBefore(track, container.nextSibling);
-
-      // Only add arrows if more than 3 options
-      var left = createArrow('left');
-      var right = createArrow('right');
-      if (items.length > 3) {
-        container.parentElement.style.position = container.parentElement.style.position || 'relative';
-        container.parentElement.appendChild(left);
-        container.parentElement.appendChild(right);
-      }
-
-      function updateUI(){
-        var maxScroll = container.scrollWidth - container.clientWidth;
-        var ratio = maxScroll > 0 ? (container.scrollLeft / maxScroll) : 0;
+      // Update CSS variables for progress thumb
+      function updateVars(){
+        var max = container.scrollWidth - container.clientWidth;
+        var ratio = max > 0 ? (container.scrollLeft / max) : 0;
         var visibleRatio = Math.min(1, container.clientWidth / container.scrollWidth);
-        thumb.style.width = (visibleRatio * 100) + '%';
-        thumb.style.transform = 'translateX(' + (ratio * (100 - visibleRatio*100)) + '%)';
+        container.style.setProperty('--progW', (visibleRatio * 100) + '%');
+        container.style.setProperty('--prog', (ratio * (100 - visibleRatio*100)) + '%');
 
         // Arrow visibility
-        var canScroll = maxScroll > 1;
-        if (items.length > 3 && canScroll) {
-          left.classList.toggle('hidden', container.scrollLeft <= 2);
-          right.classList.toggle('hidden', container.scrollLeft >= maxScroll - 2);
-        } else {
-          left.classList.add('hidden');
-          right.classList.add('hidden');
+        var canScroll = max > 1;
+        if (arrows && items.length > 3 && canScroll) {
+          arrows.left.classList.toggle('hidden', container.scrollLeft <= 2);
+          arrows.right.classList.toggle('hidden', container.scrollLeft >= max - 2);
+        } else if (arrows) {
+          arrows.left.classList.add('hidden');
+          arrows.right.classList.add('hidden');
         }
       }
 
-      container.addEventListener('scroll', updateUI, {passive:true});
-      window.addEventListener('resize', updateUI);
-      updateUI();
+      // Add arrows only if more than 3 cards and scrollable
+      var items = container.querySelectorAll(':scope > .overcell');
+      var arrows = null;
+      if (items.length > 3) {
+        container.style.position = container.style.position || 'relative';
+        arrows = {
+          left: document.createElement('button'),
+          right: document.createElement('button')
+        };
+        arrows.left.type = 'button';
+        arrows.right.type = 'button';
+        arrows.left.className = 'posicionamento-arrow left hidden';
+        arrows.right.className = 'posicionamento-arrow right hidden';
+        arrows.left.innerHTML = svg('left');
+        arrows.right.innerHTML = svg('right');
+        container.appendChild(arrows.left);
+        container.appendChild(arrows.right);
 
-      // Arrow scrolling: one "card" at a time
-      function cardWidth(){
-        var first = items[0];
-        return first ? (first.clientWidth + parseFloat(getComputedStyle(container).gap || 0)) : container.clientWidth * 0.9;
+        function cardWidth(){
+          var first = items[0];
+          var gap = parseFloat(getComputedStyle(container).gap || 0);
+          return first ? (first.clientWidth + gap) : Math.floor(container.clientWidth * 0.9);
+        }
+        arrows.left.addEventListener('click', function(){
+          container.scrollBy({ left: -cardWidth(), behavior: 'smooth' });
+        });
+        arrows.right.addEventListener('click', function(){
+          container.scrollBy({ left: cardWidth(), behavior: 'smooth' });
+        });
       }
-      left.addEventListener('click', function(){
-        container.scrollBy({ left: -cardWidth(), behavior: 'smooth' });
-      });
-      right.addEventListener('click', function(){
-        container.scrollBy({ left: cardWidth(), behavior: 'smooth' });
-      });
+
+      container.addEventListener('scroll', updateVars, {passive:true});
+      window.addEventListener('resize', updateVars);
+      updateVars();
     }
 
     document.querySelectorAll('.posicionamento-options').forEach(enhance);

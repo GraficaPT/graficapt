@@ -515,9 +515,13 @@ button:hover {
 
 
 
-/* === Mobile carousel for imagem-radio groups (posicionamento-options) — v3 === */
+
+
+/* === Mobile carousel for imagem-radio groups (posicionamento-options) — v4 === */
 @media (max-width: 768px) {
   .posicionamento-options {
+    --prog: 0%;        /* thumb translateX */
+    --progW: 20%;      /* thumb width */
     position: relative;
     display: flex;
     flex-wrap: nowrap;
@@ -525,9 +529,8 @@ button:hover {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     gap: 16px;
-    padding: 10px 6px 24px; /* extra bottom space for progress bar */
+    padding: 10px 6px 20px; /* bottom space for overlay track (no layout shift) */
   }
-  /* show ~2 full + more of the 3rd */
   .posicionamento-options > .overcell {
     flex: 0 0 43%;
     min-width: 160px;
@@ -539,7 +542,7 @@ button:hover {
   .posicionamento-img { width: 100%; height: auto; }
   .posicionamento-nome { font-size: 1rem; }
 
-  /* right fade to hint there's more */
+  /* Right fade */
   .posicionamento-options::after {
     content: "";
     position: absolute;
@@ -549,28 +552,35 @@ button:hover {
     background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
   }
 
-  /* Modern progress bar under the carousel */
-  .posicionamento-track {
-    position: relative;
+  /* Progress track and thumb as overlay (no extra DOM) */
+  .posicionamento-options::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 6px;
     height: 4px;
-    width: 100%;
-    margin-top: 8px;
     background: #e9edf3;
     border-radius: 999px;
-    overflow: hidden;
+    pointer-events: none;
   }
-  .posicionamento-thumb {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 20%;
-    background: linear-gradient(90deg, #0b5cff, #2f88ff);
-    border-radius: 999px;
-    transform: translateX(0%);
+  .posicionamento-options > ._thumb {
+    /* reserved class if needed for future; using pseudo below */
+    display:none;
+  }
+  .posicionamento-options > ._arrows { display:none; } /* not used */
+
+  /* Thumb as pseudo element of a helper wrapper: we can't attach to container twice, so use an inner element approach via gradient background on track.
+     Instead, we create another pseudo via a child absolute element injected by JS? To avoid DOM, we simulate with background gradient on container: */
+  .posicionamento-options {
+    background-image:
+      linear-gradient(to right, transparent, transparent),
+      linear-gradient(90deg, #0b5cff, #2f88ff);
+    background-repeat: no-repeat;
+    background-size: 100% 0, var(--progW) 4px;
+    background-position: left calc(100% - 6px), calc(var(--prog)) calc(100% - 6px);
   }
 
-  /* Arrows (only injected when >3 items) */
+  /* Arrows (absolute inside container, JS will inject buttons; absolute so no layout shift) */
   .posicionamento-arrow {
     position: absolute;
     top: 40%;
@@ -579,19 +589,15 @@ button:hover {
     height: 34px;
     border: none;
     border-radius: 999px;
-    background: rgba(255,255,255,.9);
+    background: rgba(255,255,255,.95);
     box-shadow: 0 2px 10px rgba(0,0,0,.08);
     display: grid;
     place-items: center;
     padding: 0;
     z-index: 3;
   }
-  .posicionamento-arrow svg {
-    width: 18px; height: 18px;
-  }
-  .posicionamento-arrow.left { left: -2px; }
-  .posicionamento-arrow.right { right: -2px; }
-
-  /* Hide arrows if container can't scroll (JS toggles via hidden class) */
+  .posicionamento-arrow svg { width: 18px; height: 18px; }
+  .posicionamento-arrow.left { left: 4px; }
+  .posicionamento-arrow.right { right: 4px; }
   .posicionamento-arrow.hidden { display: none; }
 }
