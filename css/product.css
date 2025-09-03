@@ -528,17 +528,19 @@ button:hover {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    gap: 16px;
+    justify-content: flex-start;
+    gap: 12px;
     padding: 10px 6px 20px; /* bottom space for overlay track (no layout shift) */
   }
-  .posicionamento-options > .overcell {
-    flex: 0 0 43%;
-    min-width: 160px;
+  .posicionamento-options > .overcell { margin: 0; 
+    flex: 0 0 42%;
+    min-width: 150px;
     scroll-snap-align: start;
   }
   .posicionamento-options::-webkit-scrollbar { display: none; }
 
   .posicionamento-label { align-items: center; }
+  .posicionamento-label { max-width: none; }
   .posicionamento-img { width: 100%; height: auto; }
   .posicionamento-nome { font-size: 1rem; }
 
