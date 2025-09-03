@@ -941,3 +941,18 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 })(window,document);
+
+// === Mobile carousel enhancement for image-radio style option groups ===
+(function(){
+  try {
+    var isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    if (!isMobile) return;
+    var groups = document.querySelectorAll('.option-group .overcell');
+    groups.forEach(function(oc){
+      var radios = oc.querySelectorAll('input[type="radio"]');
+      if (radios.length >= 3) {
+        oc.classList.add('carousel-overcell');
+      }
+    });
+  } catch(e) { /* no-op */ }
+})();

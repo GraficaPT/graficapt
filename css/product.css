@@ -507,3 +507,35 @@ button:hover {
 .faq-item { border: 1px solid #eee; border-radius: 10px; padding: .75rem 1rem; background: #fff; }
 .faq-item summary { cursor: pointer; font-weight: 600; outline: none; }
 .faq-answer { margin-top: .5rem; line-height: 1.5; color: #333; }
+
+
+/* === Mobile carousel for image-radio style options === */
+@media (max-width: 768px) {
+  /* Prefer pure-CSS via :has where supported */
+  .option-group .overcell:has(input[type="radio"]) {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 0;
+  }
+  .option-group .overcell:has(input[type="radio"]) > * {
+    flex: 0 0 45%; /* show ~2 items fully and a bit of the 3rd */
+    scroll-snap-align: start;
+  }
+  .option-group .overcell::-webkit-scrollbar { display: none; }
+  /* Fallback class when :has is not supported (added by JS below) */
+  .carousel-overcell {
+    display: flex !important;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 0;
+  }
+  .carousel-overcell > * {
+    flex: 0 0 45%;
+    scroll-snap-align: start;
+  }
+}
