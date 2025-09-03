@@ -602,3 +602,33 @@ button:hover {
     transition: left .2s ease;
   }
 }
+
+
+/* === FIX: prevent page from stretching horizontally when swiping carousel === */
+@media (max-width: 768px) {
+  html, body { overflow-x: hidden; }
+
+  .posicionamento-options {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 12px;
+    padding-right: 12px;
+    overscroll-behavior-x: contain; /* stop viewport from panning when reaching edges */
+    touch-action: pan-x;            /* hint that we're handling horizontal pan here */
+  }
+
+  /* ensure children don't push beyond the viewport */
+  .posicionamento-options > .overcell {
+    margin: 0 !important;
+    max-width: 80vw;
+  }
+
+  /* keep cards inside viewport width */
+  .posicionamento-options .posicionamento-label {
+    width: 60vw;        /* comfortable card width without stretching page */
+    max-width: 360px;
+  }
+}
