@@ -589,25 +589,26 @@ button:hover {
     background: #3198a7;
     transition: left .2s ease;
   }
-}
+
 
 
 /* stop viewport from panning when reaching edges */
-    touch-action: pan-x;            /* hint that we're handling horizontal pan here */
-  }
-
-  /* ensure children don't push beyond the viewport */
-  .posicionamento-options > .overcell {
-    margin: 0 !important;
-    max-width: 80vw;
-  }
-
-  /* keep cards inside viewport width */
-  .posicionamento-options .posicionamento-label {
-    width: 60vw;        /* comfortable card width without stretching page */
-    max-width: 360px;
-  }
+.posicionamento-options {
+  touch-action: pan-x;  /* hint que tratamos o pan horizontal aqui */
 }
+
+/* ensure children don't push beyond the viewport */
+.posicionamento-options > .overcell {
+  margin: 0 !important;
+  max-width: 80vw;
+}
+
+/* keep cards inside viewport width */
+.posicionamento-options .posicionamento-label {
+  width: 60vw;         /* comfortable card width without stretching page */
+  max-width: 360px;
+}
+
 
 
 
@@ -715,4 +716,46 @@ button:hover {
 
   /* safety: prevent any 100vw-based rule from overflowing inside padded parents */
   [class*="posicionamento"] { max-inline-size: 100%; }
+}
+
+
+/* === FLOATING (ABSOLUTE) MOBILE CAROUSEL FOR posicionamento-options === */
+@media (max-width: 768px) {
+  html, body, .product-details { overflow-x: hidden; }
+
+  /* reserve space and anchor point */
+  .option-group .overcell {
+    position: relative !important;
+    min-height: 230px !important; /* space for the carousel height */
+  }
+
+  /* take carousel out of document flow */
+  .option-group .overcell > .posicionamento-options {
+    position: absolute !important;
+    inset: 0 auto auto 0; /* top:0; left:0; */
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;   /* use inline-block slides to avoid flex measuring expanding parents */
+    padding: 8px 12px !important;
+    box-sizing: border-box !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    margin: 0 !important;
+  }
+
+  /* slides as inline blocks so they don't stretch the parent width */
+  .option-group .overcell > .posicionamento-options > .overcell {
+    display: inline-block !important;
+    vertical-align: top !important;
+    width: 150px !important;
+    max-width: 150px !important;
+    margin-right: 10px !important;
+    scroll-snap-align: center;
+  }
+
+  .posicionamento-options .posicionamento-label { width: 100% !important; max-width: 100% !important; }
+  .posicionamento-options .posicionamento-img-wrapper { width: 100% !important; }
+  .posicionamento-options img { max-width: 100% !important; height: auto !important; display: block !important; }
 }
