@@ -498,8 +498,6 @@ const cards = [...products]
     '  init();',
     '})();',
     '</script>',
-    '<script src="/js/pos-carousel.js" defer></script>',
-    inlinePosCarouselScript(),
     '<script src="/js/formSender.js" defer></script>'
   ].join('\n');
 
@@ -554,40 +552,55 @@ ${valores.map((v,i)=>{
       </select>`;
     return `<div class="option-group">${labelRow}<div class="overcell">${inputHTML}</div></div>`;
   }
-
-  if (tipo === 'imagem-radio') {
-  const blocks = valores.map((item, idx) => {
-    const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
-    const nome = esc(item?.nome || '');
-    const imgSrc = item?.imagem ? resolveImagePath('', item.imagem, STORAGE_PUBLIC) : '';
-    const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
-    return [
-      '        <div class="overcell">',
-      `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
-      `          <label class="posicionamento-label" for="${esc(posID)}">`,
-      '            <div class="posicionamento-img-wrapper">',
-      imgSrc ? `              <img src="${esc(imgSrc)}" alt="${nome}" width="40" height="40" loading="lazy">` : '',
-      `              <span class="posicionamento-nome">${nome}</span>`,
-      '            </div>',
-      '          </label>',
-      '        </div>'
-    ].join('\n');
-  }).join('\n');
-
-  // Só carrossel se for o grupo Posicionamento
-  const isPos = /posicionamento/i.test(labelRaw || '');
-  if (isPos) {
-    return `<div class="option-group">${labelRow}<section class="overcell pos-options" data-carousel="pos-options"><div class="pos-track posicionamento-options">
-${blocks}
-</div><div class="pos-progress"><div class="pos-progress-bar"></div></div></section></div>`;
+  if (tipo === 'number') {
+    const inputHTML = `<input type="number" name="${label}" min="1" value="1" required>`;
+    return `<div class="option-group">${labelRow}<div class="overcell">${inputHTML}</div></div>`;
   }
-  // Caso contrário, mantém grelha normal
-  return `<div class="option-group">${labelRow}<div class="overcell"><div class="pos-track posicionamento-options">
-${blocks}
-</div></div></div>`;
-}
-
-if (tipo === 'quantidade-por-tamanho') {
+  if (tipo === 'cores') {
+    const cores = valores.map((item, idx) => {
+      let title='', colorStyle='', imgAssoc='';
+      if (typeof item === 'object') {
+        title = item.nome || '';
+        colorStyle = item.cor || '';
+        imgAssoc = item.imagem || '';
+      } else { title = item; colorStyle = item; }
+      const tLower = String(title).toLowerCase();
+      if (tLower === 'multicolor' || tLower === 'multicor') {
+        colorStyle = 'linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)';
+        title = 'Multicor';
+      }
+      const id = `${label.replace(/\s+/g,'-').toLowerCase()}-color-${idx}`;
+      const checked = (title.toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
+      return [
+        '        <div class="overcell">',
+        `          <input type="radio" id="${esc(id)}" name="${label}" value="${esc(title)}"${checked} required>`,
+        `          <label class="color-circle" for="${esc(id)}" title="${esc(title)}" style="background:${esc(colorStyle)}"${imgAssoc ? ` onclick="selecionarCorEImagem('${esc(imgAssoc)}')"` : ''}></label>`,
+        '        </div>'
+      ].join('\n');
+    }).join('\n');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">\n${cores}\n</div></div></div>`;
+  }
+  if (tipo === 'imagem-radio') {
+    const blocks = valores.map((item, idx) => {
+      const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
+      const nome = esc(item?.nome || '');
+      const imgSrc = item?.imagem ? resolveImagePath('', item.imagem, STORAGE_PUBLIC) : '';
+      const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
+      return [
+        '        <div class="overcell">',
+        `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
+        `          <label class="posicionamento-label" for="${esc(posID)}">`,
+        '            <div class="posicionamento-img-wrapper">',
+        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
+        `              <span class="posicionamento-nome">${nome}</span>`,
+        '            </div>',
+        '          </label>',
+        '        </div>'
+      ].join('\n');
+    }).join('\n');
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">\n${blocks}\n</div></div></div>`;
+  }
+  if (tipo === 'quantidade-por-tamanho') {
     const grid = valores.map((t) => {
       const id = `tamanho-${t}`;
       return [
@@ -597,13 +610,11 @@ if (tipo === 'quantidade-por-tamanho') {
         '        </div>'
       ].join('\n');
     }).join('\n');
-    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">
-${grid}
-</div></div></div>`;
+    return `<div class="option-group">${labelRow}<div class="overcell"><div class="quantidades-tamanhos">\n${grid}\n</div></div></div>`;
   }
-
   return `<div class="option-group">${labelRow}<div class="overcell"></div></div>`;
 }
+
 function createStaticFields() {
   return [
     '  <div class="options-row">',
@@ -695,64 +706,6 @@ function inlineCarouselScript() {
   ].join('\n');
 }
 
-
-
-function inlinePosCarouselScript() {
-  return [
-    '<script>',
-    '(function(){',
-    '  function makeCarousel(section){',
-    '    const track = section.querySelector(\'.pos-track\');',
-    '    if (!track) return;',
-    '    const bar = section.querySelector(\'.pos-progress-bar\');',
-    '    const children = Array.from(track.children);',
-    '    const isMobile = () => window.matchMedia(\'(max-width: 768px)\').matches;',
-    '    function updateProgress(){',
-    '      if (!section.classList.contains(\'is-carousel\')) return;',
-    '      const max = track.scrollWidth - track.clientWidth;',
-    '      const cur = track.scrollLeft;',
-    '      const pct = max > 0 ? Math.min(100, Math.max(0, (cur / max) * 100)) : 0;',
-    '      if (bar) bar.style.width = pct + \'%\';',
-    '    }',
-    '    function toggleMode(){',
-    '      if (isMobile() && children.length > 2) {',
-    '        section.classList.add(\'is-carousel\');',
-    '        updateProgress();',
-    '      } else {',
-    '        section.classList.remove(\'is-carousel\');',
-    '        if (bar) bar.style.width = \'0%\';',
-    '      }',
-    '    }',
-    '    let isDown=false, startX=0, startLeft=0;',
-    '    function onDown(e){ isDown=true; startX=(e.touches?e.touches[0].pageX:e.pageX); startLeft=track.scrollLeft; }',
-    '    function onMove(e){ if(!isDown) return; const x=(e.touches?e.touches[0].pageX:e.pageX); track.scrollLeft = startLeft - (x-startX); }',
-    '    function onUp(){ isDown=false; }',
-    '    track.addEventListener(\'scroll\', updateProgress, {passive:true});',
-    '    track.addEventListener(\'mousedown\', onDown);',
-    '    track.addEventListener(\'mousemove\', onMove);',
-    '    window.addEventListener(\'mouseup\', onUp);',
-    '    track.addEventListener(\'touchstart\', onDown, {passive:true});',
-    '    track.addEventListener(\'touchmove\', onMove, {passive:true});',
-    '    track.addEventListener(\'touchend\', onUp);',
-    '    track.addEventListener(\'mouseleave\', onUp);',
-    '    const ro = new ResizeObserver(toggleMode);',
-    '    ro.observe(section);',
-    '    window.addEventListener(\'orientationchange\', toggleMode);',
-    '    toggleMode();',
-    '  }',
-    '  function init(){',
-    '    document.querySelectorAll(\'[data-carousel="pos-options"]\').forEach(makeCarousel);',
-    '  }',
-    '  if (document.readyState === \'loading\'){',
-    '    document.addEventListener(\'DOMContentLoaded\', init);',
-    '  } else {',
-    '    init();',
-    '  }',
-    '  window.initPosCarousel = init;',
-    '})();',
-    '</script>'
-  ].join('\n');
-}
 function inlineFormGuardScript() {
   return [
     '<script>',
