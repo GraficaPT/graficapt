@@ -481,7 +481,7 @@ button:hover {
 
 .variant-links { display:none; }
 
-.related{max-width:1200px;margin:3rem auto;padding:0 1rem}
+.related{max-width:1200px;margin-bottom:3rem auto;padding:0 1rem}
 .related__head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1rem}
 .related__more{border:1px solid #ddd;border-radius:10px;padding:.55rem .9rem;text-decoration:none;color:#111}
 .related__more:hover{background:#f7f7f7}
