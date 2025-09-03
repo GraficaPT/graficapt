@@ -1,3 +1,23 @@
+
+function toOgJpeg(url) {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    // Só reescreve URLs do Supabase Storage público
+    if (/\/storage\/v1\/object\/public\/products\//.test(u.pathname)) {
+      u.pathname = u.pathname.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+      // 1200x630, cover, JPEG de boa qualidade
+      u.searchParams.set('width', '1200');
+      u.searchParams.set('height', '630');
+      u.searchParams.set('resize', 'cover');
+      u.searchParams.set('format', 'jpeg');
+      u.searchParams.set('quality', '85');
+      return u.toString();
+    }
+  } catch (e) {}
+  return url;
+}
+
 import fs from 'fs';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
@@ -746,7 +766,8 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   }
 
   let supaOrigin = ''; try { supaOrigin = new URL(STORAGE_PUBLIC || '').origin; } catch(e) {}
-  const head = buildHead(url, seoTitle, descr, keywords, og, 'product', supaOrigin ? [supaOrigin] : []);
+  const ogForShare = toOgJpeg(og);
+  const head = buildHead(url, seoTitle, descr, keywords, ogForShare, 'product', supaOrigin ? [supaOrigin] : []);
   const resolvedImages = (images || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
   const productLd = buildProductJsonLd({
     baseUrl: url,
