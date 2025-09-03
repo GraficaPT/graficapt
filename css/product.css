@@ -432,3 +432,17 @@ button:hover { background-color: #3197a7d7; }
   /* Opcional: melhora o gesto de arrasto no touch */
   .posicionamento-options { touch-action: pan-x pinch-zoom; }
 }
+
+/* === Ajuste carrossel: começa sempre no 1º item e overcell maior === */
+@media (max-width: 768px) {
+  .posicionamento-options {
+    padding-inline: 0;              /* remove margem invisível que escondia os 2 primeiros */
+    scroll-padding-inline: 0;       /* garante que o snap começa no 1º */
+  }
+
+  /* aumenta a largura de cada célula para mostrar 2.2 itens em vez de 2.5 */
+  .posicionamento-options .overcell {
+    flex: 0 0 calc(100% / 2.2);     /* ~45% → 2.2 elementos visíveis */
+    scroll-snap-align: start;
+  }
+}
