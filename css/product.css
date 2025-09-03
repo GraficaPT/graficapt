@@ -509,23 +509,51 @@ button:hover {
 .faq-answer { margin-top: .5rem; line-height: 1.5; color: #333; }
 
 
-/* ===== Mobile collapse styles for posicionamento-options ===== */
-@media (max-width: 768px){
-  .option-group .posicionamento-options{
-    transition: max-height 0.3s ease;
-    will-change: max-height;
+/* ————— Posicionamento: mostrar só 1 row no telemóvel com "Ver mais" ————— */
+.posicionamento-wrapper { width: 100%; }
+.pos-toggle { 
+  display: none; 
+  align-items: center; 
+  gap: .5rem; 
+  cursor: pointer; 
+  font-weight: 600; 
+  margin: .5rem 0 0;
+  user-select: none;
+}
+.pos-toggle .seta { display: inline-block; transition: transform .25s ease; }
+.pos-toggle .texto-menos { display: none; }
+
+/* Estado do botão quando aberto (controlado pelo :checked do input) */
+.pos-toggle-check:checked + .pos-toggle .texto-mais { display: none; }
+.pos-toggle-check:checked + .pos-toggle .texto-menos { display: inline; }
+.pos-toggle-check:checked + .pos-toggle .seta { transform: rotate(180deg); }
+
+/* Container das opções com colapso/expansão suave */
+.posicionamento-options {
+  transition: max-height .3s ease;
+  overflow: hidden;
+}
+
+/* MOBILE: mostra só a primeira row por defeito */
+@media (max-width: 768px) {
+  /* Mostra o botão no mobile */
+  .pos-toggle { display: inline-flex; }
+
+  /* Altura de 1 linha (fallback). É ajustada por JS para ficar 100% certa. */
+  .posicionamento-wrapper { --pos-row-h: 240px; }
+
+  /* Fechado: apenas 1 row visível */
+  .pos-toggle-check:not(:checked) ~ .posicionamento-options {
+    max-height: var(--pos-row-h);
   }
-  .posi-toggle{
-    margin-top: 8px;
-    background: #f1f5ff;
-    border: 1px solid #dbe3ff;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font: inherit;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+
+  /* Aberto: tudo visível */
+  .pos-toggle-check:checked ~ .posicionamento-options {
+    max-height: 5000px; /* grande o suficiente */
   }
-  .posi-toggle .seta{ display:inline-block; }
+}
+
+/* DESKTOP: comportamento normal, sem botão e sem limite */
+@media (min-width: 769px) {
+  .posicionamento-options { max-height: none !important; overflow: visible; }
 }

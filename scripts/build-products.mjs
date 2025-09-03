@@ -587,15 +587,25 @@ ${valores.map((v,i)=>{
       const imgSrc = item?.imagem ? resolveImagePath('', item.imagem, STORAGE_PUBLIC) : '';
       const checked = (String(item?.nome || '').toLowerCase() === wanted) || (idx===0 && !wanted) ? ' checked' : '';
       return [
-        '        <div class="overcell">',
-        `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
-        `          <label class="posicionamento-label" for="${esc(posID)}">`,
-        '            <div class="posicionamento-img-wrapper">',
-        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
-        `              <span class="posicionamento-nome">${nome}</span>`,
-        '            </div>',
-        '          </label>',
-        '        </div>'
+  '<div class="option-group">',
+    labelRow,
+    '<div class="overcell">',
+      // wrapper + checkbox (sem JS) + botão
+      `<div class="posicionamento-wrapper" id="${label.replace(/\s+/g,'-').toLowerCase()}-wrap">`,
+        // toggle “sem JS” (o CSS trata do abrir/fechar)
+        `<input type="checkbox" id="${label.replace(/\s+/g,'-').toLowerCase()}-chk" class="pos-toggle-check" hidden>`,
+        `<label class="pos-toggle" for="${label.replace(/\s+/g,'-').toLowerCase()}-chk" aria-controls="${label.replace(/\s+/g,'-').toLowerCase()}-opts" aria-expanded="false">
+           <span class="texto-mais">Ver mais</span>
+           <span class="texto-menos">Ver menos</span>
+           <span class="seta" aria-hidden="true">▾</span>
+         </label>`,
+        // lista de opções
+        `<div class="posicionamento-options" id="${label.replace(/\s+/g,'-').toLowerCase()}-opts">
+      ${blocks}
+              </div>`,
+            '</div>',
+          '</div>',
+        '</div>'
       ].join('\n');
     }).join('\n');
     return `<div class="option-group">${labelRow}<div class="overcell"><div class="posicionamento-options">\n${blocks}\n</div></div></div>`;
