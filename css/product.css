@@ -511,34 +511,27 @@ button:hover {
 
 
 
-/* === Mobile carousel for IMAGE radios only (v2) === */
-@media (max-width: 768px) {
-  /* Only when the option cell contains BOTH radios and images */
-  .option-group .overcell:has(input[type="radio"]):has(img) {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 8px 0;
-  }
-  .option-group .overcell:has(input[type="radio"]):has(img) > * {
-    flex: 0 0 45%; /* show ~2 items fully and a bit of the 3rd */
-    scroll-snap-align: start;
-  }
-  .option-group .overcell:has(input[type="radio"]):has(img)::-webkit-scrollbar { display: none; }
 
-  /* JS fallback class when :has() is unsupported */
-  .carousel-overcell {
-    display: flex !important;
-    gap: 12px;
+
+/* === Mobile carousel for imagem-radio groups (posicionamento-options) === */
+@media (max-width: 768px) {
+  .posicionamento-options {
+    display: flex;
+    flex-wrap: nowrap;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding: 8px 0;
+    gap: 12px;
+    padding: 8px 2px 12px;
   }
-  .carousel-overcell > * {
+  .posicionamento-options > .overcell {
     flex: 0 0 45%;
     scroll-snap-align: start;
   }
+  .posicionamento-options::-webkit-scrollbar { display: none; }
+
+  /* keep images readable */
+  .posicionamento-label { align-items: center; }
+  .posicionamento-img { width: 100%; height: auto; }
+  .posicionamento-nome { font-size: 0.95rem; }
 }
