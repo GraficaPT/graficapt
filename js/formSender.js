@@ -149,3 +149,97 @@
     });
   }
 })();
+
+
+// ===== Mobile collapse for .posicionamento-options on product pages =====
+(function(){
+  function isMobile(){ return window.matchMedia('(max-width: 768px)').matches; }
+
+  function measureFirstRowHeight(container){
+    const kids = Array.from(container.children).filter(el => el.nodeType===1);
+    if (!kids.length) return 0;
+    const firstTop = Math.min(...kids.map(el => el.offsetTop));
+    let maxBottom = 0;
+    for (const el of kids){
+      if (el.offsetTop === firstTop){
+        const bottom = el.offsetTop + el.offsetHeight;
+        if (bottom > maxBottom) maxBottom = bottom;
+      }
+    }
+    return Math.max(0, maxBottom - firstTop);
+  }
+
+  function setupContainer(container){
+    if (!container || container.__posiReady) return;
+    container.__posiReady = true;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'posi-toggle';
+    btn.setAttribute('aria-expanded','false');
+    btn.innerHTML = 'Ver mais <span class="seta">▼</span>';
+
+    // Put button after the grid (same overcell)
+    const parent = container.parentElement || container;
+    parent.appendChild(btn);
+
+    function apply(){
+      if (!isMobile()){
+        container.style.maxHeight = '';
+        container.style.overflow = '';
+        btn.style.display = 'none';
+        btn.setAttribute('aria-expanded','true');
+        btn.innerHTML = 'Ver mais <span class="seta">▼</span>';
+        return;
+      }
+      btn.style.display = '';
+      const rowH = measureFirstRowHeight(container) || 0;
+      if (container.classList.contains('expanded')){
+        container.style.maxHeight = container.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded','true');
+        btn.innerHTML = 'Ver menos <span class="seta">▲</span>';
+      } else {
+        const safe = rowH > 0 ? rowH : 220;
+        container.style.maxHeight = safe + 'px';
+        btn.setAttribute('aria-expanded','false');
+        btn.innerHTML = 'Ver mais <span class="seta">▼</span>';
+      }
+      container.style.overflow = 'hidden';
+    }
+
+    btn.addEventListener('click', function(){
+      container.classList.toggle('expanded');
+      apply();
+    });
+
+    const imgs = container.querySelectorAll('img');
+    imgs.forEach(img => img.addEventListener('load', apply));
+    window.addEventListener('resize', apply);
+    setTimeout(apply, 0);
+  }
+
+  function scan(){
+    document.querySelectorAll('.option-group .posicionamento-options').forEach(setupContainer);
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', scan);
+  } else {
+    scan();
+  }
+
+  const obs = new MutationObserver((mutations)=>{
+    for (const m of mutations){
+      if (m.type === 'childList'){
+        m.addedNodes.forEach(node=>{
+          if (!(node instanceof Element)) return;
+          if (node.matches && node.matches('.option-group .posicionamento-options')){
+            setupContainer(node);
+          }
+          node.querySelectorAll?.('.option-group .posicionamento-options').forEach(setupContainer);
+        });
+      }
+    }
+  });
+  obs.observe(document.documentElement, {childList:true, subtree:true});
+})();
