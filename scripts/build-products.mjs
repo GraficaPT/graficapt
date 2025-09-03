@@ -1,20 +1,16 @@
 
+// --- Helper: stable OG image via wsrv.nl (no need to download/host locally) ---
 function toOgJpeg(url) {
   if (!url) return url;
   try {
     const u = new URL(url);
-    // Só reescreve URLs do Supabase Storage público
+    // Apenas aplica a imagens do bucket público 'products' no Supabase
     if (/\/storage\/v1\/object\/public\/products\//.test(u.pathname)) {
-      u.pathname = u.pathname.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
-      // 1200x630, cover, JPEG de boa qualidade
-      u.searchParams.set('width', '1200');
-      u.searchParams.set('height', '630');
-      u.searchParams.set('resize', 'cover');
-      u.searchParams.set('format', 'jpeg');
-      u.searchParams.set('quality', '85');
-      return u.toString();
+      const encoded = encodeURIComponent(u.toString());
+      // 1200x630 cover, JPEG q85
+      return `https://wsrv.nl/?url=${encoded}&w=1200&h=630&fit=cover&output=jpg&q=85`;
     }
-  } catch (e) {}
+  } catch(e) {}
   return url;
 }
 
