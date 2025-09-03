@@ -614,14 +614,15 @@ ${valores.map((v,i)=>{
   '<div class="overcell">',
   `<div class="posicionamento-wrapper" id="${wrapId}" style="--pos-speed:1.1s">`,
   `<input type="checkbox" id="${chkId}" class="pos-toggle-check" hidden>`,
+  
+  `<div class="posicionamento-options" id="${listId}">`,
+  blocks,
+  '</div>', // fecha .posicionamento-options
   `<label class="pos-toggle" for="${chkId}" aria-controls="${listId}" aria-expanded="false">`,
   '  <span class="texto-mais">Ver mais</span>',
   '  <span class="texto-menos">Ver menos</span>',
   '  <span class="seta" aria-hidden="true">▾</span>',
   '</label>',
-  `<div class="posicionamento-options" id="${listId}">`,
-  blocks,
-  '</div>', // fecha .posicionamento-options
   '</div>', // fecha .posicionamento-wrapper
   '</div>', // fecha .overcell
   '</div>', // fecha .option-group
