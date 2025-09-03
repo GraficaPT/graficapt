@@ -580,6 +580,7 @@ ${valores.map((v,i)=>{
     }).join('\n');
     return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">\n${cores}\n</div></div></div>`;
   }
+  
   if (tipo === 'imagem-radio') {
     // constrói os cards
     const blocks = valores.map((item, idx) => {
@@ -600,34 +601,65 @@ ${valores.map((v,i)=>{
       ].join('\n');
     }).join('\n');
 
-    // evita hoisting/ordem: constrói HTML depois de blocks existir
-    const wrapId = `${label.replace(/\s+/g,'-').toLowerCase()}-wrap`;
-    const chkId  = `${label.replace(/\s+/g,'-').toLowerCase()}-chk`;
-    const listId = `${label.replace(/\s+/g,'-').toLowerCase()}-opts`;
+    // IDs por grupo
+    const baseId = label.replace(/\s+/g,'-').toLowerCase();
+    const wrapId = `${baseId}-wrap`;
+    const chkId  = `${baseId}-chk`;
+    const listId = `${baseId}-opts`;
 
+    // HTML do grupo + script local para controlar a animação e o bloqueio anti-duplo-toque
     const html = [
       '<div class="option-group">',
       labelRow,
       '<div class="overcell">',
-      `<div class="posicionamento-wrapper" id="${wrapId}">`,
+      `<div class="posicionamento-wrapper" id="${wrapId}" style="--pos-speed:1.1s">`,
       `<input type="checkbox" id="${chkId}" class="pos-toggle-check" hidden>`,
-      `<div class="posicionamento-options" id="${listId}">`,
-      blocks,
-      '</div>',
       `<label class="pos-toggle" for="${chkId}" aria-controls="${listId}" aria-expanded="false">`,
       '  <span class="texto-mais">Ver mais</span>',
       '  <span class="texto-menos">Ver menos</span>',
       '  <span class="seta" aria-hidden="true">▾</span>',
       '</label>',
+      `<div class="posicionamento-options" id="${listId}">`,
+      blocks,
       '</div>',
+      '</div>',
+      '</div>',
+      '<script>(function(){'
+      + `var wrap = document.getElementById(${json.dumps(wrapId)});`
+      + `var chk  = document.getElementById(${json.dumps(chkId)});`
+      + `var list = document.getElementById(${json.dumps(listId)});`
+      + `var lbl  = document.querySelector('label[for="${chkId}"]');`
+      + 'if(!wrap||!chk||!list) return;'
+      + 'var speedMs = 1100;'
+      + 'function oneRowHeight(){'
+      + '  var items = Array.from(list.querySelectorAll(".overcell"));'
+      + '  if(items.length<=1) return list.scrollHeight;'
+      + '  var top0 = items[0].offsetTop;'
+      + '  var second = items.find(function(el){return el.offsetTop>top0});'
+      + '  return second ? (second.offsetTop - top0) : list.scrollHeight;'
+      + '}'
+      + 'function apply(open){'
+      + '  var target = open ? list.scrollHeight : oneRowHeight();'
+      + '  list.style.maxHeight = target + "px";'
+      + '  if(lbl){ lbl.setAttribute("aria-expanded", open ? "true" : "false"); }'
+      + '  if(lbl){ lbl.classList.toggle("open", !!open); }'
+      + '}'
+      + 'apply(false);'
+      + 'chk.addEventListener("change", function(){'
+      + '  var open = chk.checked;'
+      + '  chk.disabled = true;'
+      + '  apply(open);'
+      + '  setTimeout(function(){ chk.disabled = false; }, speedMs);'
+      + '});'
+      + 'window.addEventListener("resize", function(){ apply(chk.checked); });'
+      + '})();</script>',
       '</div>',
       '</div>'
     ].join('\n');
 
     return html;
   }
-
-  if (tipo === 'quantidade-por-tamanho') {
+if (tipo === 'quantidade-por-tamanho') {
     const grid = valores.map((t) => {
       const id = `tamanho-${t}`;
       return [

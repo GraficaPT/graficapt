@@ -526,29 +526,38 @@ button:hover {
 .pos-toggle-check:checked + .pos-toggle .texto-menos { display: inline; }
 .pos-toggle-check:checked + .pos-toggle .seta { transform: rotate(180deg); }
 
+.posicionamento-options {
+  transition: max-height .3s ease;
+  overflow: hidden;
+}
 
 @media (max-width: 768px) {
   .pos-toggle { display: inline-flex; }
-  .posicionamento-wrapper { --pos-row-h: 154px; }
+  .posicionamento-wrapper { --pos-row-h: 240px; }
   .pos-toggle-check:not(:checked) ~ .posicionamento-options { max-height: var(--pos-row-h); }
   .pos-toggle-check:checked ~ .posicionamento-options { max-height: 5000px; }
-  .posicionamento-options { padding:5px;}
 }
 
 @media (min-width: 769px) {
   .posicionamento-options { max-height: none !important; overflow: visible; }
 }
 
+/* === Ajuste de velocidade & estados do botão ver mais/menos === */
+.posicionamento-wrapper { --pos-speed: 1.1s; } /* aumenta/diminui aqui */
+.posicionamento-options { transition: max-height var(--pos-speed) cubic-bezier(.25,.8,.25,1); overflow: hidden; }
 
-/* Velocidade controlada por variável */
-.posicionamento-wrapper { --pos-speed: .7s; } /* ajusta: .5s, .7s, 1s... */
+.pos-toggle .seta { transition: transform var(--pos-speed) cubic-bezier(.25,.8,.25,1); }
+.pos-toggle.open .seta { transform: rotate(180deg); } /* seta para cima quando aberto */
 
-.posicionamento-options {
-  transition: max-height var(--pos-speed) cubic-bezier(.25,.8,.25,1);
-  overflow: hidden;
+.pos-toggle .texto-menos { display: none; }
+.pos-toggle.open .texto-mais { display: none; }
+.pos-toggle.open .texto-menos { display: inline; }
+
+@media (max-width: 768px) {
+  .pos-toggle { display: inline-flex; align-items:center; gap:.5rem; cursor:pointer; font-weight:600; margin:.5rem 0 0; user-select:none; }
+  .posicionamento-wrapper { --pos-row-h: 260px; } /* fallback de 1 linha; JS afina */
 }
 
-.pos-toggle .seta {
-  display: inline-block;
-  transition: transform var(--pos-speed) cubic-bezier(.25,.8,.25,1);
+@media (min-width: 769px) {
+  .posicionamento-options { max-height: none !important; overflow: visible; }
 }
