@@ -513,25 +513,48 @@ button:hover {
 
 
 
-/* === Mobile carousel for imagem-radio groups (posicionamento-options) === */
+
+/* === Mobile carousel for imagem-radio groups (posicionamento-options) — v2 === */
 @media (max-width: 768px) {
   .posicionamento-options {
+    position: relative;
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    gap: 12px;
-    padding: 8px 2px 12px;
+    gap: 16px;
+    padding: 10px 6px 18px;
   }
+  /* show ~2 full + a bit of the 3rd */
   .posicionamento-options > .overcell {
-    flex: 0 0 45%;
+    flex: 0 0 48%;
     scroll-snap-align: start;
   }
   .posicionamento-options::-webkit-scrollbar { display: none; }
 
-  /* keep images readable */
+  /* make cards feel bigger/clearer */
   .posicionamento-label { align-items: center; }
   .posicionamento-img { width: 100%; height: auto; }
-  .posicionamento-nome { font-size: 0.95rem; }
+  .posicionamento-nome { font-size: 1rem; }
+
+  /* right fade to hint there's more */
+  .posicionamento-options::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 28px;
+    pointer-events: none;
+    background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
+  }
+
+  /* small "desliza" hint (subtle) */
+  .posicionamento-options::before {
+    content: "desliza →";
+    position: absolute;
+    right: 10px; bottom: 2px;
+    font-size: 11px;
+    color: #999;
+    pointer-events: none;
+  }
 }
