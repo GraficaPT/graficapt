@@ -527,7 +527,7 @@ button:hover {
 .pos-toggle-check:checked + .pos-toggle .seta { transform: rotate(180deg); }
 
 .posicionamento-options {
-  transition: max-height .3s ease;
+  transition: all .7s ease;
   overflow: hidden;
 }
 
