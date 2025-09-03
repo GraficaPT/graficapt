@@ -542,3 +542,21 @@ button:hover {
   .posicionamento-img { width: 100%; height: auto; }
   .posicionamento-nome { font-size: .95rem; }
 }
+
+/* progress bar for mobile carousels */
+@media (max-width: 768px) {
+  .posicionamento-track {
+    height: 4px;
+    width: 100%;
+    margin-top: 6px;
+    background: #e9edf3;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .posicionamento-thumb {
+    height: 100%;
+    width: 20%;
+    transform: translateX(0%);
+    background: linear-gradient(90deg, #0b5cff, #2f88ff);
+  }
+}

@@ -946,3 +946,51 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 
+
+
+// === Mobile carousel helper: fix leading empties + progress bar ===
+(function(){
+  try {
+    var mq = window.matchMedia ? window.matchMedia('(max-width: 768px)') : null;
+    var isMobile = mq ? mq.matches : (window.innerWidth <= 768);
+    if (!isMobile) return;
+
+    function enhance(container){
+      // Remove overcell blocks without radios (defensive)
+      Array.from(container.children).forEach(function(node){
+        if (node.classList && node.classList.contains('overcell')){
+          if (!node.querySelector('input[type="radio"]')) {
+            node.parentElement.removeChild(node);
+          }
+        }
+      });
+
+      // Ensure starts at the beginning
+      container.scrollLeft = 0;
+
+      // Add progress bar once
+      if (!container._trackAdded){
+        var track = document.createElement('div');
+        track.className = 'posicionamento-track';
+        var thumb = document.createElement('div');
+        thumb.className = 'posicionamento-thumb';
+        track.appendChild(thumb);
+        container.parentElement.insertBefore(track, container.nextSibling);
+        container._trackAdded = true;
+
+        function update(){
+          var max = container.scrollWidth - container.clientWidth;
+          var ratio = max > 0 ? (container.scrollLeft / max) : 0;
+          var visibleRatio = Math.min(1, container.clientWidth / container.scrollWidth);
+          thumb.style.width = (visibleRatio * 100) + '%';
+          thumb.style.transform = 'translateX(' + (ratio * (100 - visibleRatio*100)) + '%)';
+        }
+        container.addEventListener('scroll', update, {passive:true});
+        window.addEventListener('resize', update);
+        update();
+      }
+    }
+
+    document.querySelectorAll('.posicionamento-options').forEach(enhance);
+  } catch(e) { /* no-op */ }
+})();
