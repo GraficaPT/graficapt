@@ -575,7 +575,7 @@ button:hover {
 
 
 /* === POSICIONAMENTO (PC + Mobile) – Patch unificado === */
-.posicionamento-wrapper{ --pos-speed:1.1s;}
+.posicionamento-wrapper{ --pos-row-h:20vh; --pos-speed:1.1s;}
 
 /* Melhor performance: neutraliza a transição global dentro do componente */
 .posicionamento-wrapper *{ transition:none; }
