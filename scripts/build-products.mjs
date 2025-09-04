@@ -581,8 +581,9 @@ ${valores.map((v,i)=>{
     return `<div class="option-group">${labelRow}<div class="overcell"><div class="color-options">\n${cores}\n</div></div></div>`;
   }
   
+  
   if (tipo === 'imagem-radio') {
-    // constrói os cards
+    // cards
     const blocks = valores.map((item, idx) => {
       const posID = `${label.replace(/\s+/g,'-').toLowerCase()}-pos-${idx}`;
       const nome = esc(item?.nome || '');
@@ -591,7 +592,7 @@ ${valores.map((v,i)=>{
       return [
         '        <div class="overcell">',
         `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
-        `          <label class="posicionamento-label" for="${esc(posID)}">`,
+        '          <label class="posicionamento-label" for="${esc(posID)}">',
         '            <div class="posicionamento-img-wrapper">',
         `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
         `              <span class="posicionamento-nome">${nome}</span>`,
@@ -607,112 +608,121 @@ ${valores.map((v,i)=>{
     const chkId  = `${baseId}-chk`;
     const listId = `${baseId}-opts`;
 
-    // HTML do grupo + script local para controlar a animação e o bloqueio anti-duplo-toque
+    // HTML + script (mede linhas/altura após render e anima abrir/fechar)
     const html = [
-  '<div class="option-group">',
-  labelRow,
-  '<div class="overcell">',
-  `<div class="posicionamento-wrapper" id="${wrapId}" style="--pos-speed:1.1s">`,
-  `<input type="checkbox" id="${chkId}" class="pos-toggle-check" hidden>`,
-  
-  `<div class="posicionamento-options" id="${listId}">`,
-  blocks,
-  '</div>', // fecha .posicionamento-options
-  `<label class="pos-toggle" for="${chkId}" aria-controls="${listId}" aria-expanded="false">`,
-  '  <span class="texto-mais">Ver mais</span>',
-  '  <span class="texto-menos">Ver menos</span>',
-  '  <span class="seta" aria-hidden="true">▾</span>',
-  '</label>',
-  '</div>', // fecha .posicionamento-wrapper
-  '</div>', // fecha .overcell
-  '</div>', // fecha .option-group
-  `
-  <script>(function(){
-  var wrap = document.getElementById('${wrapId}');
-  var chk  = document.getElementById('${chkId}');
-  var list = document.getElementById('${listId}');
-  var lbl  = document.querySelector('label[for="${chkId}"]');
-  if(!wrap||!chk||!list||!lbl) return;
-
-  function speedMs(){
-    var v = getComputedStyle(wrap).getPropertyValue('--pos-speed')||'';
-    var n = parseFloat(v.replace(/[^\d.]/g,''));
-    var pr = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    return Math.round((isFinite(n)&&n>0?(pr?0:n):(pr?0:1.1))*1000);
-  }
-
-  function info(){
-    var items = list.querySelectorAll('.overcell');
-    if(!items.length) return {rows:0, row1:0};
-    var top0 = items[0].offsetTop, maxBottom=0, rows=1;
-    for(var i=0;i<items.length;i++){
-      var el=items[i];
-      if(el.offsetTop===top0){
-        var b = el.offsetTop + el.offsetHeight;
-        if(b>maxBottom) maxBottom = b;
-      } else { rows=2; break; }
-    }
-    var gap = parseFloat(getComputedStyle(list).gap)||0;
-    var extra = parseFloat(getComputedStyle(wrap).getPropertyValue('--pos-collapsed-extra'))||24;
-    var h = Math.max(80, Math.ceil((maxBottom - top0) + gap*0.5 + extra));
-    return {rows:rows, row1:h};
-  }
-
-  var anim=null;
-  function toHeight(px){
-    if(anim){ anim.cancel(); anim=null; }
-    list.style.overflow='hidden';
-    var from = list.getBoundingClientRect().height;
-    var dur = speedMs();
-    if(dur<=0 || Math.abs(from-px)<1){ list.style.height = px+'px'; return; }
-    list.style.height = from+'px';
-    void list.offsetHeight;
-    anim = list.animate([{height: from+'px'}, {height: px+'px'}], {duration: dur, easing:'cubic-bezier(.25,.8,.25,1)'});
-    anim.onfinish = anim.oncancel = function(){ list.style.height = px+'px'; anim=null; };
-  }
-
-  function setLabel(){
-    lbl.classList.toggle('open', chk.checked);
-    lbl.setAttribute('aria-expanded', chk.checked ? 'true' : 'false');
-  }
-
-  function applyInitial(){
-    var f = info();
-    var full = list.scrollHeight;
-    lbl.style.display = f.rows>1 ? 'inline-flex' : 'none';
-    if(f.rows>1){
-      list.style.height = (chk.checked ? full : f.row1) + 'px';
-    }else{
-      chk.checked = true;
-      list.style.height = full + 'px';
-    }
-    setLabel();
-  }
-
-  applyInitial();
-
-  chk.addEventListener('change', function(){
-    var f = info();
-    var full = list.scrollHeight;
-    toHeight(chk.checked ? full : f.row1);
-    setLabel();
-  });
-
-  var raf=0; function schedule(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(applyInitial); }
-  window.addEventListener('resize', schedule);
-  Array.prototype.forEach.call(list.querySelectorAll('img'), function(img){
-    if(!img.complete) img.addEventListener('load', schedule, {once:true});
-    if(img.decode) img.decode().then(schedule).catch(function(){});
-  });
-  if('ResizeObserver' in window){ new ResizeObserver(schedule).observe(list); }
-  setTimeout(schedule,300); setTimeout(schedule,1200);
-})();</script>
-
-  `
-].join('\n');
-
-return html;
-
+      '<div class="option-group">',
+      `<div class="overcell"><label>${label}:</label></div>`,
+      '<div class="overcell">',
+      `<div class="posicionamento-wrapper" id="${wrapId}">`,
+      `<input type="checkbox" id="${chkId}" class="pos-toggle-check" hidden>`,
+      `<div class="posicionamento-options" id="${listId}">`,
+           blocks,
+      '</div>',
+      `<label class="pos-toggle" for="${chkId}" aria-controls="${listId}" aria-expanded="false">`,
+      '  <span class="texto-mais">Ver mais</span>',
+      '  <span class="texto-menos">Ver menos</span>',
+      '  <span class="seta" aria-hidden="true">▾</span>',
+      '</label>',
+      '</div>',
+      '</div>',
+      '</div>',
+      `<script>(function(){`,
+      `  var wrap = document.getElementById('${wrapId}');`,
+      `  var chk  = document.getElementById('${chkId}');`,
+      `  var list = document.getElementById('${listId}');`,
+      `  var lbl  = document.querySelector('label[for="${chkId}"]');`,
+      `  if(!wrap||!chk||!list||!lbl) return;`,
+      ``,
+      `  // Neutraliza CSS max-height para o JS controlar a altura real`,
+      `  list.style.maxHeight = 'none';`,
+      `  list.style.overflow  = 'hidden';`,
+      ``,
+      `  function cssSecondsToMs(v, fallback){`,
+      `    var n = parseFloat(String(v||'').replace(/[^\\d.]/g,''));`,
+      `    if(!isFinite(n) || n<=0) n = fallback;`,
+      `    var pr = matchMedia('(prefers-reduced-motion: reduce)').matches;`,
+      `    return Math.round((pr?0:n)*1000);`,
+      `  }`,
+      `  function getSpeedMs(){`,
+      `    var cs = getComputedStyle(wrap);`,
+      `    return cssSecondsToMs(cs.getPropertyValue('--pos-speed'), 1.1);`,
+      `  }`,
+      `  function getCollapsedExtra(){`,
+      `    var cs = getComputedStyle(wrap);`,
+      `    var v = parseFloat(String(cs.getPropertyValue('--pos-collapsed-extra')||'').replace(/[^\\d.]/g,''));`,
+      `    return isFinite(v) ? v : 24;`,
+      `  }`,
+      `  function firstRowHeight(){`,
+      `    var items = list.querySelectorAll('.overcell');`,
+      `    if(!items.length) return 0;`,
+      `    var top0 = items[0].offsetTop;`,
+      `    var maxBottom = 0;`,
+      `    for (var i=0;i<items.length;i++){`,
+      `      var el = items[i];`,
+      `      if (el.offsetTop!==top0) break;`,
+      `      var b = el.offsetTop + el.offsetHeight;`,
+      `      if (b>maxBottom) maxBottom = b;`,
+      `    }`,
+      `    var gap = parseFloat(getComputedStyle(list).gap)||0;`,
+      `    return Math.ceil((maxBottom - top0) + gap*0.5 + getCollapsedExtra());`,
+      `  }`,
+      ``,
+      `  var anim=null;`,
+      `  function animateTo(px){`,
+      `    if(anim){ anim.cancel(); anim=null; }`,
+      `    var from = list.getBoundingClientRect().height;`,
+      `    var dur = getSpeedMs();`,
+      `    if(dur<=0 || Math.abs(from-px)<1){ list.style.height = px+'px'; return; }`,
+      `    list.style.height = from+'px'; void list.offsetHeight;`,
+      `    anim = list.animate([{height: from+'px'}, {height: px+'px'}], {duration: dur, easing:'cubic-bezier(.25,.8,.25,1)'});`,
+      `    anim.onfinish = anim.oncancel = function(){ list.style.height = px+'px'; anim=null; };`,
+      `  }`,
+      ``,
+      `  function rowsCount(){`,
+      `    var items = list.querySelectorAll('.overcell');`,
+      `    if(!items.length) return 0;`,
+      `    var firstTop = items[0].offsetTop;`,
+      `    for (var i=1;i<items.length;i++){ if(items[i].offsetTop!==firstTop) return 2; }`,
+      `    return 1;`,
+      `  }`,
+      ``,
+      `  function applyInitial(){`,
+      `    var rows = rowsCount();`,
+      `    var full = list.scrollHeight;`,
+      `    lbl.style.display = rows>1 ? 'inline-flex' : 'none';`,
+      `    if(rows>1){`,
+      `      var h = chk.checked ? full : firstRowHeight();`,
+      `      list.style.height = h + 'px';`,
+      `    } else {`,
+      `      chk.checked = true;`,
+      `      list.style.height = full + 'px';`,
+      `    }`,
+      `    lbl.classList.toggle('open', chk.checked);`,
+      `    lbl.setAttribute('aria-expanded', chk.checked?'true':'false');`,
+      `  }`,
+      ``,
+      `  // Inicializa depois de render`,
+      `  var raf=0; function schedule(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(applyInitial); }`,
+      `  schedule();`,
+      `  window.addEventListener('load', schedule);`,
+      `  window.addEventListener('resize', schedule);`,
+      `  Array.prototype.forEach.call(list.querySelectorAll('img'), function(img){`,
+      `    if(!img.complete) img.addEventListener('load', schedule, {once:true});`,
+      `    if(img.decode) img.decode().then(schedule).catch(function(){});`,
+      `  });`,
+      `  if('ResizeObserver' in window){ new ResizeObserver(schedule).observe(list); }`,
+      ``,
+      `  // Toggle`,
+      `  chk.addEventListener('change', function(){`,
+      `    var full = list.scrollHeight;`,
+      `    var target = chk.checked ? full : firstRowHeight();`,
+      `    animateTo(target);`,
+      `    lbl.classList.toggle('open', chk.checked);`,
+      `    lbl.setAttribute('aria-expanded', chk.checked?'true':'false');`,
+      `  });`,
+      `})();</script>`
+    ].join('\n');
+    return html;
   }
 if (tipo === 'quantidade-por-tamanho') {
     const grid = valores.map((t) => {
