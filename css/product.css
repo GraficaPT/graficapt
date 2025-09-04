@@ -700,9 +700,17 @@ button:hover {
 
 /* === Mobile unified overrides (at end) ================================ */
 @media (max-width: 768px){
-  .posicionamento-options{ display: grid; grid-template-columns: repeat(2, 1fr); margin-bottom: 0 !important; gap: 1.5vh; justify-items: center;}
+  .posicionamento-options{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5vh; justify-items: center;}
   .posicionamento-label{ width: 100%; }
   .pos-toggle{ display: inline-flex; }
   
 }
 
+.pos-toggle {
+  margin-top: 0 !important;
+}
+
+
+.posicionamento-options {
+  margin-bottom: 0 !important;
+}
