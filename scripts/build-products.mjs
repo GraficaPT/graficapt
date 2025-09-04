@@ -634,99 +634,106 @@ ${valores.map((v,i)=>{
   var lbl  = document.querySelector('label[for="${chkId}"]');
   if(!wrap||!chk||!list||!lbl) return;
 
-  function speedMs(){
+  // Lê duração da variável CSS (fallback 1.1s)
+  function readSpeedMs(){
     var v = getComputedStyle(wrap).getPropertyValue('--pos-speed')||'';
-    var n = parseFloat(v.replace(/[^\d.]/g,'')); 
-    return Math.round((isFinite(n)&&n>0?n:1.1)*1000);
+    var n = parseFloat(v.replace(/[^\d.]/g,''));
+    // respeita prefers-reduced-motion se existir
+    var pr = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return Math.round((isFinite(n)&&n>0 ? (pr?0:n) : (pr?0:1.1)) * 1000);
+  }
+
+  // Folga extra para não cortar a borda quando fechado
+  function collapsedExtra(){
+    var v = getComputedStyle(wrap).getPropertyValue('--pos-collapsed-extra')||'';
+    var n = parseFloat(v.replace(/[^\d.]/g,''));
+    return isFinite(n) ? n : 12; // px
   }
 
   function firstRowHeight(){
     var items = list.querySelectorAll('.overcell');
-    if(items.length===0) return 0;
+    if(!items.length) return 0;
     var top0 = items[0].offsetTop;
-    var gap = parseFloat(getComputedStyle(list).gap)||0;
-    var maxBottom = 0;
-    for (var i=0;i<items.length;i++){
+    var h = 0;
+    for(var i=0;i<items.length;i++){
       var el = items[i];
-      if (el.offsetTop !== top0) break;
-      var b = el.offsetTop + el.offsetHeight;
-      if (b>maxBottom) maxBottom = b;
+      if(el.offsetTop!==top0) break;
+      h = Math.max(h, el.offsetTop + el.offsetHeight - top0);
     }
-    var h = (maxBottom - top0) + gap*0.5;
-    return Math.max(h, 80);
+    var gap = parseFloat(getComputedStyle(list).gap)||0;
+    return Math.max(80, Math.ceil(h + gap*0.5) + collapsedExtra());
   }
 
   function hasMoreThanOneRow(){
     var items = list.querySelectorAll('.overcell');
     if(items.length<=1) return false;
     var t0 = items[0].offsetTop;
-    for (var i=1;i<items.length;i++) if(items[i].offsetTop>t0) return true;
+    for(var i=1;i<items.length;i++) if(items[i].offsetTop>t0) return true;
     return false;
   }
 
-  // Aplica altura alvo com animação estável (sem setTimeouts)
-  var running = null;
-  function animateTo(px){
-    if(running){ running.cancel(); running = null; }
-    var cs = getComputedStyle(list);
-    var from = parseFloat(cs.maxHeight)||0;
-    // congela o ponto de partida e força reflow para garantir animação
-    list.style.transition = 'none';
-    list.style.maxHeight = from+'px';
+  // Anima sempre a propriedade height (mais estável que max-height)
+  var anim = null;
+  function animateHeight(toPx){
+    if(anim){ anim.cancel(); anim = null; }
+    list.style.overflow = 'hidden';
+
+    // ponto de partida = altura real atual
+    var fromPx = list.getBoundingClientRect().height;
+    var dur = readSpeedMs();
+    if(dur<=0 || Math.abs(fromPx-toPx)<1){
+      list.style.height = toPx+'px';
+      return;
+    }
+    // fixa o "from" no estilo inline
+    list.style.height = fromPx+'px';
+    // garante que o estilo está aplicado neste frame
     void list.offsetHeight;
-    list.style.transition = '';
-    var dur = speedMs();
-    running = list.animate(
-      [{maxHeight: from+'px'}, {maxHeight: px+'px'}],
-      {duration: dur, easing:'cubic-bezier(.25,.8,.25,1)'}
+
+    anim = list.animate(
+      [{height: fromPx+'px'}, {height: toPx+'px'}],
+      {duration: dur, easing: 'cubic-bezier(.25,.8,.25,1)'}
     );
-    running.onfinish = function(){ list.style.maxHeight = px+'px'; running=null; };
-    running.oncancel = function(){ list.style.maxHeight = px+'px'; running=null; };
+    anim.onfinish = anim.oncancel = function(){
+      list.style.height = toPx+'px';
+      anim = null;
+    };
   }
 
-  function syncLabel(){
+  function syncButton(){
     lbl.classList.toggle('open', chk.checked);
     lbl.setAttribute('aria-expanded', chk.checked ? 'true' : 'false');
   }
 
-  function recalcAndClamp(){
-    var one = firstRowHeight();
-    var full = list.scrollHeight;     // altura aberta
-    // mostra/esconde botão (PC + mobile)
+  function clampInitial(){
     var show = hasMoreThanOneRow();
     lbl.style.display = show ? 'inline-flex' : 'none';
-    // se não há mais que 1 linha, fica sempre aberto e sem toggle visual
-    if(!show){
-      chk.checked = true;
-      list.style.maxHeight = full+'px';
-    }else{
-      // garante estado colapsado coerente no load
-      list.style.maxHeight = (chk.checked ? full : one)+'px';
-    }
-    syncLabel();
+    var full = list.scrollHeight;
+    var one  = firstRowHeight();
+    list.style.height = (show ? (chk.checked?full:one) : full) + 'px';
+    if(!show){ chk.checked = true; }
+    syncButton();
   }
 
   // INIT
-  recalcAndClamp();
+  clampInitial();
 
-  // Toggle sem “delay”
+  // Toggle
   chk.addEventListener('change', function(){
-    var one = firstRowHeight();
     var full = list.scrollHeight;
-    animateTo(chk.checked ? full : one);
-    syncLabel();
+    var one  = firstRowHeight();
+    animateHeight(chk.checked ? full : one);
+    syncButton();
   });
 
-  // Re-medições seguras
-  var raf=0; function schedule(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(recalcAndClamp); }
+  // Re-medições
+  var raf=0; function schedule(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(clampInitial); }
   window.addEventListener('resize', schedule);
   Array.prototype.forEach.call(list.querySelectorAll('img'), function(img){
     if(!img.complete) img.addEventListener('load', schedule, {once:true});
     if(img.decode) img.decode().then(schedule).catch(function(){});
   });
   if('ResizeObserver' in window){ new ResizeObserver(schedule).observe(list); }
-
-  // Safeties tardios (webfonts/layout async)
   setTimeout(schedule,300);
   setTimeout(schedule,1200);
 })();</script>
