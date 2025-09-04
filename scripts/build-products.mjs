@@ -626,36 +626,81 @@ ${valores.map((v,i)=>{
   '</div>', // fecha .posicionamento-wrapper
   '</div>', // fecha .overcell
   '</div>', // fecha .option-group
-  // agora o script separado
   `<script>(function(){
-     var wrap = document.getElementById('${wrapId}');
-     var chk  = document.getElementById('${chkId}');
-     var list = document.getElementById('${listId}');
-     var lbl  = document.querySelector('label[for="${chkId}"]');
-     if(!wrap||!chk||!list) return;
-     var speedMs = 1100;
-     function oneRowHeight(){
-       var items = Array.from(list.querySelectorAll('.overcell'));
-       if(items.length<=1) return list.scrollHeight;
-       var top0 = items[0].offsetTop;
-       var second = items.find(el=>el.offsetTop>top0);
-       return second ? (second.offsetTop - top0) : list.scrollHeight;
-     }
-     function apply(open){
-       var target = open ? list.scrollHeight : oneRowHeight();
-       list.style.maxHeight = target + 'px';
-       if(lbl){ lbl.setAttribute('aria-expanded', open ? 'true' : 'false'); }
-       if(lbl){ lbl.classList.toggle('open', !!open); }
-     }
-     apply(false);
-     chk.addEventListener('change', function(){
-       var open = chk.checked;
-       chk.disabled = true;
-       apply(open);
-       setTimeout(()=>{ chk.disabled = false; }, speedMs);
-     });
-     window.addEventListener('resize', ()=>apply(chk.checked));
-   })();</script>`
+  var wrap = document.getElementById('${wrapId}');
+  var chk  = document.getElementById('${chkId}');
+  var list = document.getElementById('${listId}');
+  var lbl  = document.querySelector('label[for="${chkId}"]');
+  if(!wrap||!chk||!list) return;
+
+  // velocidade a partir do CSS (--pos-speed), fallback 1.1s
+  var cs = getComputedStyle(wrap);
+  var sp = parseFloat((cs.getPropertyValue('--pos-speed')||'').replace(/[^\d.]/g,'')) || 1.1;
+  var speedMs = Math.round(sp * 1000);
+
+  function oneRowHeight(){
+    // mede a altura real da 1ª linha (grid de 2 colunas em mobile)
+    var items = Array.from(list.querySelectorAll('.overcell'));
+    if (items.length <= 1) return list.scrollHeight;
+
+    var r0Top = items[0].getBoundingClientRect().top;
+    var firstRow = items.filter(el => Math.abs(el.getBoundingClientRect().top - r0Top) < 1);
+    var firstRowBottom = Math.max.apply(null, firstRow.map(el => el.getBoundingClientRect().bottom));
+    var listTop = list.getBoundingClientRect().top;
+    var gap = parseFloat(getComputedStyle(list).gap) || 0;
+    var h = Math.ceil((firstRowBottom - listTop) + gap * 0.5);
+
+    // guarda-chuva para quando as imagens ainda não têm altura
+    return Math.max(h, 80);
+  }
+
+  function setCollapsedHeight(){
+    wrap.style.setProperty('--pos-row-h', oneRowHeight() + 'px');
+  }
+
+  function syncLabel(){
+    if (!lbl) return;
+    lbl.setAttribute('aria-expanded', chk.checked ? 'true' : 'false');
+    lbl.classList.toggle('open', !!chk.checked);
+  }
+
+  // inicial
+  setCollapsedHeight();
+  syncLabel();
+
+  // debounced re-measure
+  var rafId = null;
+  function scheduleMeasure(){
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(setCollapsedHeight);
+  }
+
+  // toggle (evita double-tap durante a animação)
+  chk.addEventListener('change', function(){
+    chk.disabled = true;
+    syncLabel();
+    setTimeout(function(){ chk.disabled = false; }, speedMs);
+  });
+
+  // recalc em resize
+  window.addEventListener('resize', scheduleMeasure);
+
+  // recalc quando as imagens carregarem/decodificarem
+  Array.from(list.querySelectorAll('img')).forEach(function(img){
+    if (!img.complete) img.addEventListener('load', scheduleMeasure, { once:true });
+    if (img.decode) img.decode().then(scheduleMeasure).catch(function(){});
+  });
+
+  // recalc quando o próprio conteúdo mudar de tamanho (ex.: fontes/imagens)
+  if ('ResizeObserver' in window) {
+    var ro = new ResizeObserver(scheduleMeasure);
+    ro.observe(list);
+  }
+
+  // fail-safes tardios
+  setTimeout(scheduleMeasure, 300);
+  setTimeout(scheduleMeasure, 1500);
+})();</script>`
 ].join('\n');
 
 return html;
