@@ -175,7 +175,7 @@ function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', prec
     '<link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">',
     ...preconnects.map(o => `<link rel="preconnect" href="${esc(o)}" crossorigin>`),
     '<link rel="stylesheet" href="/css/index.css">',
-    '<link rel="stylesheet" href="https://raw.githubusercontent.com/GraficaPT/graficapt/main/css/product.css">'
+    '<link rel="stylesheet" href="/css/product.css">'
   ].filter(Boolean).join('\n');
 }
 
