@@ -607,6 +607,7 @@ ${valores.map((v,i)=>{
     const wrapId = `${baseId}-wrap`;
     const chkId  = `${baseId}-chk`;
     const listId = `${baseId}-opts`;
+    const POS_ADJUST_PX = -10;
 
     // HTML + script (mede linhas/altura após render e anima abrir/fechar)
     const html = [
@@ -664,7 +665,7 @@ ${valores.map((v,i)=>{
       `      if (b>maxBottom) maxBottom = b;`,
       `    }`,
       `    var gap = parseFloat(getComputedStyle(list).gap)||0;`,
-      `    return Math.ceil((maxBottom - top0) + gap*0.5 + getCollapsedExtra());`,
+      `    return Math.ceil((maxBottom - top0) + gap*0.5 + getCollapsedExtra() + POS_ADJUST_PX);`,
       `  }`,
       ``,
       `  var anim=null;`,
