@@ -601,7 +601,7 @@ button:hover {
 
 
 /* === Patch de performance e unificação (PC + Mobile) === */
-.posicionamento-wrapper{ --pos-row-h:154px; --pos-speed:1.1s; }
+.posicionamento-wrapper{ --pos-row-h:170px; --pos-speed:1.1s; }
 
 /* Neutraliza transições globais só dentro do componente para evitar jank */
 .posicionamento-wrapper *{ transition: none; }
