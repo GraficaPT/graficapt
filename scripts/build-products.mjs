@@ -626,82 +626,94 @@ ${valores.map((v,i)=>{
   '</div>', // fecha .posicionamento-wrapper
   '</div>', // fecha .overcell
   '</div>', // fecha .option-group
-  `<script>(function(){
+  `
+  <script>(function(){
   var wrap = document.getElementById('${wrapId}');
   var chk  = document.getElementById('${chkId}');
   var list = document.getElementById('${listId}');
   var lbl  = document.querySelector('label[for="${chkId}"]');
   if(!wrap||!chk||!list||!lbl) return;
 
-  // velocidade sincronizada com CSS (--pos-speed), fallback 1.1s
-  var spVar = getComputedStyle(wrap).getPropertyValue('--pos-speed');
-  var sp = parseFloat((spVar||'').replace(/[^\d.]/g,'')); 
-  var speedMs = Math.round((isFinite(sp) && sp>0 ? sp : 1.1) * 1000);
-
-  function rowsCount(){
-    var items = Array.from(list.querySelectorAll('.overcell'));
-    if (items.length === 0) return 0;
-    var tops = new Set(items.map(el => el.offsetTop));
-    return tops.size;
+  function readSpeedMs(){
+    var v = getComputedStyle(wrap).getPropertyValue('--pos-speed')||'';
+    var n = parseFloat(v.replace(/[^\d.]/g,''));
+    return Math.round((isFinite(n)&&n>0?n:1.1)*1000);
   }
+  var speedMs = readSpeedMs();
 
-  function oneRowHeight(){
-    var items = Array.from(list.querySelectorAll('.overcell'));
-    if (items.length <= 1) return list.scrollHeight;
-
-    var firstTop = items[0].getBoundingClientRect().top;
-    var firstRow = items.filter(el => Math.abs(el.getBoundingClientRect().top - firstTop) < 1);
-    var firstRowBottom = Math.max.apply(null, firstRow.map(el => el.getBoundingClientRect().bottom));
-    var listTop = list.getBoundingClientRect().top;
-    var gap = parseFloat(getComputedStyle(list).gap) || 0;
-    var h = Math.ceil((firstRowBottom - listTop) + Math.max(0, gap * 0.5));
+  function firstRowHeight(){
+    var items = list.querySelectorAll('.overcell');
+    if(items.length===0) return 0;
+    var top0 = items[0].offsetTop;
+    var gap = parseFloat(getComputedStyle(list).gap)||0;
+    var maxBottom = 0;
+    for (var i=0;i<items.length;i++){
+      var el = items[i];
+      if (el.offsetTop === top0){
+        var bottom = el.offsetTop + el.offsetHeight;
+        if (bottom > maxBottom) maxBottom = bottom;
+      } else {
+        break;
+      }
+    }
+    var h = (maxBottom - top0) + gap*0.5;
     return Math.max(h, 80);
   }
 
-  function setCollapsedHeightAndButton(){
-    wrap.style.setProperty('--pos-row-h', oneRowHeight() + 'px');
-    var showBtn = rowsCount() > 1;
-    // força visível em desktop quando necessário (o CSS base esconde no PC)
-    lbl.style.display = showBtn ? 'inline-flex' : 'none';
+  function hasMoreThanOneRow(){
+    var items = list.querySelectorAll('.overcell');
+    if(items.length<=1) return false;
+    var top0 = items[0].offsetTop;
+    for (var i=1;i<items.length;i++){
+      if(items[i].offsetTop > top0) return true;
+    }
+    return false;
+  }
+
+  function recalc(){
+    speedMs = readSpeedMs();
+    wrap.style.setProperty('--pos-row-h', firstRowHeight() + 'px');
+    var show = hasMoreThanOneRow();
+    lbl.style.display = show ? 'inline-flex' : 'none';   // PC + mobile
+    if(!show){
+      chk.checked = true;                                // se só há 1 linha, mantém aberto
+      lbl.classList.remove('open');
+      lbl.setAttribute('aria-expanded','true');
+    }
   }
 
   function syncLabel(){
+    lbl.classList.toggle('open', chk.checked);
     lbl.setAttribute('aria-expanded', chk.checked ? 'true' : 'false');
-    lbl.classList.toggle('open', !!chk.checked);
   }
 
-  // inicial
-  setCollapsedHeightAndButton();
+  recalc();
   syncLabel();
 
-  var rafId = 0;
-  function scheduleMeasure(){
-    cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(setCollapsedHeightAndButton);
-  }
-
-  // toggle + “trava” durante a animação
   chk.addEventListener('change', function(){
-    chk.disabled = true;
     syncLabel();
+    chk.disabled = true;
     setTimeout(function(){ chk.disabled = false; }, speedMs);
   });
 
-  // re-medições
-  window.addEventListener('resize', scheduleMeasure);
-  Array.from(list.querySelectorAll('img')).forEach(function(img){
-    if (!img.complete) img.addEventListener('load', scheduleMeasure, { once:true });
-    if (img.decode) img.decode().then(scheduleMeasure).catch(function(){});
+  var rafId = 0;
+  function schedule(){ cancelAnimationFrame(rafId); rafId = requestAnimationFrame(recalc); }
+  window.addEventListener('resize', schedule);
+
+  Array.prototype.forEach.call(list.querySelectorAll('img'), function(img){
+    if(!img.complete) img.addEventListener('load', schedule, {once:true});
+    if(img.decode) img.decode().then(schedule).catch(function(){});
   });
-  if ('ResizeObserver' in window) {
-    var ro = new ResizeObserver(scheduleMeasure);
+
+  if('ResizeObserver' in window){
+    var ro = new ResizeObserver(schedule);
     ro.observe(list);
   }
 
-  // safeties tardios (ex.: fontes)
-  setTimeout(scheduleMeasure, 300);
-  setTimeout(scheduleMeasure, 1200);
-})();</script>`
+  setTimeout(schedule, 300);
+  setTimeout(schedule, 1200);
+})();</script>
+  `
 ].join('\n');
 
 return html;
