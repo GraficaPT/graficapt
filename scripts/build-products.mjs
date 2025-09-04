@@ -540,7 +540,7 @@ function renderOption(opt={}, index=0, preselect={}) {
   const valores = Array.isArray(opt?.valores) ? opt.valores : [];
   const wanted = (preselect[labelRaw?.toLowerCase?.() || ''] || '').toLowerCase();
 
-  const labelRow = `<div class="overcell"><label>${label}:</label></div>`;
+  const labelRow = `<div class="overcell"><div class="option-title">${label}:</div></div>`;
 
   if (tipo === 'select') {
     const inputHTML = `<select name="${label}" required>
@@ -592,7 +592,7 @@ ${valores.map((v,i)=>{
       return [
         '        <div class="overcell">',
         `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
-        '          <label class="posicionamento-label" for="${esc(posID)}">',
+        '          ` <label class="posicionamento-label" for="${esc(posID)}">`',
         '            <div class="posicionamento-img-wrapper">',
         `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
         `              <span class="posicionamento-nome">${nome}</span>`,
@@ -611,7 +611,7 @@ ${valores.map((v,i)=>{
     // HTML + script (mede linhas/altura após render e anima abrir/fechar)
     const html = [
       '<div class="option-group">',
-      `<div class="overcell"><label>${label}:</label></div>`,
+      `<div class="overcell"><div class="option-title">${label}:</div></div>`,
       '<div class="overcell">',
       `<div class="posicionamento-wrapper" id="${wrapId}">`,
       `<input type="checkbox" id="${chkId}" class="pos-toggle-check" hidden>`,
