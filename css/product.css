@@ -554,7 +554,7 @@ button:hover {
 .pos-toggle.open .texto-menos { display: inline; }
 
 @media (max-width: 768px) {
-  .pos-toggle { display: inline-flex; align-items:center; gap:.5rem; cursor:pointer; font-weight:600; margin:.5rem 0 0; user-select:none; }
+  .pos-toggle { display: inline-flex; align-items:center; gap:.5rem; cursor:pointer; font-weight:600; user-select:none; }
   .posicionamento-options { padding: 7px;}
 }
 
@@ -686,7 +686,7 @@ button:hover {
 }
 
 /* botão ver mais/menos */
-.pos-toggle{ display:none; align-items:center; gap:.5rem; cursor:pointer; font-weight:600;  user-select:none; }
+.pos-toggle{ display:none; align-items:center; cursor:pointer; font-weight:600;  user-select:none; }
 .pos-toggle .seta{ display:inline-block; transition: transform var(--pos-speed) cubic-bezier(.25,.8,.25,1); }
 .pos-toggle .texto-menos{ display:none; }
 .pos-toggle.open .seta{ transform: rotate(180deg); }
