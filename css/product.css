@@ -69,7 +69,7 @@ button:hover{background:var(--brand-600);}
 .posicionamento-options{
   display:flex; flex-wrap:wrap; gap:var(--gap-1-5); justify-content:center; margin:1vh 0;
   overflow:hidden; will-change:max-height; contain:layout paint;
-  max-height:var(--pos-row-h);
+  max-height:40px;
   transition:max-height var(--pos-speed) cubic-bezier(.25,.8,.25,1);
 }
 .posicionamento-options input[type="radio"]{display:none;}
