@@ -9,8 +9,8 @@
   --container-w-mobile:90vw;  --table-w-mobile:85vw;
 
   /* Posicionamento */
-  --pos-item-max:22vh;          /* largura/altura tipo cartão */
-  --pos-row-h:22vh;             /* altura colapsada (1 linha) */
+  --pos-item-max:21vh;          /* largura/altura tipo cartão */
+  --pos-row-h:20vh;             /* altura colapsada (1 linha) */
   --pos-speed:1.1s;             /* duração da animação */
 
   /* Carrossel */
