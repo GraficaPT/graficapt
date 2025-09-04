@@ -626,7 +626,7 @@ button:hover {
 /* === Posicionamento – ajustes finais (PC + Mobile) === */
 .posicionamento-wrapper{
   --pos-speed: 1.1s;              /* controla a duração (lida no JS) */
-  --pos-collapsed-extra: 12px;    /* folga para não cortar a borda */
+  --pos-collapsed-extra: 52px;    /* folga para não cortar a borda */
 }
 
 /* Desliga transições globais só dentro do componente */
