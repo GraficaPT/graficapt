@@ -633,34 +633,36 @@ ${valores.map((v,i)=>{
   var lbl  = document.querySelector('label[for="${chkId}"]');
   if(!wrap||!chk||!list||!lbl) return;
 
-  var cs = getComputedStyle(wrap);
-  var sp = parseFloat((cs.getPropertyValue('--pos-speed')||'').replace(/[^\d.]/g,'')) || 1.1;
-  var speedMs = Math.round(sp * 1000);
+  // velocidade sincronizada com CSS (--pos-speed), fallback 1.1s
+  var spVar = getComputedStyle(wrap).getPropertyValue('--pos-speed');
+  var sp = parseFloat((spVar||'').replace(/[^\d.]/g,'')); 
+  var speedMs = Math.round((isFinite(sp) && sp>0 ? sp : 1.1) * 1000);
+
+  function rowsCount(){
+    var items = Array.from(list.querySelectorAll('.overcell'));
+    if (items.length === 0) return 0;
+    var tops = new Set(items.map(el => el.offsetTop));
+    return tops.size;
+  }
 
   function oneRowHeight(){
     var items = Array.from(list.querySelectorAll('.overcell'));
     if (items.length <= 1) return list.scrollHeight;
 
-    var r0Top = items[0].getBoundingClientRect().top;
-    var firstRow = items.filter(el => Math.abs(el.getBoundingClientRect().top - r0Top) < 1);
+    var firstTop = items[0].getBoundingClientRect().top;
+    var firstRow = items.filter(el => Math.abs(el.getBoundingClientRect().top - firstTop) < 1);
     var firstRowBottom = Math.max.apply(null, firstRow.map(el => el.getBoundingClientRect().bottom));
     var listTop = list.getBoundingClientRect().top;
     var gap = parseFloat(getComputedStyle(list).gap) || 0;
-    var h = Math.ceil((firstRowBottom - listTop) + gap * 0.5);
+    var h = Math.ceil((firstRowBottom - listTop) + Math.max(0, gap * 0.5));
     return Math.max(h, 80);
   }
 
-  function hasMoreThanOneRow(){
-    var items = Array.from(list.querySelectorAll('.overcell'));
-    if (items.length <= 1) return false;
-    var top0 = items[0].offsetTop;
-    return items.some(el => el.offsetTop > top0);
-  }
-
-  function setCollapsedHeight(){
+  function setCollapsedHeightAndButton(){
     wrap.style.setProperty('--pos-row-h', oneRowHeight() + 'px');
-    // mostra/esconde o botão conforme necessário
-    lbl.style.display = hasMoreThanOneRow() ? '' : 'none';
+    var showBtn = rowsCount() > 1;
+    // força visível em desktop quando necessário (o CSS base esconde no PC)
+    lbl.style.display = showBtn ? 'inline-flex' : 'none';
   }
 
   function syncLabel(){
@@ -669,37 +671,37 @@ ${valores.map((v,i)=>{
   }
 
   // inicial
-  setCollapsedHeight();
+  setCollapsedHeightAndButton();
   syncLabel();
 
-  var rafId = null;
+  var rafId = 0;
   function scheduleMeasure(){
     cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(setCollapsedHeight);
+    rafId = requestAnimationFrame(setCollapsedHeightAndButton);
   }
 
+  // toggle + “trava” durante a animação
   chk.addEventListener('change', function(){
     chk.disabled = true;
     syncLabel();
     setTimeout(function(){ chk.disabled = false; }, speedMs);
   });
 
+  // re-medições
   window.addEventListener('resize', scheduleMeasure);
-
   Array.from(list.querySelectorAll('img')).forEach(function(img){
     if (!img.complete) img.addEventListener('load', scheduleMeasure, { once:true });
     if (img.decode) img.decode().then(scheduleMeasure).catch(function(){});
   });
-
   if ('ResizeObserver' in window) {
     var ro = new ResizeObserver(scheduleMeasure);
     ro.observe(list);
   }
 
+  // safeties tardios (ex.: fontes)
   setTimeout(scheduleMeasure, 300);
-  setTimeout(scheduleMeasure, 1500);
-})();</script>
-`
+  setTimeout(scheduleMeasure, 1200);
+})();</script>`
 ].join('\n');
 
 return html;
