@@ -696,6 +696,7 @@ button:hover {
 /* Desktop safety */
 @media (min-width: 769px){
   .posicionamento-wrapper .posicionamento-options{ overflow: hidden !important; }
+  .posicionamento-wrapper{ --pos-row-h:25vh; --pos-speed:1.1s;}
 }
 
 /* === Mobile unified overrides (at end) ================================ */
