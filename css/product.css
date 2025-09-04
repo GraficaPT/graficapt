@@ -42,8 +42,8 @@
   --table-w-mobile: 85vw;
 
   /* Posicionamento (constantes solicitadas) */
-  --pos-item-max: 20vh;      /* <== antigo 20vh em vários sítios */
-  --pos-row-h: 20vh;         /* altura colapsada por defeito */
+  --pos-item-max: 18vh;      /* <== antigo 20vh em vários sítios */
+  --pos-row-h: 18vh;         /* altura colapsada por defeito */
   --pos-speed: 1.1s;         /* duração da animação */
   --pos-collapsed-extra: 0;
 
