@@ -592,7 +592,7 @@ ${valores.map((v,i)=>{
       return [
         '        <div class="overcell">',
         `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
-        '          <label class="posicionamento-label" for="${esc(posID)}">',
+        `          <label class="posicionamento-label" for="${esc(posID)}">`,
         '            <div class="posicionamento-img-wrapper">',
         `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
         `              <span class="posicionamento-nome">${nome}</span>`,

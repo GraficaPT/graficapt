@@ -113,7 +113,7 @@ button:hover{background:var(--brand-600);}
 .related{max-width:1200px;}
 .related__head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1rem;}
 .related__more{border:1px solid #ddd;border-radius:10px;padding:.55rem .9rem;text-decoration:none;color:#111;}
-.related__more:hover{背景:#f7f7f7;}
+.related__more:hover{background:#f7f7f7;}
 .related__grid{display:grid;gap:1rem;grid-template-columns:repeat(4,minmax(0,1fr));}
 .related__card{display:block;border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;transition:box-shadow .2s ease;}
 .related__card:hover{box-shadow:0 8px 30px rgba(0,0,0,.08);}
@@ -173,3 +173,7 @@ button:hover{background:var(--brand-600);}
 .pos-toggle .seta{pointer-events:none;}
 /* Garantir que o container das opções recebe cliques mesmo que o toggle esteja próximo */
 .posicionamento-options{pointer-events:auto;}
+
+
+/* Safety: prevent toggle label overlapping the options area */
+.posicionamento-wrapper .overcell { position:relative; }
