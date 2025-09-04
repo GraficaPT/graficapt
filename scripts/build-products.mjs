@@ -634,108 +634,78 @@ ${valores.map((v,i)=>{
   var lbl  = document.querySelector('label[for="${chkId}"]');
   if(!wrap||!chk||!list||!lbl) return;
 
-  // Lê duração da variável CSS (fallback 1.1s)
-  function readSpeedMs(){
+  function getSpeedMs(){
     var v = getComputedStyle(wrap).getPropertyValue('--pos-speed')||'';
     var n = parseFloat(v.replace(/[^\d.]/g,''));
-    // respeita prefers-reduced-motion se existir
     var pr = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    return Math.round((isFinite(n)&&n>0 ? (pr?0:n) : (pr?0:1.1)) * 1000);
+    return Math.round((isFinite(n)&&n>0?(pr?0:n):(pr?0:1.1))*1000);
   }
 
-  // Folga extra para não cortar a borda quando fechado
-  function collapsedExtra(){
-    var v = getComputedStyle(wrap).getPropertyValue('--pos-collapsed-extra')||'';
-    var n = parseFloat(v.replace(/[^\d.]/g,''));
-    return isFinite(n) ? n : 12; // px
-  }
-
-  function firstRowHeight(){
+  function rowsInfo(){
     var items = list.querySelectorAll('.overcell');
-    if(!items.length) return 0;
-    var top0 = items[0].offsetTop;
-    var h = 0;
-    for(var i=0;i<items.length;i++){
+    if(!items.length) return {rows:0, firstRowH:0};
+    var top0 = items[0].offsetTop, maxBottom = 0, rows = 1;
+    for (var i=0;i<items.length;i++){
       var el = items[i];
-      if(el.offsetTop!==top0) break;
-      h = Math.max(h, el.offsetTop + el.offsetHeight - top0);
+      if (el.offsetTop===top0){
+        var b = el.offsetTop + el.offsetHeight;
+        if (b>maxBottom) maxBottom = b;
+      } else { rows = 2; break; }
     }
     var gap = parseFloat(getComputedStyle(list).gap)||0;
-    return Math.max(80, Math.ceil(h + gap*0.5) + collapsedExtra());
+    var extra = parseFloat(getComputedStyle(wrap).getPropertyValue('--pos-collapsed-extra'))||24;
+    var h = Math.max(80, Math.ceil((maxBottom - top0) + gap*0.5 + extra));
+    return {rows:rows, firstRowH:h};
   }
 
-  function hasMoreThanOneRow(){
-    var items = list.querySelectorAll('.overcell');
-    if(items.length<=1) return false;
-    var t0 = items[0].offsetTop;
-    for(var i=1;i<items.length;i++) if(items[i].offsetTop>t0) return true;
-    return false;
-  }
-
-  // Anima sempre a propriedade height (mais estável que max-height)
-  var anim = null;
-  function animateHeight(toPx){
-    if(anim){ anim.cancel(); anim = null; }
+  var anim=null;
+  function toHeight(px){
+    if(anim){ anim.cancel(); anim=null; }
     list.style.overflow = 'hidden';
-
-    // ponto de partida = altura real atual
-    var fromPx = list.getBoundingClientRect().height;
-    var dur = readSpeedMs();
-    if(dur<=0 || Math.abs(fromPx-toPx)<1){
-      list.style.height = toPx+'px';
-      return;
-    }
-    // fixa o "from" no estilo inline
-    list.style.height = fromPx+'px';
-    // garante que o estilo está aplicado neste frame
+    var from = list.getBoundingClientRect().height;
+    var dur = getSpeedMs();
+    if(dur<=0 || Math.abs(from-px)<1){ list.style.height = px+'px'; return; }
+    list.style.height = from+'px';
     void list.offsetHeight;
-
-    anim = list.animate(
-      [{height: fromPx+'px'}, {height: toPx+'px'}],
-      {duration: dur, easing: 'cubic-bezier(.25,.8,.25,1)'}
-    );
-    anim.onfinish = anim.oncancel = function(){
-      list.style.height = toPx+'px';
-      anim = null;
-    };
+    anim = list.animate([{height: from+'px'}, {height: px+'px'}], {duration: dur, easing:'cubic-bezier(.25,.8,.25,1)'});
+    anim.onfinish = anim.oncancel = function(){ list.style.height = px+'px'; anim=null; };
   }
 
-  function syncButton(){
+  function applyInitial(){
+    var info = rowsInfo();
+    var full = list.scrollHeight;
+    lbl.style.display = info.rows>1 ? 'inline-flex' : 'none';
+    if(info.rows>1){
+      list.style.height = (chk.checked ? full : info.firstRowH) + 'px';
+    } else {
+      chk.checked = true;
+      list.style.height = full + 'px';
+    }
     lbl.classList.toggle('open', chk.checked);
-    lbl.setAttribute('aria-expanded', chk.checked ? 'true' : 'false');
+    lbl.setAttribute('aria-expanded', chk.checked?'true':'false');
   }
 
-  function clampInitial(){
-    var show = hasMoreThanOneRow();
-    lbl.style.display = show ? 'inline-flex' : 'none';
-    var full = list.scrollHeight;
-    var one  = firstRowHeight();
-    list.style.height = (show ? (chk.checked?full:one) : full) + 'px';
-    if(!show){ chk.checked = true; }
-    syncButton();
-  }
+  // init
+  applyInitial();
 
-  // INIT
-  clampInitial();
-
-  // Toggle
+  // Toggle (simétrico abrir/fechar)
   chk.addEventListener('change', function(){
+    var info = rowsInfo();
     var full = list.scrollHeight;
-    var one  = firstRowHeight();
-    animateHeight(chk.checked ? full : one);
-    syncButton();
+    toHeight(chk.checked ? full : info.firstRowH);
+    lbl.classList.toggle('open', chk.checked);
+    lbl.setAttribute('aria-expanded', chk.checked?'true':'false');
   });
 
-  // Re-medições
-  var raf=0; function schedule(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(clampInitial); }
+  // Re-medições seguras
+  var raf=0; function schedule(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(applyInitial); }
   window.addEventListener('resize', schedule);
   Array.prototype.forEach.call(list.querySelectorAll('img'), function(img){
     if(!img.complete) img.addEventListener('load', schedule, {once:true});
     if(img.decode) img.decode().then(schedule).catch(function(){});
   });
   if('ResizeObserver' in window){ new ResizeObserver(schedule).observe(list); }
-  setTimeout(schedule,300);
-  setTimeout(schedule,1200);
+  setTimeout(schedule,300); setTimeout(schedule,1200);
 })();</script>
 
   `
