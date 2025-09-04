@@ -134,7 +134,7 @@ button:hover{background:var(--brand-600);}
 .related__empty.error{color:#b00020;}
 
 .variant-links{display:none;}
-.posicionamento-options{margin-bottom:0 !important;padding:7px;}
+.posicionamento-options{margin-bottom:0 !important;padding:7px !important;}
 .productcontainer{padding:0 18vw;}
 
 /* Breakpoints */
