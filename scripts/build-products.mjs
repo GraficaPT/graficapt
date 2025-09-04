@@ -631,15 +631,13 @@ ${valores.map((v,i)=>{
   var chk  = document.getElementById('${chkId}');
   var list = document.getElementById('${listId}');
   var lbl  = document.querySelector('label[for="${chkId}"]');
-  if(!wrap||!chk||!list) return;
+  if(!wrap||!chk||!list||!lbl) return;
 
-  // velocidade a partir do CSS (--pos-speed), fallback 1.1s
   var cs = getComputedStyle(wrap);
   var sp = parseFloat((cs.getPropertyValue('--pos-speed')||'').replace(/[^\d.]/g,'')) || 1.1;
   var speedMs = Math.round(sp * 1000);
 
   function oneRowHeight(){
-    // mede a altura real da 1ª linha (grid de 2 colunas em mobile)
     var items = Array.from(list.querySelectorAll('.overcell'));
     if (items.length <= 1) return list.scrollHeight;
 
@@ -649,17 +647,23 @@ ${valores.map((v,i)=>{
     var listTop = list.getBoundingClientRect().top;
     var gap = parseFloat(getComputedStyle(list).gap) || 0;
     var h = Math.ceil((firstRowBottom - listTop) + gap * 0.5);
-
-    // guarda-chuva para quando as imagens ainda não têm altura
     return Math.max(h, 80);
+  }
+
+  function hasMoreThanOneRow(){
+    var items = Array.from(list.querySelectorAll('.overcell'));
+    if (items.length <= 1) return false;
+    var top0 = items[0].offsetTop;
+    return items.some(el => el.offsetTop > top0);
   }
 
   function setCollapsedHeight(){
     wrap.style.setProperty('--pos-row-h', oneRowHeight() + 'px');
+    // mostra/esconde o botão conforme necessário
+    lbl.style.display = hasMoreThanOneRow() ? '' : 'none';
   }
 
   function syncLabel(){
-    if (!lbl) return;
     lbl.setAttribute('aria-expanded', chk.checked ? 'true' : 'false');
     lbl.classList.toggle('open', !!chk.checked);
   }
@@ -668,39 +672,34 @@ ${valores.map((v,i)=>{
   setCollapsedHeight();
   syncLabel();
 
-  // debounced re-measure
   var rafId = null;
   function scheduleMeasure(){
     cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(setCollapsedHeight);
   }
 
-  // toggle (evita double-tap durante a animação)
   chk.addEventListener('change', function(){
     chk.disabled = true;
     syncLabel();
     setTimeout(function(){ chk.disabled = false; }, speedMs);
   });
 
-  // recalc em resize
   window.addEventListener('resize', scheduleMeasure);
 
-  // recalc quando as imagens carregarem/decodificarem
   Array.from(list.querySelectorAll('img')).forEach(function(img){
     if (!img.complete) img.addEventListener('load', scheduleMeasure, { once:true });
     if (img.decode) img.decode().then(scheduleMeasure).catch(function(){});
   });
 
-  // recalc quando o próprio conteúdo mudar de tamanho (ex.: fontes/imagens)
   if ('ResizeObserver' in window) {
     var ro = new ResizeObserver(scheduleMeasure);
     ro.observe(list);
   }
 
-  // fail-safes tardios
   setTimeout(scheduleMeasure, 300);
   setTimeout(scheduleMeasure, 1500);
-})();</script>`
+})();</script>
+`
 ].join('\n');
 
 return html;
