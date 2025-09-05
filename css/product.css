@@ -43,7 +43,7 @@ td{background:#999;}
 th{width:50%;}
 
 /* Campos */
-label{margin:.5vh 0 .2vh 0;font-weight:700;font-size:var(--fs-md);display:block;}
+label, .opt-label{margin:.5vh 0 .2vh 0;font-weight:700;font-size:var(--fs-md);display:block;}
 select,button,textarea,p,input[type="text"],input[type="file"],input[type="tel"],input[type="email"],input[type="number"]{
   resize:none;padding:1.5vh;width:100%;border-radius:var(--radius-1);border:.1vh solid var(--line);font-size:var(--fs-sm);margin-top:1vh;
 }
