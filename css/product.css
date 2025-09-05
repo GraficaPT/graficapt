@@ -9,7 +9,7 @@
 
   /* Posicionamento */
   --pos-item-max:20vh;          /* largura/altura tipo cartão */
-  --pos-row-h:20vh;             /* altura colapsada (1 linha) */
+  --pos-row-h:18vh;             /* altura colapsada (1 linha) */
   --pos-speed:1.1s;             /* duração da animação */
 
   /* Carrossel */
