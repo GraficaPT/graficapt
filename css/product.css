@@ -146,6 +146,7 @@ button:hover{background:var(--brand-600);}
   .posicionamento-label{width:100%;}
   .carrossel-container{width:100%;max-width:100%;}
   .productcontainer{padding:0 4vw;}
+  .related__grid{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 
 @media (min-width:769px){
