@@ -61,16 +61,6 @@ const slugify = (s='') => {
 };
 
 // ---------- NAV/FOOTER FROM BUNDLE ----------
-
-function __sanitizeHtmlNoScripts(html){
-  if (!html) return html;
-  // remove any inline <script> tags that might violate CSP (e.g., eval inside analytics snippets)
-  html = String(html).replace(/<script[\s\S]*?<\/script>/gi, '');
-  // remove inline on* handlers to comply with CSP without 'unsafe-inline'
-  html = html.replace(/\son[a-z]+=(\"[^\"]*\"|'[^']*')/gi, '');
-  return html;
-}
-
 function extractTopbarFooter() {
   const t = Date.now();
   const bundle = read('js/app.bundle.js');
@@ -78,19 +68,7 @@ function extractTopbarFooter() {
   const mFoot  = bundle.match(/const\s+footerHTML\s*=\s*`([\s\S]*?)`;/);
   if (!mTop || !mFoot) throw new Error('Could not extract topbarHTML/footerHTML from js/app.bundle.js');
   log('nav extracted in', (Date.now()-t)+'ms');
-  return { topbarHTML: __sanitizeHtmlNoScripts(mTop[1]), footerHTML: __sanitizeHtmlNoScripts(mFoot[1]) };
-}
-
-
-function __ensureFormFieldIdOrName(html){
-  if (!html) return html;
-  return html.replace(/<(input|select|textarea)([^>]*?)>/gi, (m,tag,attrs)=>{
-    const hasId = /\bid\s*=/.test(attrs);
-    const hasName = /\bname\s*=/.test(attrs);
-    if (hasId || hasName) return `<${tag}${attrs}>`;
-    const synthetic = ` name="${tag}-field"`;
-    return `<${tag}${attrs}${synthetic}>`;
-  });
+  return { topbarHTML: mTop[1], footerHTML: mFoot[1] };
 }
 
 // ---------- HEAD BUILDERS ----------
