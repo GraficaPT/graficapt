@@ -149,6 +149,7 @@ button:hover{background:var(--brand-600);}
 
 @media (min-width:769px){
   .posicionamento-wrapper .posicionamento-options{overflow:hidden !important;}
+  .pos-toggle { display: none;}
 }
 
 /* =====================
