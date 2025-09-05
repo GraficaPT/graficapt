@@ -1,3 +1,4 @@
+
 :root{
   /* herdado do ficheiro anterior */
   --brand:#3198a7; --brand-600:#3197a7d7; --ink:#111; --muted:#555;
@@ -149,32 +150,10 @@ button:hover{background:var(--brand-600);}
 
 @media (min-width:769px){
   .posicionamento-wrapper .posicionamento-options{overflow:hidden !important;}
-  .pos-toggle, .pos-toggle * { display: none !important;}
 }
-
-/* =====================
-   FIX: Toggle não interceptar cliques nas opções
-   ===================== */
-.posicionamento-wrapper{position:relative;}
-.posicionamento-options{position:relative; z-index:2;}
-.posicionamento-label{position:relative; z-index:3;}
-
-.pos-toggle{
-  /* deixar de ocupar a linha toda e evitar sobreposição */
-  display:inline-flex !important;
-  width:auto !important;
-  position:relative;
-  z-index:1;           /* abaixo das opções */
-  align-self:center;
-  padding:0 .6rem;
-  margin:0 !important;
-  background:transparent;
-}
-
-.pos-toggle .seta{pointer-events:none;}
-/* Garantir que o container das opções recebe cliques mesmo que o toggle esteja próximo */
-.posicionamento-options{pointer-events:auto;}
-
-
-/* Safety: prevent toggle label overlapping the options area */
-.posicionamento-wrapper .overcell { position:relative; }
+/* ===== Posicionamento: permitir que o JS mostre/esconda o botão ===== */
+.posicionamento-wrapper{ position:relative; }
+.posicionamento-options{ position:relative; }
+.posicionamento-label{ position:relative; }
+/* NÃO forçar display aqui; o JS define .style.display conforme rows>1 */
+.pos-toggle{ width:auto; } /* evita ocupar largura total sem necessidade */
