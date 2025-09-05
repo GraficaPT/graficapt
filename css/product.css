@@ -165,6 +165,7 @@ button:hover{background:var(--brand-600);}
   position:relative;
   z-index:1;           /* abaixo das opções */
   align-self:center;
+  padding:0 .6rem;
   margin:0 !important;
   background:transparent;
 }
