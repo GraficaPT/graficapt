@@ -388,6 +388,7 @@ function renderProdutosList(produtosArr) {
       <b>${prod.name || ''}</b>
       <div>${prod.category || ''}</div>
       <img src="${bannerUrl}" alt="Banner" />
+      <div>Preço mín.: € ${prod.min_price ?? "-"} </div>
       <div class="produto-actions">
         <button class="btn btn-edit" data-id="${prod.id}">Editar</button>
         <button class="btn btn-delete" data-id="${prod.id}">Eliminar</button>
@@ -415,6 +416,7 @@ function editProduto(id) {
   document.getElementById('inputName').value = prod.name || '';
   document.getElementById('inputSlug').value = prod.slug || '';
   document.getElementById('inputCategory').value = prod.category || '';
+  document.getElementById('inputMinPrice').value = (prod.min_price ?? '')
   document.getElementById('inputImagesJson').value = JSON.stringify(prod.images || []);
   showImagePreview(prod.images || [], prod.slug || "");
   renderOpcoesList(prod.opcoes || [], prod.images || []);
@@ -515,7 +517,9 @@ document.getElementById('produtoForm')?.addEventListener('submit', async functio
   const metawordsRaw = document.getElementById('inputMetawords').value.trim();
   const metawords = metawordsRaw ? metawordsRaw.split(',').map(w => w.trim()).filter(Boolean) : [];
   const banner = document.getElementById('inputBannerJson').value || '';
-  const body = { name, slug, category, images, opcoes, banner, metawords };
+  const min_price_raw = document.getElementById('inputMinPrice')?.value;
+  const min_price = (min_price_raw && !isNaN(Number(min_price_raw))) ? Number(min_price_raw).toFixed(2) : null;
+  const body = { name, slug, category, images, opcoes, banner, metawords, min_price };
 
   let result;
   if (editingId) result = await supabase.from('products').update(body).eq('id', editingId);

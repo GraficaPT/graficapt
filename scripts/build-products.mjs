@@ -74,18 +74,19 @@ function extractTopbarFooter() {
 // ---------- HEAD BUILDERS ----------
 
 // ---------- JSON-LD BUILDERS ----------
-function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', brand = 'GraficaPT', category = '' }) {
+function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', brand = 'GraficaPT', category = '', priceEUR = null, availability = "https://schema.org/InStock" }) {
   const imgs = (images || []).filter(Boolean);
   const ld = {
     "@context": "https://schema.org",
-    "@type": "Service",
+    "@type": "Product",
     "name": title,
     "description": descr,
     "image": imgs,
     "sku": sku || undefined,
     "brand": brand ? { "@type": "Brand", "name": brand } : undefined,
     "category": category || undefined,
-    "url": baseUrl
+    "url": baseUrl,
+    "offers": priceEUR ? { "@type": "Offer", "url": baseUrl, "priceCurrency": "EUR", "price": String(priceEUR), "availability": availability } : undefined
   };
   return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
 }
@@ -895,7 +896,8 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
     descr,
     images: resolvedImages,
     brand: 'GraficaPT',
-    category: p.categoria || ''
+    category: p.categoria || '',
+    priceEUR: (p.min_price ?? null)
   });
   const breadcrumbLd = buildBreadcrumbJsonLd([
     { name: 'Início', item: BASE_URL + '/' },
