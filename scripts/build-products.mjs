@@ -165,7 +165,6 @@ function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', prec
     `<meta property="og:url" content="${esc(baseUrl)}">`,
     (og ? '<meta property="og:image:width" content="1200">' : ''),
     (og ? '<meta property="og:image:height" content="630">' : ''),
-    (og ? `<link rel="preload" as="image" href="${esc(og)}" fetchpriority="high">` : ''),
     '<meta name="twitter:card" content="summary_large_image">',
     (title ? `<meta name="twitter:title" content="${esc(title)}">` : ''),
     (descr ? `<meta name="twitter:description" content="${esc(descr)}">` : ''),
@@ -541,21 +540,25 @@ function renderOption(opt={}, index=0, preselect={}) {
   const valores = Array.isArray(opt?.valores) ? opt.valores : [];
   const wanted = (preselect[labelRaw?.toLowerCase?.() || ''] || '').toLowerCase();
 
-  const labelRow = `<div class="overcell"><label>${label}:</label></div>`;
+  const baseId = label.replace(/\s+/g,'-').toLowerCase();
+
+  const labelRow = `<div class="overcell"><span class="opt-label">${label}:</span></div>`;
 
   if (tipo === 'select') {
-    const inputHTML = `<select name="${label}" required>
+    const sid = `${baseId}-select`;
+    const inputHTML = `<select id="${sid}" name="${label}" required autocomplete="off">
 ${valores.map((v,i)=>{
   const val = typeof v === 'object' ? (v.nome || v.name || v.label || '') : String(v||'');
   const sel = (val.toLowerCase() === wanted) ? ' selected' : (i===0 ? ' selected' : '');
   return `        <option value="${esc(val)}"${sel}>${esc(val)}</option>`;
 }).join('\n')}
       </select>`;
-    return `<div class="option-group">${labelRow}<div class="overcell">${inputHTML}</div></div>`;
+    return `<div class="option-group"><div class="overcell"><label class="opt-label" for="${sid}">${label}:</label></div><div class="overcell">${inputHTML}</div></div>`;
   }
   if (tipo === 'number') {
-    const inputHTML = `<input type="number" name="${label}" min="1" value="1" required>`;
-    return `<div class="option-group">${labelRow}<div class="overcell">${inputHTML}</div></div>`;
+    const nid = `${baseId}-number`;
+    const inputHTML = `<input id="${nid}" type="number" name="${label}" min="1" value="1" required inputmode="numeric">`;
+    return `<div class="option-group"><div class="overcell"><label class="opt-label" for="${nid}">${label}:</label></div><div class="overcell">${inputHTML}</div></div>`;
   }
   if (tipo === 'cores') {
     const cores = valores.map((item, idx) => {
@@ -612,7 +615,7 @@ ${valores.map((v,i)=>{
     // HTML + script (mede linhas/altura após render e anima abrir/fechar)
     const html = [
       '<div class="option-group">',
-      `<div class="overcell"><label>${label}:</label></div>`,
+      `<div class=\"overcell\"><span class=\"opt-label\">${label}:</span></div>`,
       '<div class="overcell">',
       `<div class="posicionamento-wrapper" id="${wrapId}">`,
       `<input type="checkbox" id="${chkId}" class="pos-toggle-check" hidden>`,
@@ -746,7 +749,7 @@ function createStaticFields() {
     '    <div class="form-group">',
     '      <div class="overcell">',
     '        <label for="detalhes">Detalhes:</label>',
-    '        <textarea name="Detalhes" placeholder="Descreve todas as informações sobre como queres o design e atenções extras!" required></textarea>',
+    '        <textarea id="detalhes" name="Detalhes" placeholder="Descreve todas as informações sobre como queres o design e atenções extras!" required></textarea>',
     '      </div>',
     '    </div>',
     '  </div>',
@@ -755,13 +758,13 @@ function createStaticFields() {
     '    <div class="form-group">',
     '      <div class="overcell">',
     '        <label for="empresa">Empresa / Nome:</label>',
-    '        <input type="text" name="Empresa" placeholder="Empresa ou Nome" required>',
+    '        <input id="empresa" type="text" name="Empresa" placeholder="Empresa ou Nome" required autocomplete="organization">',
     '      </div>',
     '    </div>',
     '    <div class="form-group">',
     '      <div class="overcell">',
     '        <label for="ficheiro">(Opcional) Logotipo:</label>',
-    '        <input type="file" id="ficheiro" name="Ficheiro">',
+    '        <input type="file" id="ficheiro" name="Ficheiro" accept="image/*">',
     '        <input type="hidden" name="Logotipo" id="link_ficheiro">',
     '        <p id="uploadStatus" style="display:none"></p>',
     '      </div>',
@@ -772,13 +775,13 @@ function createStaticFields() {
     '    <div class="form-group">',
     '      <div class="overcell">',
     '        <label for="email">Email:</label>',
-    '        <input type="email" name="Email" placeholder="o.teu@email.com" required>',
+    '        <input id="email" type="email" name="Email" placeholder="o.teu@email.com" required autocomplete="email">',
     '      </div>',
     '    </div>',
     '    <div class="form-group">',
     '      <div class="overcell">',
     '        <label for="telemovel">Telemóvel:</label>',
-    '        <input type="tel" name="Telemóvel" placeholder="+351 ..." required>',
+    '        <input id="telemovel" type="tel" name="Telemóvel" placeholder="+351 ..." required autocomplete="tel">',
     '      </div>',
     '    </div>',
     '  </div>',
@@ -928,7 +931,7 @@ const carouselHTML = (images && images.length)
     '<div class="productcontainer" id="produto-dinamico">',
     `  ${carouselHTML}`,
     '  <form class="product" id="orcamentoForm" method="POST" enctype="multipart/form-data">',
-    `    <input type="text" class="productname" id="productname" name="Produto" value="${esc(displayName)}">`,
+    `    <input type="text" class="productname" id="productname" name="Produto" value="${esc(displayName)}" aria-label="Produto selecionado" autocomplete="off" readonly>`,
     '    <div class="product-details">',
     `      <h1>${esc(displayName)}</h1>`,
     `      ${optionsHTML}`,
