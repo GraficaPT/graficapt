@@ -897,7 +897,7 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
     images: resolvedImages,
     brand: 'GraficaPT',
     category: p.categoria || '',
-    priceEUR: (p.min_price ?? null)
+    priceEUR: (p.min_price != null ? Number(p.min_price).toFixed(2) : null)
   });
   const breadcrumbLd = buildBreadcrumbJsonLd([
     { name: 'Início', item: BASE_URL + '/' },
