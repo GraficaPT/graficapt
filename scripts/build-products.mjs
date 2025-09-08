@@ -86,7 +86,7 @@ function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', bran
     "brand": brand ? { "@type": "Brand", "name": brand } : undefined,
     "category": category || undefined,
     "url": baseUrl,
-    "offers": priceEUR ? { "@type": "Offer", "url": baseUrl, "itemCondition":"https://schema.org/NewCondition", "priceValidUntil": (new Date().getFullYear()) + "-12-31", "priceCurrency": "EUR", "price": String(priceEUR), "availability": availability } : undefined
+    "offers": priceEUR ? { "@type": "Offer", "url": baseUrl, "priceCurrency": "EUR", "price": String(priceEUR), "availability": availability } : undefined
   };
   return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
 }
@@ -156,15 +156,13 @@ function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', prec
     ` <title>${esc(title)}</title>`,
     `<link rel="canonical" href="${esc(baseUrl)}">`,
     `<meta name="description" content="${esc(descr)}">`,
-    '',
+    (keywords ? `<meta name="keywords" content="${esc(keywords)}">` : ''),
     '<meta name="robots" content="index, follow">',
     `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:description" content="${esc(descr)}">`,
     (og ? `<meta property="og:image" content="${esc(og)}">` : ''),
     `<meta property="og:type" content="${esc(ogType)}">`,
     `<meta property="og:url" content="${esc(baseUrl)}">`,
-    `<meta property="og:site_name" content="GráficaPT">`,
-    `<meta property="og:locale" content="pt_PT">`,
     (og ? '<meta property="og:image:width" content="1200">' : ''),
     (og ? '<meta property="og:image:height" content="630">' : ''),
     '<meta name="twitter:card" content="summary_large_image">',
@@ -322,7 +320,7 @@ function renderRelated(current, allProducts){
     return [
       `<a class="related__card" href="${BASE_URL}/produto/${esc(slug)}" aria-label="${esc(name)}">`,
       '  <div class="related__thumbwrap">',
-      `    <img class="related__thumb" src="${esc(img)}" alt="${esc(name)}" loading="lazy">`,
+      `    <img class="related__thumb" width="600" height="600" loading="lazy" decoding="async" src="${esc(img)}" alt="${esc(name)}" loading="lazy">`,
       '  </div>',
       '  <div class="related__body">',
       `    <h3 class="related__title">${esc(name)}</h3>`,
@@ -531,7 +529,8 @@ function criarCarrosselHTML(slug, imagens) {
   '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
   '</div>',
   '<div class="indicadores" id="indicadores"></div>'
-  ].join('\n');
+].join('\n');
+
 }
 
 function renderOption(opt={}, index=0, preselect={}) {
@@ -600,7 +599,7 @@ ${valores.map((v,i)=>{
         `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
         `          <label class="posicionamento-label" for="${esc(posID)}">`,
         '            <div class="posicionamento-img-wrapper">',
-        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}" width="400" height="400" loading="lazy" decoding="async">`,
+        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
         `              <span class="posicionamento-nome">${nome}</span>`,
         '            </div>',
         '          </label>',
