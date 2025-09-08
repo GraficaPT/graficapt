@@ -74,8 +74,18 @@ function extractTopbarFooter() {
 // ---------- HEAD BUILDERS ----------
 
 // ---------- JSON-LD BUILDERS ----------
-function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', brand = 'GraficaPT', category = '', priceEUR = null, availability = "https://schema.org/InStock" }) {
+function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', brand = '', category = '', priceEUR = null, availability = "https://schema.org/InStock" }) {
   const imgs = (images || []).filter(Boolean);
+  const offer = (priceEUR != null) ? {
+    "@type": "Offer",
+    "url": baseUrl,
+    "priceCurrency": "EUR",
+    "price": String(priceEUR),
+    "availability": availability,
+    "itemCondition": "https://schema.org/NewCondition",
+    "priceValidUntil": String(new Date().getFullYear()) + "-12-31"
+  } : undefined;
+
   const ld = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -86,10 +96,11 @@ function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', bran
     "brand": brand ? { "@type": "Brand", "name": brand } : undefined,
     "category": category || undefined,
     "url": baseUrl,
-    "offers": priceEUR ? { "@type": "Offer", "url": baseUrl, "priceCurrency": "EUR", "price": String(priceEUR), "availability": availability } : undefined
+    "offers": offer
   };
   return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
 }
+
 function buildBreadcrumbJsonLd(items) {
   const ld = {
     "@context": "https://schema.org",
@@ -156,13 +167,15 @@ function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', prec
     ` <title>${esc(title)}</title>`,
     `<link rel="canonical" href="${esc(baseUrl)}">`,
     `<meta name="description" content="${esc(descr)}">`,
-    (keywords ? `<meta name="keywords" content="${esc(keywords)}">` : ''),
+    '',
     '<meta name="robots" content="index, follow">',
     `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:description" content="${esc(descr)}">`,
     (og ? `<meta property="og:image" content="${esc(og)}">` : ''),
     `<meta property="og:type" content="${esc(ogType)}">`,
     `<meta property="og:url" content="${esc(baseUrl)}">`,
+    `<meta property="og:site_name" content="GráficaPT">`,
+    `<meta property="og:locale" content="pt_PT">`,
     (og ? '<meta property="og:image:width" content="1200">' : ''),
     (og ? '<meta property="og:image:height" content="630">' : ''),
     '<meta name="twitter:card" content="summary_large_image">',
@@ -320,7 +333,7 @@ function renderRelated(current, allProducts){
     return [
       `<a class="related__card" href="${BASE_URL}/produto/${esc(slug)}" aria-label="${esc(name)}">`,
       '  <div class="related__thumbwrap">',
-      `    <img class="related__thumb" width="600" height="600" loading="lazy" decoding="async" src="${esc(img)}" alt="${esc(name)}" loading="lazy">`,
+      `    <img class="related__thumb" width="600" height="600" loading="lazy" decoding="async" src="${esc(img)}" alt="${esc(name)}">`,
       '  </div>',
       '  <div class="related__body">',
       `    <h3 class="related__title">${esc(name)}</h3>`,
@@ -519,18 +532,17 @@ function criarCarrosselHTML(slug, imagens) {
   const imgs = (imagens || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
   if (!imgs.length) return '';
   return [
-  '<div class="carrossel-container">',
-  '  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>',
-  '  <div class="carrossel-imagens-wrapper">',
-  '    <div class="carrossel-imagens" id="carrossel">',
-       imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem do produto" width="1200" height="1200" ${i===0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`).join('\n'),
-  '    </div>',
-  '  </div>',
-  '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
-  '</div>',
-  '<div class="indicadores" id="indicadores"></div>'
-].join('\n');
-
+    '<div class="carrossel-container">',
+    '  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>',
+    '  <div class="carrossel-imagens-wrapper">',
+    '    <div class="carrossel-imagens" id="carrossel">',
+         imgs.map((src, i)=>`      <img class="carrossel-img" src="${esc(src)}" alt="Imagem do produto" width="1200" height="1200" ${i===0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`).join('\n'),
+    '    </div>',
+    '  </div>',
+    '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
+    '</div>',
+    '<div class="indicadores" id="indicadores"></div>'
+  ].join('\n');
 }
 
 function renderOption(opt={}, index=0, preselect={}) {
@@ -599,7 +611,7 @@ ${valores.map((v,i)=>{
         `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
         `          <label class="posicionamento-label" for="${esc(posID)}">`,
         '            <div class="posicionamento-img-wrapper">',
-        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
+        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}" width="400" height="400" loading="lazy" decoding="async">`,
         `              <span class="posicionamento-nome">${nome}</span>`,
         '            </div>',
         '          </label>',
@@ -910,7 +922,29 @@ function renderProductPage(p, topbarHTML, footerHTML, allProducts, variant=null)
   ]);
   const faqItems = defaultFaqForProduct(baseName);
   const faqLd = buildFaqJsonLd(faqItems);
-  const headWithLd = [head, productLd, breadcrumbLd, faqLd].join('\n');
+  const webSiteLd = '<script type="application/ld+json">' + JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "GráficaPT",
+    "url": BASE_URL,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": BASE_URL + "/index.html?query={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }) + '</script>';
+  const orgLd = '<script type="application/ld+json">' + JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "GráficaPT",
+    "url": BASE_URL,
+    "logo": "https://graficapt.com/imagens/logo.ico",
+    "sameAs": [
+      "https://www.instagram.com/graficapt/",
+      "https://www.facebook.com/profile.php?id=61564124441415"
+    ]
+  }) + '</script>';
+  const headWithLd = [head, webSiteLd, orgLd, productLd, breadcrumbLd, faqLd].join('\n');
 const carouselHTML = (images && images.length)
     ? ['<div class="product-image">', criarCarrosselHTML(slug, images), '</div>'].join('\n')
     : '';
