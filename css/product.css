@@ -158,3 +158,35 @@ button:hover{background:var(--brand-600);}
 .posicionamento-label{ position:relative; }
 /* NÃO forçar display aqui; o JS define .style.display conforme rows>1 */
 .pos-toggle{ width:auto; } /* evita ocupar largura total sem necessidade */
+
+
+/* === FIX: espaço vertical exagerado no carrossel (override index.css) === */
+.product-image,
+.carrossel-container,
+.carrossel-imagens-wrapper,
+.carrossel-imagens {
+  height: auto !important;
+  min-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Garantir que a wrapper não herda alturas baseadas em vh de outros ficheiros */
+.carrossel-imagens-wrapper { max-height: none !important; }
+
+/* As imagens escalam sem forçar a altura do wrapper */
+.carrossel-img {
+  width: 100%;
+  height: auto !important;
+  display: block;
+  object-fit: contain;
+}
+
+/* Evitar letterboxing por alinhamento vertical */
+.carrossel-imagens { align-items: stretch !important; }
+
+/* Mobile: não usar vh para o carrossel */
+@media (max-width: 640px) {
+  .product-image { max-height: none !important; }
+  .carrossel-imagens-wrapper { max-height: none !important; }
+}
