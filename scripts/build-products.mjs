@@ -521,16 +521,16 @@ function criarCarrosselHTML(slug, imagens) {
   const imgs = (imagens || []).map(u => resolveImagePath(slug, u, STORAGE_PUBLIC)).filter(Boolean);
   if (!imgs.length) return '';
   return [
-    '<div class="carrossel-container">',
-    '  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>',
-    '  <div class="carrossel-imagens-wrapper">',
-    '    <div class="carrossel-imagens" id="carrossel">',
-         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem do produto" width="1200" height="1200" ${i===0 ? \'fetchpriority="high"\' : \'loading="lazy"\'} decoding="async">`).join('\n'),
-    '    </div>',
-    '  </div>',
-    '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
-    '</div>',
-    '<div class="indicadores" id="indicadores"></div>'
+  '<div class="carrossel-container">',
+  '  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>',
+  '  <div class="carrossel-imagens-wrapper">',
+  '    <div class="carrossel-imagens" id="carrossel">',
+       imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem do produto" width="1200" height="1200" ${i===0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`).join('\n'),
+  '    </div>',
+  '  </div>',
+  '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
+  '</div>',
+  '<div class="indicadores" id="indicadores"></div>'
   ].join('\n');
 }
 
