@@ -86,7 +86,7 @@ function buildProductJsonLd({ baseUrl, title, descr, images = [], sku = '', bran
     "brand": brand ? { "@type": "Brand", "name": brand } : undefined,
     "category": category || undefined,
     "url": baseUrl,
-    "offers": priceEUR ? { "@type": "Offer", "url": baseUrl, "priceCurrency": "EUR", "price": String(priceEUR), "availability": availability } : undefined
+    "offers": priceEUR ? { "@type": "Offer", "url": baseUrl, "itemCondition":"https://schema.org/NewCondition", "priceValidUntil": (new Date().getFullYear()) + "-12-31", "priceCurrency": "EUR", "price": String(priceEUR), "availability": availability } : undefined
   };
   return '<script type="application/ld+json">' + JSON.stringify(ld) + '</script>';
 }
@@ -156,13 +156,15 @@ function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', prec
     ` <title>${esc(title)}</title>`,
     `<link rel="canonical" href="${esc(baseUrl)}">`,
     `<meta name="description" content="${esc(descr)}">`,
-    (keywords ? `<meta name="keywords" content="${esc(keywords)}">` : ''),
+    '',
     '<meta name="robots" content="index, follow">',
     `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:description" content="${esc(descr)}">`,
     (og ? `<meta property="og:image" content="${esc(og)}">` : ''),
     `<meta property="og:type" content="${esc(ogType)}">`,
     `<meta property="og:url" content="${esc(baseUrl)}">`,
+    `<meta property="og:site_name" content="GráficaPT">`,
+    `<meta property="og:locale" content="pt_PT">`,
     (og ? '<meta property="og:image:width" content="1200">' : ''),
     (og ? '<meta property="og:image:height" content="630">' : ''),
     '<meta name="twitter:card" content="summary_large_image">',
@@ -523,7 +525,7 @@ function criarCarrosselHTML(slug, imagens) {
     '  <button class="carrossel-btn prev" onclick="mudarImagem(-1)" aria-label="Anterior">&#10094;</button>',
     '  <div class="carrossel-imagens-wrapper">',
     '    <div class="carrossel-imagens" id="carrossel">',
-         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem ${i+1}" class="carrossel-img" ${i===0?'fetchpriority="high"':'loading="lazy"'} decoding="async">`).join('\n'),
+         imgs.map((src, i)=>`      <img src="${esc(src)}" alt="Imagem do produto" width="1200" height="1200" ${i===0 ? \'fetchpriority="high"\' : \'loading="lazy"\'} decoding="async">`).join('\n'),
     '    </div>',
     '  </div>',
     '  <button class="carrossel-btn next" onclick="mudarImagem(1)" aria-label="Seguinte">&#10095;</button>',
@@ -598,7 +600,7 @@ ${valores.map((v,i)=>{
         `          <input type="radio" id="${esc(posID)}" name="${label}" value="${nome}"${checked} required>`,
         `          <label class="posicionamento-label" for="${esc(posID)}">`,
         '            <div class="posicionamento-img-wrapper">',
-        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}">`,
+        `              <img class="posicionamento-img" src="${esc(imgSrc)}" alt="${nome}" title="${nome}" width="400" height="400" loading="lazy" decoding="async">`,
         `              <span class="posicionamento-nome">${nome}</span>`,
         '            </div>',
         '          </label>',
