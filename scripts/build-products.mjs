@@ -476,7 +476,9 @@ const cards = [...products]
     footerHTML,
     '</footer>',
     '',
-    '<script src="/js/env.js"></script>',
+    '<script src="/js/env.js"></script>
+    <script src="/js/ga.js"></script>
+    <script src="/js/ga-events.js" defer></script>',
     '<script>',
     '(function(){',
     '  const grid = document.getElementById("products-grid");',
@@ -982,7 +984,9 @@ const carouselHTML = (images && images.length)
     footerHTML,
     '</footer>',
     '',
-    '<script src="/js/env.js"></script>',
+    '<script src="/js/env.js"></script>
+    <script src="/js/ga.js"></script>
+    <script src="/js/ga-events.js" defer></script>',
     inlineCarouselScript(),
     '<script src="/js/formSender.js" defer></script>',
     inlineFormGuardScript()

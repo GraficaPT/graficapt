@@ -8,7 +8,7 @@ import path from 'path';
 const outDir = path.join(process.cwd(), 'js');
 const outFile = path.join(outDir, 'env.js');
 
-const ENV = {
+const ENV = { GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID || '',
   SUPABASE_URL: process.env.SUPABASE_URL || '',
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
   SUPABASE_UPLOAD_BUCKET: process.env.SUPABASE_UPLOAD_BUCKET || 'uploads',
