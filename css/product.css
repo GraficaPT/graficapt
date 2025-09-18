@@ -203,14 +203,6 @@ button:hover{background:var(--brand-600);}
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 4vh;
-  height: 4vh;
-  border-radius: 50%;
-  background: var(--brand);
-  color: #fff;
-  text-decoration: none;
-  font-size: var(--fs-sm);
-  transition: background var(--transition-fast);
 }
 .social-icons a:hover {
   background: var(--brand-600);
@@ -221,7 +213,7 @@ button:hover{background:var(--brand-600);}
 /* FAQ Section */
 .faq {
   max-width: 800px;
-  margin: 4vh auto;
+  margin: 4vh 0;
   padding: 2vh;
   border: 1px solid var(--line);
   border-radius: var(--radius-1);
