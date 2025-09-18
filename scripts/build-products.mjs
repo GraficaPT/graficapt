@@ -479,7 +479,7 @@ const cards = [...products]
     '<script src="/js/env.js"></script>',
 '    <script src="/js/ga.js"></script>',
 '    <script src="/js/ga-events.js" defer></script>',
-    '(function(){',
+    '<script>(function(){',
     '  const grid = document.getElementById("products-grid");',
     '  const selCat = document.getElementById("filterCategory");',
     '  const selSort = document.getElementById("sortBy");',
