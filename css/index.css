@@ -450,3 +450,16 @@ a {
         display: none;
     }
 }
+
+
+.social-icons {
+  display: flex !important;
+  justify-content: center;
+  gap: 1.5vh;
+  margin-top: 2vh;
+}
+.social-icons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
