@@ -204,19 +204,11 @@ button:hover{background:var(--brand-600);}
   align-items: center;
   justify-content: center;
 }
-.social-icons a:hover {
-  background: var(--brand-600);
-}
-
-
 
 /* FAQ Section */
 .faq {
-  max-width: 800px;
   margin: 4vh 0;
   padding: 2vh;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-1);
   background: #fff;
   font-size: var(--fs-sm);
 }
