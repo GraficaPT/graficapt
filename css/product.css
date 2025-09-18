@@ -214,10 +214,7 @@ button:hover{background:var(--brand-600);}
   background: #fff;
   font-size: var(--fs-sm);
 }
-.option-group{
-  border: 1px solid var(--line);
-  border-radius: var(--radius-1);
-}
+
 .faq h2 {
   font-size: var(--fs-lg);
   margin-bottom: 2vh;
