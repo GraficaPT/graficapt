@@ -209,6 +209,8 @@ button:hover{background:var(--brand-600);}
 .faq {
   margin: 4vh 0;
   padding: 2vh;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-1);
   background: #fff;
   font-size: var(--fs-sm);
 }
