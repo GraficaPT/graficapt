@@ -190,3 +190,7 @@ button:hover{background:var(--brand-600);}
   .product-image { max-height: none !important; }
   .carrossel-imagens-wrapper { max-height: none !important; }
 }
+
+.social-icons{
+  display: block;
+}
