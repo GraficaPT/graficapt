@@ -660,6 +660,18 @@ const topbarHTML = `
         <a href="/index.html#filter=sacos">Sacos</a>
         <a href="/index.html#filter=vestuario">Vestuário</a>
         <a href="/index.html#filter=all">Ver Tudo</a>
+        <div class="sidebar-social hcenter">
+    <a href="https://www.facebook.com/profile.php?id=61564124441415" aria-label="Facebook" target="_blank" rel="noopener">
+        <img src="https://graficapt.com/imagens/social/facebook.svg" alt="Facebook">
+    </a>
+    <a href="https://www.instagram.com/graficapt/" aria-label="Instagram" target="_blank" rel="noopener">
+        <img src="https://graficapt.com/imagens/social/instagram.svg" alt="Instagram">
+    </a>
+    <a href="https://wa.me/351969205741" aria-label="WhatsApp" target="_blank" rel="noopener">
+        <img src="https://graficapt.com/imagens/social/whatsapp.svg" alt="WhatsApp">
+    </a>
+</div>
+    
     </div>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 `;

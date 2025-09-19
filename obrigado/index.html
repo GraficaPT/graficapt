@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Obrigado | GráficaPT</title>
+  <link rel="canonical" href="https://graficapt.com/obrigado">
+  <meta name="robots" content="noindex, follow">
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1429170905041127');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1429170905041127&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
+  <script>
+    // Marca a conversão como Lead
+    document.addEventListener('DOMContentLoaded', function() {
+      try { fbq('track', 'Lead', {source: 'form_orcamento'}); } catch(e) {}
+      setTimeout(function(){ window.location.href = '/'; }, 4000);
+    });
+  </script>
+  <meta http-equiv="refresh" content="12; url=/" />
+  <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+  <div class="topbar" id="topbar"></div>
+
+  <main class="hcenter" style="min-height:50vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem 1rem;">
+    <h1>Obrigado! 🎉</h1>
+    <p>Recebemos o teu pedido de orçamento. Vamos responder em breve.</p>
+    <p>Serás redirecionado para a página inicial em instantes. <a href="/">Ir agora</a></p>
+  </main>
+
+  <footer class="footer" id="footer"></footer>
+
+  <script src="/js/app.bundle.js"></script>
+</body>
+</html>

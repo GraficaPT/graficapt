@@ -463,3 +463,7 @@ a {
   align-items: center;
   justify-content: center;
 }
+
+/* Sidebar social icons */
+.sidebar-social {display:flex; gap:12px; justify-content:center; align-items:center; padding:12px 0;}
+.sidebar-social img{width:26px;height:26px;display:block}

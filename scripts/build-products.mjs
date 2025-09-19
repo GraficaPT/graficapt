@@ -189,7 +189,41 @@ function buildHead(baseUrl, title, descr, keywords, og, ogType = 'website', prec
     '<link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">',
     ...preconnects.map(o => `<link rel="preconnect" href="${esc(o)}" crossorigin>`),
     '<link rel="stylesheet" href="/css/index.css">',
+
+    '<!-- Meta Pixel Code -->',
+    '<script>',
+    "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?",
+    "n.callMethod.apply(n,arguments):n.queue.push(arguments)};",
+    "if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version=\'2.0\';",
+    "n.queue=[];t=b.createElement(e);t.async=!0;",
+    "t.src=v;s=b.getElementsByTagName(e)[0];",
+    "s.parentNode.insertBefore(t,s)}(window, document,\'script\',",
+    "\'https://connect.facebook.net/en_US/fbevents.js\');",
+    "fbq(\'init\', \'1429170905041127\');",
+    "fbq(\'track\', \'PageView\');",
+    '</script>',
+    '<noscript><img height="1" width="1" style="display:none"',
+    'src="https://www.facebook.com/tr?id=1429170905041127&ev=PageView&noscript=1"/></noscript>',
+    '<!-- End Meta Pixel Code -->'
+,
     '<link rel="stylesheet" href="/css/product.css">',
+
+    '<!-- Meta Pixel Code -->',
+    '<script>',
+    "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?",
+    "n.callMethod.apply(n,arguments):n.queue.push(arguments)};",
+    "if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version=\'2.0\';",
+    "n.queue=[];t=b.createElement(e);t.async=!0;",
+    "t.src=v;s=b.getElementsByTagName(e)[0];",
+    "s.parentNode.insertBefore(t,s)}(window, document,\'script\',",
+    "\'https://connect.facebook.net/en_US/fbevents.js\');",
+    "fbq(\'init\', \'1429170905041127\');",
+    "fbq(\'track\', \'PageView\');",
+    '</script>',
+    '<noscript><img height="1" width="1" style="display:none"',
+    'src="https://www.facebook.com/tr?id=1429170905041127&ev=PageView&noscript=1"/></noscript>',
+    '<!-- End Meta Pixel Code -->'
+,
     '<!-- Meta Pixel Code -->',
     '<script>',
     "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?",
@@ -282,7 +316,24 @@ function buildHeadHome() {
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
     '<link href="https://fonts.googleapis.com/css2?family=League+Spartan&display=swap" rel="stylesheet">',
-    '<link rel="stylesheet" href="/css/index.css">'
+    '<link rel="stylesheet" href="/css/index.css">',
+
+    '<!-- Meta Pixel Code -->',
+    '<script>',
+    "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?",
+    "n.callMethod.apply(n,arguments):n.queue.push(arguments)};",
+    "if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version=\'2.0\';",
+    "n.queue=[];t=b.createElement(e);t.async=!0;",
+    "t.src=v;s=b.getElementsByTagName(e)[0];",
+    "s.parentNode.insertBefore(t,s)}(window, document,\'script\',",
+    "\'https://connect.facebook.net/en_US/fbevents.js\');",
+    "fbq(\'init\', \'1429170905041127\');",
+    "fbq(\'track\', \'PageView\');",
+    '</script>',
+    '<noscript><img height="1" width="1" style="display:none"',
+    'src="https://www.facebook.com/tr?id=1429170905041127&ev=PageView&noscript=1"/></noscript>',
+    '<!-- End Meta Pixel Code -->'
+
   ].join('\n');
 }
 
@@ -485,7 +536,7 @@ const cards = [...products]
     '  <input placeholder="Empresa" type="text" name="company" class="company">',
     '  <textarea required rows="5" placeholder="Descreve que produto procuras assim como qualquer outro detalhe relevante!" name="description" class="description"></textarea>',
     '  <input type="hidden" name="_captcha" value="false">',
-    '  <input type="hidden" name="_next" value="https://graficapt.com">',
+    '  <input type="hidden" name="_next" value="https://graficapt.com/obrigado?lead=1">',
     '  <button type="submit" id="submit">ENVIAR</button>',
     '</form>',
     '',
@@ -818,7 +869,7 @@ function createStaticFields() {
     '  </div>',
     '',
     '  <input type="hidden" name="_captcha" value="false">',
-    '  <input type="hidden" name="_next" value="https://graficapt.com">',
+    '  <input type="hidden" name="_next" value="https://graficapt.com/obrigado?lead=1">',
     '',
     '  <button id="submit" type="submit">Pedir Orçamento</button>'
   ].join('\n');
